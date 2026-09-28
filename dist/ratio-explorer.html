@@ -1,0 +1,1321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ratio Explorer</title>
+  <style>
+:root {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --ink: #1d2433;
+  --muted: #5d6679;
+  --line: #dfe3ec;
+  --primary: #4f46e5;
+  --primary-ink: #ffffff;
+  --primary-soft: #eceafd;
+  --good: #1f8a4c;
+  --good-soft: #e5f6ec;
+  --bad: #c2372f;
+  --bad-soft: #fdecea;
+  --hint: #9a6200;
+  --hint-soft: #fff5de;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(20, 24, 40, .06), 0 4px 16px rgba(20, 24, 40, .06);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12151c;
+    --surface: #1b1f29;
+    --ink: #e8ebf2;
+    --muted: #a0a8ba;
+    --line: #2f3544;
+    --primary: #8b85ff;
+    --primary-ink: #12151c;
+    --primary-soft: #2a2850;
+    --good: #5fd08e;
+    --good-soft: #173526;
+    --bad: #ff8a80;
+    --bad-soft: #3d1f1d;
+    --hint: #f5c35b;
+    --hint-soft: #3a2f14;
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+h1, h2, h3 { line-height: 1.25; margin: 0 0 .6em; }
+h1 { font-size: 1.9rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; margin-top: 1.6em; }
+h1:focus, h2:focus { outline: none; }
+p { margin: 0 0 .9em; }
+
+.container { max-width: 760px; margin: 0 auto; padding: 20px 16px 60px; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;
+}
+
+.muted { color: var(--muted); }
+.small { font-size: .88rem; }
+
+/* ---------- Top bar ---------- */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  padding: 10px 16px;
+}
+.brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: none; border: 0; color: var(--ink); cursor: pointer;
+  font: inherit; font-weight: 700; font-size: 1.05rem; padding: 4px;
+}
+.brand-mark {
+  background: var(--primary); color: var(--primary-ink);
+  border-radius: 8px; padding: 2px 8px; font-size: .9rem;
+}
+
+/* ---------- Cards & layout ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+.hero { text-align: center; padding: 16px 0 24px; }
+.lesson-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.lesson-card { display: flex; flex-direction: column; }
+.lesson-card .actions { margin-top: auto; }
+.lesson-art { display: flex; justify-content: center; align-items: center; min-height: 100px; margin-bottom: 12px; }
+.lesson-art .diagram { max-height: 90px; }
+
+.eyebrow { font-size: .82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+.dots { display: flex; gap: 6px; margin-bottom: 16px; }
+.dot { width: 28px; height: 5px; border-radius: 3px; background: var(--line); }
+.dot.on { background: var(--primary); }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.nav-actions { justify-content: space-between; border-top: 1px solid var(--line); padding-top: 18px; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  font: inherit; font-weight: 600; font-size: 1rem;
+  border-radius: 10px; border: 2px solid transparent;
+  padding: 10px 18px; cursor: pointer; min-height: 44px;
+  transition: background .12s, border-color .12s, transform .05s;
+}
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible, [data-obj]:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.btn:disabled { cursor: default; }
+.btn-primary { background: var(--primary); color: var(--primary-ink); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-secondary { background: var(--primary-soft); color: var(--primary); }
+.btn-ghost { background: transparent; color: var(--muted); border-color: var(--line); }
+.btn-ghost.small { padding: 4px 12px; min-height: 34px; font-size: .88rem; }
+.btn-option { background: var(--surface); color: var(--ink); border-color: var(--line); font-weight: 500; }
+.btn-option:hover:not(:disabled) { border-color: var(--primary); }
+.btn-option.is-selected { border-color: var(--primary); background: var(--primary-soft); }
+.btn-option.is-correct, .btn-option.is-answer { border-color: var(--good); background: var(--good-soft); }
+.btn-option.is-wrong { border-color: var(--bad); background: var(--bad-soft); opacity: .8; }
+.btn-round { width: 44px; height: 44px; padding: 0; border-radius: 50%; background: var(--primary-soft); color: var(--primary); font-size: 1.4rem; line-height: 1; }
+
+/* ---------- Diagrams ---------- */
+.diagram-box {
+  display: flex; justify-content: center; align-items: center;
+  background: var(--bg); border: 1px dashed var(--line); border-radius: 12px;
+  padding: 16px; margin: 14px 0; min-height: 80px; overflow-x: auto;
+}
+.diagram { max-width: 100%; height: auto; }
+.tape-label { fill: var(--ink); font: 600 13px system-ui, sans-serif; }
+.countable [data-obj] { cursor: pointer; transition: opacity .12s; }
+.countable [data-obj]:not(.counted) { opacity: .45; }
+.countable [data-obj].counted { opacity: 1; stroke: var(--ink); stroke-width: 3; }
+.counters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 1.1rem; }
+
+.chip { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; white-space: nowrap; vertical-align: middle; }
+.chip-icon { width: 20px; height: 20px; }
+
+.big-ratio { font-size: 2rem; font-weight: 800; letter-spacing: .02em; color: var(--primary); margin: .2em 0; }
+.big-ratio.inline { font-size: 1.35rem; display: inline-block; margin: 0 .2em; }
+
+.callout {
+  background: var(--primary-soft); border-radius: 10px; padding: 14px 16px; margin: 14px 0;
+}
+.reveal-box { margin-top: 14px; }
+.notation-tabs, .mini-options { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.mini-feedback { min-height: 1.5em; margin-top: 8px; }
+.mini-feedback.good { color: var(--good); }
+.mini-feedback.bad { color: var(--bad); }
+.language-list { padding-left: 1.2em; }
+.language-list li { margin-bottom: 6px; }
+
+.stepper-row { display: flex; flex-wrap: wrap; gap: 16px 28px; margin: 12px 0; }
+.stepper { display: inline-flex; align-items: center; gap: 10px; }
+.stepper-label { font-weight: 600; min-width: 3em; text-transform: capitalize; }
+.stepper-value { font-size: 1.3rem; font-weight: 700; min-width: 1.5em; text-align: center; }
+
+/* ---------- Practice ---------- */
+.practice-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.practice-head .eyebrow { margin: 0; }
+.progress { height: 8px; background: var(--line); border-radius: 4px; margin: 12px 0 18px; overflow: hidden; }
+.progress-bar { height: 100%; background: var(--primary); transition: width .3s; }
+.skill-tag {
+  display: inline-block; font-size: .8rem; font-weight: 600;
+  background: var(--primary-soft); color: var(--primary);
+  padding: 3px 10px; border-radius: 999px; margin-bottom: 10px;
+}
+.prompt { font-weight: 500; }
+
+.options { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-top: 8px; }
+.options-wide { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.option { display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px 14px; font-size: 1.1rem; }
+.opt-letter {
+  flex: none; width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center; font-size: .85rem; font-weight: 700;
+  background: var(--bg); border: 1px solid var(--line);
+}
+.opt-body { flex: 1; display: flex; justify-content: center; }
+.opt-body .diagram { max-height: 110px; }
+
+.ratio-input input {
+  font: inherit; font-size: 1.5rem; font-weight: 700; letter-spacing: .03em;
+  width: 100%; max-width: 240px; padding: 10px 14px;
+  border: 2px solid var(--line); border-radius: 10px;
+  background: var(--surface); color: var(--ink);
+}
+.ratio-input input:focus { outline: none; border-color: var(--primary); }
+
+.feedback:empty { display: none; }
+.feedback { border-radius: 10px; padding: 14px 16px; margin-top: 16px; border-left: 5px solid; }
+.feedback p:last-child { margin-bottom: 0; }
+.feedback.good { background: var(--good-soft); border-color: var(--good); }
+.feedback.hint { background: var(--hint-soft); border-color: var(--hint); }
+.feedback.bad  { background: var(--bad-soft); border-color: var(--bad); }
+.feedback.info { background: var(--bg); border-color: var(--line); }
+.fb-title { font-weight: 700; }
+
+/* ---------- Results ---------- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin: 16px 0; }
+.stat { background: var(--bg); border-radius: 12px; padding: 14px; text-align: center; display: flex; flex-direction: column; }
+.stat-value { font-size: 1.9rem; font-weight: 800; }
+.stat-value small { font-size: 1rem; color: var(--muted); font-weight: 600; }
+.stat-label { color: var(--muted); font-size: .88rem; font-weight: 600; }
+.stat.good .stat-value { color: var(--good); }
+.stat.bad .stat-value { color: var(--bad); }
+
+.practice-group { margin-bottom: 14px; }
+.review-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.review-list li { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
+.badge { font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.badge.missed { background: var(--bad-soft); color: var(--bad); }
+.badge.second { background: var(--hint-soft); color: var(--hint); }
+
+@media (max-width: 520px) {
+  .card { padding: 18px; }
+  h1 { font-size: 1.5rem; }
+  .nav-actions .btn { flex: 1; }
+}
+
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <button class="brand" id="homeBtn" type="button" aria-label="Go to home">
+      <span class="brand-mark" aria-hidden="true">3:2</span>
+      <span>Ratio Explorer</span>
+    </button>
+  </header>
+
+  <main id="app" class="container" aria-live="polite"></main>
+
+  <script>
+// Small shared helpers. Everything hangs off window so the app runs from file:// with no build step.
+const Util = (() => {
+  function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function pick(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // Two different items from a list.
+  function pickTwo(arr) {
+    const [x, y] = shuffle(arr);
+    return [x, y];
+  }
+
+  // Two different counts in [min, max].
+  function twoCounts(min, max) {
+    const a = randInt(min, max);
+    let b = randInt(min, max);
+    while (b === a) b = randInt(min, max);
+    return [a, b];
+  }
+
+  // Parses "3:2", "3 : 2", "3 to 2", "3/2". Returns [x, y] or null.
+  function parseRatio(str) {
+    if (typeof str !== 'string') return null;
+    const m = str.trim().toLowerCase().match(/^(\d+)\s*(?::|\/|to)\s*(\d+)$/);
+    if (!m) return null;
+    return [parseInt(m[1], 10), parseInt(m[2], 10)];
+  }
+
+  function gcd(a, b) {
+    return b === 0 ? a : gcd(b, a % b);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    })[c]);
+  }
+
+  return { randInt, pick, shuffle, pickTwo, twoCounts, parseRatio, gcd, escapeHtml };
+})();
+
+</script>
+  <script>
+// SVG ratio diagrams, generated entirely from data ({ a, b, itemA, itemB, layout }).
+const Diagrams = (() => {
+  // Each object kind has a distinct colour AND shape so diagrams are readable without colour vision.
+  const ITEMS = {
+    red:    { key: 'red',    name: 'red circles',     single: 'red circle',     color: '#e5484d', shape: 'circle' },
+    blue:   { key: 'blue',   name: 'blue squares',    single: 'blue square',    color: '#2f7ae5', shape: 'square' },
+    green:  { key: 'green',  name: 'green triangles', single: 'green triangle', color: '#2e9e5b', shape: 'triangle' },
+    orange: { key: 'orange', name: 'orange stars',    single: 'orange star',    color: '#f08c00', shape: 'star' },
+    purple: { key: 'purple', name: 'purple diamonds', single: 'purple diamond', color: '#8e4ec6', shape: 'diamond' },
+  };
+  const ITEM_KEYS = Object.keys(ITEMS);
+
+  const CELL = 40;    // grid cell size in SVG units
+  const R = 14;       // shape "radius"
+  const PER_ROW = 5;  // objects per row inside a group
+  const GROUP_GAP = 36;
+
+  function shape(item, cx, cy, extra = '') {
+    const fill = `fill="${item.color}" stroke="rgba(0,0,0,.28)" stroke-width="1.5" ${extra}`;
+    switch (item.shape) {
+      case 'circle':
+        return `<circle cx="${cx}" cy="${cy}" r="${R}" ${fill}/>`;
+      case 'square':
+        return `<rect x="${cx - R + 1}" y="${cy - R + 1}" width="${2 * R - 2}" height="${2 * R - 2}" rx="3" ${fill}/>`;
+      case 'triangle':
+        return `<polygon points="${cx},${cy - R} ${cx + R},${cy + R - 2} ${cx - R},${cy + R - 2}" ${fill}/>`;
+      case 'diamond':
+        return `<polygon points="${cx},${cy - R} ${cx + R},${cy} ${cx},${cy + R} ${cx - R},${cy}" ${fill}/>`;
+      case 'star': {
+        const pts = [];
+        for (let i = 0; i < 10; i++) {
+          const rad = i % 2 === 0 ? R + 1 : R * 0.45;
+          const ang = -Math.PI / 2 + (i * Math.PI) / 5;
+          pts.push(`${(cx + rad * Math.cos(ang)).toFixed(1)},${(cy + rad * Math.sin(ang)).toFixed(1)}`);
+        }
+        return `<polygon points="${pts.join(' ')}" ${fill}/>`;
+      }
+      default:
+        return '';
+    }
+  }
+
+  function label(a, b, itemA, itemB) {
+    return `Diagram showing ${a} ${a === 1 ? itemA.single : itemA.name} and ${b} ${b === 1 ? itemB.single : itemB.name}`;
+  }
+
+  function svgWrap(w, h, body, aria, cls = '') {
+    return `<svg class="diagram ${cls}" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${aria}" preserveAspectRatio="xMidYMid meet">${body}</svg>`;
+  }
+
+  // Draws one group as a block of rows; returns { body, w, h }.
+  function groupBlock(n, item, x0, y0, dataAttr) {
+    const cols = Math.max(1, Math.min(n, PER_ROW));
+    const rows = Math.max(1, Math.ceil(n / PER_ROW));
+    let body = '';
+    for (let i = 0; i < n; i++) {
+      const cx = x0 + (i % PER_ROW) * CELL + CELL / 2;
+      const cy = y0 + Math.floor(i / PER_ROW) * CELL + CELL / 2;
+      body += shape(item, cx, cy, dataAttr ? `data-obj="${dataAttr}" data-i="${i}"` : '');
+    }
+    return { body, w: cols * CELL, h: rows * CELL };
+  }
+
+  // Two separate groups side by side: [A A A]   [B B]
+  function grouped({ a, b, itemA, itemB, countable = false }) {
+    const pad = 6;
+    const blockA = groupBlock(a, itemA, pad, pad, countable ? 'a' : null);
+    const xB = pad + blockA.w + (a > 0 ? GROUP_GAP : 0);
+    const blockB = groupBlock(b, itemB, xB, pad, countable ? 'b' : null);
+    const w = xB + (b > 0 ? blockB.w : 0) + pad;
+    const h = Math.max(blockA.h, blockB.h, CELL) + pad * 2;
+    return svgWrap(w, h, blockA.body + blockB.body, label(a, b, itemA, itemB));
+  }
+
+  // Objects mixed together in a grid, in the given order (array of 'a' / 'b').
+  function mixed({ a, b, itemA, itemB, order, countable = false }) {
+    const seq = order || Util.shuffle([...Array(a).fill('a'), ...Array(b).fill('b')]);
+    const cols = Math.min(seq.length, 6);
+    const rows = Math.ceil(seq.length / cols);
+    const pad = 6;
+    let body = '';
+    const counters = { a: 0, b: 0 };
+    seq.forEach((k, i) => {
+      const cx = pad + (i % cols) * CELL + CELL / 2;
+      const cy = pad + Math.floor(i / cols) * CELL + CELL / 2;
+      const attr = countable ? `data-obj="${k}" data-i="${counters[k]++}"` : '';
+      body += shape(k === 'a' ? itemA : itemB, cx, cy, attr);
+    });
+    return svgWrap(cols * CELL + pad * 2, rows * CELL + pad * 2, body, label(a, b, itemA, itemB));
+  }
+
+  // One row per quantity: A on top, B below, lined up from the left.
+  function rows({ a, b, itemA, itemB }) {
+    const pad = 6;
+    const cols = Math.max(a, b, 1);
+    let body = '';
+    for (let i = 0; i < a; i++) body += shape(itemA, pad + i * CELL + CELL / 2, pad + CELL / 2);
+    for (let i = 0; i < b; i++) body += shape(itemB, pad + i * CELL + CELL / 2, pad + CELL * 1.5);
+    return svgWrap(cols * CELL + pad * 2, CELL * 2 + pad * 2, body, label(a, b, itemA, itemB));
+  }
+
+  // Tape diagram: a strip of equal boxes per quantity, with a text label.
+  function tape({ a, b, itemA, itemB }) {
+    const pad = 6;
+    const labelW = 70;
+    const box = 34;
+    const cols = Math.max(a, b, 1);
+    let body = '';
+    const row = (n, item, y, text) => {
+      body += `<text x="${pad}" y="${y + box / 2 + 5}" class="tape-label">${text}</text>`;
+      for (let i = 0; i < n; i++) {
+        body += `<rect x="${pad + labelW + i * box}" y="${y}" width="${box}" height="${box}" fill="${item.color}" fill-opacity=".85" stroke="var(--ink)" stroke-width="1.5"/>`;
+      }
+    };
+    const shortName = (item) => item.name.split(' ')[0];
+    row(a, itemA, pad, shortName(itemA));
+    row(b, itemB, pad + box + 10, shortName(itemB));
+    return svgWrap(pad * 2 + labelW + cols * box, pad * 2 + box * 2 + 10, body, label(a, b, itemA, itemB), 'tape');
+  }
+
+  function render(spec) {
+    const d = { ...spec, itemA: resolve(spec.itemA), itemB: resolve(spec.itemB) };
+    switch (spec.layout) {
+      case 'mixed': return mixed(d);
+      case 'rows': return rows(d);
+      case 'tape': return tape(d);
+      default: return grouped(d);
+    }
+  }
+
+  function resolve(item) {
+    return typeof item === 'string' ? ITEMS[item] : item;
+  }
+
+  // Small inline legend chip, e.g. [● red circles]
+  function chip(itemKey) {
+    const item = resolve(itemKey);
+    const icon = svgWrap(2 * R + 4, 2 * R + 4, shape(item, R + 2, R + 2), '', 'chip-icon');
+    return `<span class="chip">${icon}<span>${item.name}</span></span>`;
+  }
+
+  return { ITEMS, ITEM_KEYS, render, chip, resolve };
+})();
+
+</script>
+  <script>
+// Question generators for the practice engine.
+//
+// Every generator returns a question object:
+//   { type, skill, lesson, prompt, visual?, format: 'mc' | 'ratio',
+//     options? [{ id, html, correct, hint? }], check(input) -> { status, message? },
+//     hint, explanation, solution, summary }
+// `check` returns status 'correct' | 'incorrect' | 'invalid' (invalid = unreadable input, not an attempt).
+const Questions = (() => {
+  const { randInt, pick, shuffle, pickTwo, twoCounts, parseRatio } = Util;
+  const { ITEMS, ITEM_KEYS } = Diagrams;
+
+  const SKILLS = {
+    objects:  'Identify a ratio from a group of objects',
+    word:     'Write a ratio from a word description',
+    read:     'Read and write ratio notation',
+    reverse:  'Reverse a ratio',
+    diagram:  'Identify a ratio from a diagram',
+    choose:   'Choose the diagram that represents a ratio',
+  };
+
+  // Word-problem contexts: [first thing, second thing, sentence template].
+  const CONTEXTS = [
+    ['cats', 'dogs', (a, b) => `At the animal shelter there are ${a} cats and ${b} dogs.`],
+    ['apples', 'oranges', (a, b) => `A fruit bowl holds ${a} apples and ${b} oranges.`],
+    ['boys', 'girls', (a, b) => `A soccer team has ${a} boys and ${b} girls.`],
+    ['pencils', 'erasers', (a, b) => `Maya's pencil case has ${a} pencils and ${b} erasers.`],
+    ['muffins', 'bagels', (a, b) => `A bakery tray has ${a} muffins and ${b} bagels.`],
+    ['goldfish', 'turtles', (a, b) => `A pet store tank has ${a} goldfish and ${b} turtles.`],
+    ['red cars', 'blue cars', (a, b) => `A parking lot has ${a} red cars and ${b} blue cars.`],
+    ['cups of flour', 'cups of sugar', (a, b) => `A recipe uses ${a} cups of flour and ${b} cups of sugar.`],
+    ['novels', 'comic books', (a, b) => `A shelf holds ${a} novels and ${b} comic books.`],
+    ['sunny days', 'rainy days', (a, b) => `Last month had ${a} sunny days and ${b} rainy days.`],
+  ];
+
+  const r = (x, y) => `${x} : ${y}`;
+  const strong = (s) => `<strong>${s}</strong>`;
+  const count = (n, item) => `${n} ${n === 1 ? item.single : item.name}`;
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  // Shared checker for typed ratio answers. Accepts equivalent ratios (e.g. 2:3 for 4:6).
+  function ratioChecker(x, y, firstName, secondName) {
+    return (input) => {
+      const parsed = parseRatio(input);
+      if (!parsed) {
+        return { status: 'invalid', message: 'Type your answer as two numbers, like <strong>3:2</strong> or <strong>3 to 2</strong>.' };
+      }
+      const [p, q] = parsed;
+      if (p === x && q === y) return { status: 'correct' };
+      if (p * y === q * x && p > 0 && q > 0) {
+        return { status: 'correct', message: `${r(p, q)} is equivalent to ${r(x, y)}, so that works too!` };
+      }
+      if (p === y && q === x) {
+        return { status: 'incorrect', message: `Careful with the order! The question asks for ${firstName} <em>first</em>, then ${secondName}.` };
+      }
+      return { status: 'incorrect' };
+    };
+  }
+
+  function mcChecker(options) {
+    return (id) => {
+      const opt = options.find((o) => o.id === id);
+      if (!opt) return { status: 'invalid', message: 'Choose one of the answers.' };
+      return opt.correct ? { status: 'correct' } : { status: 'incorrect', message: opt.hint };
+    };
+  }
+
+  // Shuffles options and assigns ids A, B, C, D; drops duplicate values.
+  function finalizeOptions(opts) {
+    const seen = new Set();
+    const unique = opts.filter((o) => {
+      const key = o.key ?? o.html;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    return shuffle(unique).map((o, i) => ({ ...o, id: 'ABCD'[i] }));
+  }
+
+  // 1. Identify the ratio from a group of objects (typed answer).
+  function objects(lesson) {
+    const [ka, kb] = pickTwo(ITEM_KEYS);
+    const [a, b] = twoCounts(1, 7);
+    const order = shuffle([...Array(a).fill('a'), ...Array(b).fill('b')]);
+    // Randomly ask for either order so students must read the question.
+    const flip = Math.random() < 0.5;
+    const [fx, fy, fItem, sItem] = flip ? [b, a, ITEMS[kb], ITEMS[ka]] : [a, b, ITEMS[ka], ITEMS[kb]];
+    return {
+      type: 'objects', skill: SKILLS.objects, lesson,
+      prompt: `Write the ratio of ${strong(fItem.name)} to ${strong(sItem.name)}.`,
+      summary: `Ratio of ${fItem.name} to ${sItem.name} (${count(a, ITEMS[ka])}, ${count(b, ITEMS[kb])})`,
+      visual: { a, b, itemA: ka, itemB: kb, layout: 'mixed', order },
+      format: 'ratio',
+      check: ratioChecker(fx, fy, fItem.name, sItem.name),
+      hint: `Count the ${fItem.name} first. Then count the ${sItem.name}. Write the numbers in that order.`,
+      explanation: `There are ${fx} ${fItem.name} and ${fy} ${sItem.name}, so the ratio of ${fItem.name} to ${sItem.name} is ${strong(r(fx, fy))}.`,
+      solution: r(fx, fy),
+    };
+  }
+
+  // 2. Write a ratio from a word description (typed answer).
+  function word(lesson) {
+    const [nameA, nameB, sentence] = pick(CONTEXTS);
+    const [a, b] = twoCounts(2, 9);
+    const flip = Math.random() < 0.5;
+    const [fx, fy, fName, sName] = flip ? [b, a, nameB, nameA] : [a, b, nameA, nameB];
+    return {
+      type: 'word', skill: SKILLS.word, lesson,
+      prompt: `${sentence(a, b)}<br>Write the ratio of ${strong(fName)} to ${strong(sName)}.`,
+      summary: `${sentence(a, b)} Ratio of ${fName} to ${sName}.`,
+      format: 'ratio',
+      check: ratioChecker(fx, fy, fName, sName),
+      hint: `Find the number of ${fName} and the number of ${sName} in the sentence. The ${fName} come first.`,
+      explanation: `The question names ${fName} first, so their number (${fx}) goes first: ${strong(r(fx, fy))}.`,
+      solution: r(fx, fy),
+    };
+  }
+
+  // 3. Read a ratio (multiple choice, three variants).
+  function read(lesson) {
+    const [a, b] = twoCounts(2, 9);
+    const variant = randInt(0, 2);
+
+    if (variant === 0) {
+      const options = finalizeOptions([
+        { html: `${a} to ${b}`, correct: true },
+        { html: `${b} to ${a}`, hint: 'Read the numbers in the same order they are written, left to right.' },
+        { html: `${a} out of ${b}`, hint: '"Out of" describes a part of a whole. A ratio compares two quantities: we say "to".' },
+        { html: `${a} out of ${a + b}`, hint: 'A ratio compares the two numbers directly. It does not add them into a total.' },
+      ]);
+      return {
+        type: 'read', skill: SKILLS.read, lesson,
+        prompt: `How do you read the ratio ${strong(r(a, b))}?`,
+        summary: `How do you read ${r(a, b)}?`,
+        format: 'mc', options, check: mcChecker(options),
+        hint: 'The colon ( : ) is read as the word "to".',
+        explanation: `The colon is read as "to", so ${r(a, b)} is read as ${strong(`${a} to ${b}`)}.`,
+        solution: `${a} to ${b}`,
+      };
+    }
+
+    const [nameA, nameB] = pick(CONTEXTS);
+    if (variant === 1) {
+      const options = finalizeOptions([
+        { html: r(a, b), correct: true },
+        { html: r(b, a), hint: `Order matters: ${nameA} are mentioned first, so their number comes first.` },
+        { html: r(a, a + b), hint: `That compares ${nameA} to the total. The question compares ${nameA} to ${nameB}.` },
+        { html: r(a + b, b), hint: `That compares the total to ${nameB}. Use the two given numbers.` },
+      ]);
+      return {
+        type: 'read', skill: SKILLS.read, lesson,
+        prompt: `"For every ${a} ${nameA}, there are ${b} ${nameB}."<br>Which ratio compares ${strong(nameA)} to ${strong(nameB)}?`,
+        summary: `For every ${a} ${nameA} there are ${b} ${nameB}: ratio of ${nameA} to ${nameB}.`,
+        format: 'mc', options, check: mcChecker(options),
+        hint: '"For every A, there are B" means the ratio A : B.',
+        explanation: `"For every ${a} ${nameA}, there are ${b} ${nameB}" is the ratio ${strong(r(a, b))}.`,
+        solution: r(a, b),
+      };
+    }
+
+    // variant 2: which is NOT a way to write a to b
+    const options = finalizeOptions([
+      { html: r(b, a), correct: true },
+      { html: r(a, b), hint: `${r(a, b)} <em>is</em> a correct way to write ${a} to ${b}. Look for the one that isn't.` },
+      { html: `${a}/${b}`, hint: `${a}/${b} <em>is</em> a correct way to write ${a} to ${b}. Look for the one that isn't.` },
+      { html: `${a} to ${b}`, hint: 'That is the ratio written in words, so it is correct. Look for the one that isn\'t.' },
+    ]);
+    return {
+      type: 'read', skill: SKILLS.read, lesson,
+      prompt: `Which of these is ${strong('NOT')} a way to write the ratio ${strong(`${a} to ${b}`)}?`,
+      summary: `Which is NOT a way to write ${a} to ${b}?`,
+      format: 'mc', options, check: mcChecker(options),
+      hint: `A ratio can be written three ways: ${a} to ${b}, ${a} : ${b}, and ${a}/${b}. Check the order of the numbers in each.`,
+      explanation: `${strong(r(b, a))} has the numbers in the wrong order, so it means ${b} to ${a}, a different ratio.`,
+      solution: r(b, a),
+    };
+  }
+
+  // 4. Reverse a ratio (typed answer).
+  function reverse(lesson) {
+    const [nameA, nameB] = pick(CONTEXTS);
+    const [a, b] = twoCounts(2, 9);
+    return {
+      type: 'reverse', skill: SKILLS.reverse, lesson,
+      prompt: `The ratio of ${nameA} to ${nameB} is ${strong(r(a, b))}.<br>What is the ratio of ${strong(nameB)} to ${strong(nameA)}?`,
+      summary: `${cap(nameA)} to ${nameB} is ${r(a, b)}. What is ${nameB} to ${nameA}?`,
+      format: 'ratio',
+      check: (input) => {
+        const res = ratioChecker(b, a, nameB, nameA)(input);
+        // Equivalent-ratio acceptance is fine, but repeating the original ratio is the key mistake here.
+        if (res.status === 'incorrect' && parseRatio(input)?.join() === `${a},${b}`) {
+          return { status: 'incorrect', message: `That's the original ratio. Now ${nameB} come first, so the numbers swap places.` };
+        }
+        return res;
+      },
+      hint: `There are ${a} ${nameA} for every ${b} ${nameB}. Now put the ${nameB} first.`,
+      explanation: `Reversing a ratio swaps the order of the numbers: ${nameA} to ${nameB} is ${r(a, b)}, so ${nameB} to ${nameA} is ${strong(r(b, a))}.`,
+      solution: r(b, a),
+    };
+  }
+
+  // 5. Identify a ratio from a diagram (multiple choice).
+  function diagram(lesson) {
+    const [ka, kb] = pickTwo(ITEM_KEYS);
+    const [a, b] = twoCounts(1, 8);
+    const A = ITEMS[ka], B = ITEMS[kb];
+    const options = finalizeOptions([
+      { html: r(a, b), correct: true },
+      { html: r(b, a), hint: `Order matters. The question asks for ${A.name} first.` },
+      { html: r(a, a + b), hint: `That compares ${A.name} to <em>all</em> the shapes. Compare ${A.name} to ${B.name} only.` },
+      { html: r(a + 1, b), hint: `Count the ${A.name} again carefully. Try touching each one as you count.` },
+    ]);
+    return {
+      type: 'diagram', skill: SKILLS.diagram, lesson,
+      prompt: `What is the ratio of ${strong(A.name)} to ${strong(B.name)} in this diagram?`,
+      summary: `Diagram: ratio of ${A.name} to ${B.name} (${count(a, A)}, ${count(b, B)})`,
+      visual: { a, b, itemA: ka, itemB: kb, layout: 'grouped' },
+      format: 'mc', options, check: mcChecker(options),
+      hint: `Count each group separately. How many ${A.name}? How many ${B.name}?`,
+      explanation: `The diagram shows ${a} ${A.name} and ${b} ${B.name}, so the ratio is ${strong(r(a, b))}.`,
+      solution: r(a, b),
+    };
+  }
+
+  // 6. Choose the diagram that represents a ratio (multiple choice with diagram options).
+  function choose(lesson) {
+    const [ka, kb] = pickTwo(ITEM_KEYS);
+    const [a, b] = twoCounts(1, 6);
+    const A = ITEMS[ka], B = ITEMS[kb];
+    const mk = (x, y, extra) => ({
+      key: `${x}:${y}`,
+      html: Diagrams.render({ a: x, b: y, itemA: ka, itemB: kb, layout: 'grouped' }),
+      ...extra,
+    });
+    const options = finalizeOptions([
+      mk(a, b, { correct: true }),
+      mk(b, a, { hint: `That diagram has ${b} ${A.name} and ${a} ${B.name}. The numbers are reversed.` }),
+      mk(a, b + 1, { hint: `Count the ${B.name} in that diagram. There should be exactly ${b}.` }),
+      mk(a + 1, b, { hint: `Count the ${A.name} in that diagram. There should be exactly ${a}.` }),
+    ]);
+    return {
+      type: 'choose', skill: SKILLS.choose, lesson,
+      prompt: `Which diagram shows a ratio of ${strong(A.name)} to ${strong(B.name)} of ${strong(r(a, b))}?`,
+      summary: `Choose the diagram for ${A.name} to ${B.name} = ${r(a, b)}`,
+      format: 'mc', options, check: mcChecker(options), wideOptions: true,
+      hint: `Look for a diagram with exactly ${a} ${A.name} and exactly ${b} ${B.name}.`,
+      explanation: `The ratio ${r(a, b)} means ${a} ${A.name} for every ${b} ${B.name}. The correct diagram shows exactly that.`,
+      solution: `the diagram with ${a} ${A.name} and ${b} ${B.name}`,
+      solutionVisual: { a, b, itemA: ka, itemB: kb, layout: 'grouped' },
+    };
+  }
+
+  const GENERATORS = { objects, word, read, reverse, diagram, choose };
+
+  const LESSON_TYPES = {
+    1: ['objects', 'word', 'read', 'reverse'],
+    2: ['objects', 'diagram', 'choose'],
+  };
+
+  // Builds a session that covers every question type in the lesson before repeating any.
+  function buildSession(lesson, count = 5) {
+    const types = LESSON_TYPES[lesson];
+    const seq = [];
+    while (seq.length < count) seq.push(...shuffle(types));
+    const seen = new Set();
+    return seq.slice(0, count).map((type) => {
+      let q;
+      let tries = 0;
+      do {
+        q = GENERATORS[type](lesson);
+        tries++;
+      } while (seen.has(q.summary) && tries < 20);
+      seen.add(q.summary);
+      return q;
+    });
+  }
+
+  return { SKILLS, GENERATORS, LESSON_TYPES, buildSession };
+})();
+
+</script>
+  <script>
+// Interactive lesson content. Each step has static `html` plus an optional `mount(el)` that wires up interactivity.
+const Lessons = (() => {
+  const D = Diagrams;
+  const r = (x, y) => `${x} : ${y}`;
+
+  // Inline check with instant feedback. options: [{ label, correct, feedback }]
+  function miniCheck(el, selector, options) {
+    const host = el.querySelector(selector);
+    host.innerHTML = `
+      <div class="mini-options">${options.map((o, i) => `<button type="button" class="btn btn-option" data-i="${i}">${o.label}</button>`).join('')}</div>
+      <p class="mini-feedback" role="status"></p>`;
+    const fb = host.querySelector('.mini-feedback');
+    host.querySelectorAll('button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const o = options[+btn.dataset.i];
+        host.querySelectorAll('button').forEach((b) => b.classList.remove('is-correct', 'is-wrong'));
+        btn.classList.add(o.correct ? 'is-correct' : 'is-wrong');
+        fb.className = `mini-feedback ${o.correct ? 'good' : 'bad'}`;
+        fb.innerHTML = `${o.correct ? '✅ ' : '🤔 '}${o.feedback}`;
+      });
+    });
+  }
+
+  // A +/- stepper; calls onChange(value) and returns a setter.
+  function stepper(el, selector, { value, min = 0, max = 10, label, onChange }) {
+    const host = el.querySelector(selector);
+    host.innerHTML = `
+      <span class="stepper-label">${label}</span>
+      <button type="button" class="btn btn-round" data-d="-1" aria-label="Remove one ${label}">−</button>
+      <output class="stepper-value">${value}</output>
+      <button type="button" class="btn btn-round" data-d="1" aria-label="Add one ${label}">+</button>`;
+    const out = host.querySelector('output');
+    host.querySelectorAll('button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const next = Math.min(max, Math.max(min, value + +btn.dataset.d));
+        if (next === value) return;
+        value = next;
+        out.textContent = value;
+        onChange(value);
+      });
+    });
+  }
+
+  const lesson1 = {
+    id: 1,
+    title: 'Lesson 1: What Is a Ratio?',
+    blurb: 'Compare two quantities, write ratios three ways, and learn why order matters.',
+    steps: [
+      {
+        title: 'What is a ratio?',
+        html: `
+          <p>A <strong>ratio</strong> compares two quantities.</p>
+          <div class="diagram-box">${D.render({ a: 3, b: 2, itemA: 'red', itemB: 'blue' })}</div>
+          <p>Count the shapes. How many ${D.chip('red')} are there? How many ${D.chip('blue')}?</p>
+          <button type="button" class="btn btn-secondary" id="reveal">Show the ratio</button>
+          <div class="reveal-box" id="revealBox" hidden>
+            <p>There are <strong>3</strong> red circles and <strong>2</strong> blue squares.</p>
+            <p class="big-ratio">3 : 2</p>
+            <p>We say: <em>"For every 3 red circles, there are 2 blue squares."</em></p>
+          </div>`,
+        mount(el) {
+          el.querySelector('#reveal').addEventListener('click', (e) => {
+            el.querySelector('#revealBox').hidden = false;
+            e.currentTarget.hidden = true;
+          });
+        },
+      },
+      {
+        title: 'What two quantities are being compared?',
+        html: `
+          <p>Every ratio compares <strong>two</strong> things. Before you write a ratio, ask: <em>what am I comparing?</em></p>
+          <div class="callout">A zoo has <strong>4 penguins</strong> and <strong>6 seals</strong>.<br>Find the ratio of penguins to seals.</div>
+          <p>Which two quantities does this ratio compare?</p>
+          <div id="check"></div>`,
+        mount(el) {
+          miniCheck(el, '#check', [
+            { label: 'Penguins and seals', correct: true, feedback: 'Right! The ratio compares the number of penguins (4) to the number of seals (6): <strong>4 : 6</strong>.' },
+            { label: 'Penguins and all animals', correct: false, feedback: 'The question says "penguins to seals", so we compare penguins with seals, not with the total.' },
+            { label: 'Seals and penguins', correct: false, feedback: 'Close, but the question says penguins <em>first</em>. The order of the words tells you the order of the numbers.' },
+          ]);
+        },
+      },
+      {
+        title: 'Ratio notation',
+        html: `
+          <p>There are three ways to write the same ratio. Tap each one.</p>
+          <div class="diagram-box">${D.render({ a: 3, b: 2, itemA: 'red', itemB: 'blue' })}</div>
+          <div class="notation-tabs" role="tablist">
+            <button type="button" class="btn btn-option" role="tab" data-n="words">3 to 2</button>
+            <button type="button" class="btn btn-option" role="tab" data-n="colon">3 : 2</button>
+            <button type="button" class="btn btn-option" role="tab" data-n="frac">3/2</button>
+          </div>
+          <div class="callout" id="notationInfo">Tap a notation above.</div>
+          <p class="muted">All three mean the same thing: 3 red circles for every 2 blue squares.</p>`,
+        mount(el) {
+          const info = {
+            words: '<strong>3 to 2</strong>: the ratio written in words. Read it just like it looks: "three to two".',
+            colon: '<strong>3 : 2</strong>: colon notation. The colon is read as "to", so this is also "three to two".',
+            frac: '<strong>3/2</strong>: fraction notation. It <em>looks</em> like a fraction, but here it still means "3 to 2". It does <em>not</em> mean 3 out of 2.',
+          };
+          const box = el.querySelector('#notationInfo');
+          el.querySelectorAll('[data-n]').forEach((btn) => btn.addEventListener('click', () => {
+            el.querySelectorAll('[data-n]').forEach((b) => b.classList.toggle('is-selected', b === btn));
+            box.innerHTML = info[btn.dataset.n];
+          }));
+        },
+      },
+      {
+        title: 'Ratio language',
+        html: `
+          <p>Use the buttons to change the shapes. Watch how we describe the ratio.</p>
+          <div class="stepper-row">
+            <div class="stepper" id="stepA"></div>
+            <div class="stepper" id="stepB"></div>
+          </div>
+          <div class="diagram-box" id="langDiagram"></div>
+          <ul class="language-list" id="langList"></ul>`,
+        mount(el) {
+          let a = 3, b = 2;
+          const draw = () => {
+            el.querySelector('#langDiagram').innerHTML = D.render({ a, b, itemA: 'red', itemB: 'blue' });
+            el.querySelector('#langList').innerHTML = `
+              <li>The ratio of red circles to blue squares is <strong>${a} to ${b}</strong>.</li>
+              <li>For every <strong>${a}</strong> ${a === 1 ? 'red circle' : 'red circles'}, there ${b === 1 ? 'is' : 'are'} <strong>${b}</strong> ${b === 1 ? 'blue square' : 'blue squares'}.</li>
+              <li>For each <strong>${a}</strong> red, there ${b === 1 ? 'is' : 'are'} <strong>${b}</strong> blue.</li>
+              <li>Written with symbols: <strong>${r(a, b)}</strong> or <strong>${a}/${b}</strong></li>`;
+          };
+          stepper(el, '#stepA', { value: a, min: 1, max: 8, label: 'red', onChange: (v) => { a = v; draw(); } });
+          stepper(el, '#stepB', { value: b, min: 1, max: 8, label: 'blue', onChange: (v) => { b = v; draw(); } });
+          draw();
+        },
+      },
+      {
+        title: 'Order matters',
+        html: `
+          <p>The <strong>order</strong> of a ratio matches the order of the words.</p>
+          <div class="diagram-box">${D.render({ a: 3, b: 5, itemA: 'green', itemB: 'orange' })}</div>
+          <div class="callout" id="orderBox"></div>
+          <button type="button" class="btn btn-secondary" id="swap">⇄ Swap the order</button>
+          <p class="muted" id="orderNote"></p>`,
+        mount(el) {
+          let flipped = false;
+          const draw = () => {
+            el.querySelector('#orderBox').innerHTML = flipped
+              ? 'Orange stars <strong>to</strong> green triangles = <span class="big-ratio inline">5 : 3</span>'
+              : 'Green triangles <strong>to</strong> orange stars = <span class="big-ratio inline">3 : 5</span>';
+            el.querySelector('#orderNote').textContent = flipped
+              ? 'Same shapes, but now orange stars come first. 5 : 3 is a different ratio from 3 : 5.'
+              : 'Green triangles are named first, so their number comes first.';
+          };
+          el.querySelector('#swap').addEventListener('click', () => { flipped = !flipped; draw(); });
+          draw();
+        },
+      },
+      {
+        title: 'Quick check',
+        html: `
+          <div class="callout">A class has <strong>7 pencils</strong> and <strong>2 pens</strong>.</div>
+          <p>What is the ratio of <strong>pens to pencils</strong>?</p>
+          <div id="check"></div>`,
+        mount(el) {
+          miniCheck(el, '#check', [
+            { label: '7 : 2', correct: false, feedback: 'That is pencils to pens. The question asks for pens first.' },
+            { label: '2 : 7', correct: true, feedback: 'Yes! Pens come first (2), then pencils (7): <strong>2 : 7</strong>.' },
+            { label: '2 : 9', correct: false, feedback: '9 is the total. The ratio compares pens to pencils, not pens to everything.' },
+          ]);
+        },
+      },
+    ],
+  };
+
+  const lesson2 = {
+    id: 2,
+    title: 'Lesson 2: Ratios and Diagrams',
+    blurb: 'Show ratios with objects, read ratios from diagrams, and build your own diagrams.',
+    steps: [
+      {
+        title: 'Representing ratios with objects',
+        html: `
+          <p>We can show a ratio by drawing one object for each thing being counted.</p>
+          <div class="callout" id="repText"></div>
+          <div class="diagram-box" id="repDiagram"></div>
+          <button type="button" class="btn btn-secondary" id="another">Show another ratio</button>`,
+        mount(el) {
+          const draw = () => {
+            const [ka, kb] = Util.pickTwo(D.ITEM_KEYS);
+            const [a, b] = Util.twoCounts(1, 6);
+            const A = D.ITEMS[ka], B = D.ITEMS[kb];
+            el.querySelector('#repText').innerHTML = `The ratio of ${A.name} to ${B.name} is <strong>${r(a, b)}</strong>.<br>So we draw <strong>${a}</strong> ${a === 1 ? A.single : A.name} and <strong>${b}</strong> ${b === 1 ? B.single : B.name}.`;
+            el.querySelector('#repDiagram').innerHTML = D.render({ a, b, itemA: ka, itemB: kb });
+          };
+          el.querySelector('#another').addEventListener('click', draw);
+          draw();
+        },
+      },
+      {
+        title: 'Reading ratios from diagrams',
+        html: `
+          <p>To read a ratio from a diagram, count one kind of object at a time. <strong>Tap each shape</strong> to count it.</p>
+          <div class="diagram-box countable" id="countDiagram">${D.render({ a: 4, b: 5, itemA: 'purple', itemB: 'green', layout: 'mixed', countable: true, order: ['a', 'b', 'b', 'a', 'b', 'a', 'b', 'b', 'a'] })}</div>
+          <p class="counters">${D.chip('purple')} <strong id="cntA">0</strong> &nbsp; ${D.chip('green')} <strong id="cntB">0</strong></p>
+          <div class="callout" id="countResult" hidden>You counted <strong>4</strong> purple diamonds and <strong>5</strong> green triangles.<br>Ratio of purple diamonds to green triangles: <span class="big-ratio inline">4 : 5</span></div>`,
+        mount(el) {
+          const counted = { a: new Set(), b: new Set() };
+          el.querySelectorAll('[data-obj]').forEach((node) => {
+            node.setAttribute('tabindex', '0');
+            const toggle = () => {
+              const set = counted[node.dataset.obj];
+              const id = node.dataset.i;
+              set.has(id) ? set.delete(id) : set.add(id);
+              node.classList.toggle('counted', set.has(id));
+              el.querySelector('#cntA').textContent = counted.a.size;
+              el.querySelector('#cntB').textContent = counted.b.size;
+              el.querySelector('#countResult').hidden = !(counted.a.size === 4 && counted.b.size === 5);
+            };
+            node.addEventListener('click', toggle);
+            node.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+          });
+        },
+      },
+      {
+        title: 'Creating diagrams from ratios',
+        html: `
+          <div class="callout">Make a diagram that shows the ratio of red circles to blue squares <span class="big-ratio inline">4 : 3</span></div>
+          <div class="stepper-row">
+            <div class="stepper" id="stepA"></div>
+            <div class="stepper" id="stepB"></div>
+          </div>
+          <div class="diagram-box" id="buildDiagram"></div>
+          <button type="button" class="btn btn-primary" id="checkBuild">Check my diagram</button>
+          <p class="mini-feedback" id="buildFb" role="status"></p>`,
+        mount(el) {
+          let a = 0, b = 0;
+          const fb = el.querySelector('#buildFb');
+          const draw = () => {
+            el.querySelector('#buildDiagram').innerHTML = a + b === 0
+              ? '<p class="muted">Add some shapes with the + buttons.</p>'
+              : D.render({ a, b, itemA: 'red', itemB: 'blue' });
+            fb.textContent = '';
+            fb.className = 'mini-feedback';
+          };
+          stepper(el, '#stepA', { value: a, min: 0, max: 8, label: 'red', onChange: (v) => { a = v; draw(); } });
+          stepper(el, '#stepB', { value: b, min: 0, max: 8, label: 'blue', onChange: (v) => { b = v; draw(); } });
+          el.querySelector('#checkBuild').addEventListener('click', () => {
+            let msg;
+            if (a === 4 && b === 3) msg = ['good', '✅ Perfect! 4 red circles and 3 blue squares show the ratio 4 : 3.'];
+            else if (a === 3 && b === 4) msg = ['bad', '🤔 You have 3 red and 4 blue. That is reversed! Red comes first in 4 : 3.'];
+            else msg = ['bad', `🤔 You have ${a} red and ${b} blue (${r(a, b)}). The first number tells you how many red; the second tells you how many blue.`];
+            fb.className = `mini-feedback ${msg[0]}`;
+            fb.textContent = msg[1];
+          });
+          draw();
+        },
+      },
+      {
+        title: 'The ratio and its diagram',
+        html: `
+          <p>A diagram can be arranged in different ways. Tap each style.</p>
+          <div class="notation-tabs">
+            <button type="button" class="btn btn-option is-selected" data-l="grouped">Groups</button>
+            <button type="button" class="btn btn-option" data-l="mixed">Mixed</button>
+            <button type="button" class="btn btn-option" data-l="rows">Rows</button>
+            <button type="button" class="btn btn-option" data-l="tape">Tape</button>
+          </div>
+          <div class="diagram-box" id="layoutDiagram"></div>
+          <div class="callout">In every style there are <strong>3</strong> orange stars and <strong>4</strong> blue squares. The ratio is always <span class="big-ratio inline">3 : 4</span></div>
+          <p class="muted">Moving the objects around doesn't change the ratio. Only changing <em>how many</em> of each kind does.</p>`,
+        mount(el) {
+          const order = ['b', 'a', 'b', 'b', 'a', 'b', 'a'];
+          const draw = (layout) => {
+            el.querySelector('#layoutDiagram').innerHTML = D.render({ a: 3, b: 4, itemA: 'orange', itemB: 'blue', layout, order });
+          };
+          el.querySelectorAll('[data-l]').forEach((btn) => btn.addEventListener('click', () => {
+            el.querySelectorAll('[data-l]').forEach((b) => b.classList.toggle('is-selected', b === btn));
+            draw(btn.dataset.l);
+          }));
+          draw('grouped');
+        },
+      },
+      {
+        title: 'Quick check',
+        html: `
+          <div class="diagram-box">${D.render({ a: 5, b: 2, itemA: 'purple', itemB: 'green' })}</div>
+          <p>What is the ratio of <strong>purple diamonds to green triangles</strong>?</p>
+          <div id="check"></div>`,
+        mount(el) {
+          miniCheck(el, '#check', [
+            { label: '2 : 5', correct: false, feedback: 'That is green to purple. Purple comes first here.' },
+            { label: '5 : 7', correct: false, feedback: '7 is the total number of shapes. Compare purple to green only.' },
+            { label: '5 : 2', correct: true, feedback: 'Correct! 5 purple diamonds for every 2 green triangles: <strong>5 : 2</strong>.' },
+          ]);
+        },
+      },
+    ],
+  };
+
+  return { all: [lesson1, lesson2], byId: { 1: lesson1, 2: lesson2 } };
+})();
+
+</script>
+  <script>
+// App shell: home → lesson → practice → results.
+(() => {
+  const app = document.getElementById('app');
+  const SESSION_LENGTH = 5;
+  const MAX_ATTEMPTS = 2;
+  const POINTS = { first: 10, second: 5, missed: 0 };
+
+  function show(html) {
+    app.innerHTML = html;
+    window.scrollTo(0, 0);
+    const heading = app.querySelector('h1, h2');
+    if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: true }); }
+  }
+
+  // ---------- Home ----------
+  function renderHome() {
+    show(`
+      <section class="hero">
+        <h1>Learn ratios, one step at a time</h1>
+        <p class="muted">Pick a lesson. Learn the idea, then practice with ${SESSION_LENGTH} questions.</p>
+      </section>
+      <section class="lesson-grid">
+        ${Lessons.all.map((l) => `
+          <article class="card lesson-card">
+            <div class="lesson-art" aria-hidden="true">${Diagrams.render(l.id === 1
+              ? { a: 3, b: 2, itemA: 'red', itemB: 'blue' }
+              : { a: 2, b: 4, itemA: 'green', itemB: 'orange', layout: 'rows' })}</div>
+            <h2>${l.title}</h2>
+            <p class="muted">${l.blurb}</p>
+            <div class="actions">
+              <button type="button" class="btn btn-secondary" data-learn="${l.id}">Learn</button>
+              <button type="button" class="btn btn-primary" data-practice="${l.id}">Start practice</button>
+            </div>
+          </article>`).join('')}
+      </section>`);
+    app.querySelectorAll('[data-learn]').forEach((b) => b.addEventListener('click', () => renderLesson(+b.dataset.learn, 0)));
+    app.querySelectorAll('[data-practice]').forEach((b) => b.addEventListener('click', () => startPractice(+b.dataset.practice)));
+  }
+
+  // ---------- Lesson ----------
+  function renderLesson(id, stepIndex) {
+    const lesson = Lessons.byId[id];
+    const step = lesson.steps[stepIndex];
+    const last = stepIndex === lesson.steps.length - 1;
+    show(`
+      <section class="card">
+        <p class="eyebrow">${lesson.title} · Step ${stepIndex + 1} of ${lesson.steps.length}</p>
+        <div class="dots" aria-hidden="true">${lesson.steps.map((_, i) => `<span class="dot ${i <= stepIndex ? 'on' : ''}"></span>`).join('')}</div>
+        <h2>${step.title}</h2>
+        <div class="step-body">${step.html}</div>
+        <div class="actions nav-actions">
+          <button type="button" class="btn btn-ghost" id="back">${stepIndex === 0 ? '← Home' : '← Back'}</button>
+          ${last
+            ? `<button type="button" class="btn btn-primary" id="practice">Start practice →</button>`
+            : `<button type="button" class="btn btn-primary" id="next">Next →</button>`}
+        </div>
+      </section>`);
+    if (step.mount) step.mount(app.querySelector('.step-body'));
+    app.querySelector('#back').addEventListener('click', () => (stepIndex === 0 ? renderHome() : renderLesson(id, stepIndex - 1)));
+    if (last) app.querySelector('#practice').addEventListener('click', () => startPractice(id));
+    else app.querySelector('#next').addEventListener('click', () => renderLesson(id, stepIndex + 1));
+  }
+
+  // ---------- Practice ----------
+  let session = null;
+
+  function startPractice(lessonId) {
+    session = {
+      lessonId,
+      questions: Questions.buildSession(lessonId, SESSION_LENGTH),
+      index: 0,
+      results: [],         // { q, outcome: 'first' | 'second' | 'missed' }
+      submissions: 0,      // every checked answer
+      correctSubmissions: 0,
+    };
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const { questions, index, lessonId } = session;
+    const q = questions[index];
+    let attempts = 0;
+    let selected = null;
+    let finished = false;
+
+    const answerArea = q.format === 'mc'
+      ? `<div class="options ${q.wideOptions ? 'options-wide' : ''}" role="radiogroup" aria-label="Answer choices">
+          ${q.options.map((o) => `
+            <button type="button" class="btn btn-option option" role="radio" aria-checked="false" data-id="${o.id}">
+              <span class="opt-letter">${o.id}</span><span class="opt-body">${o.html}</span>
+            </button>`).join('')}
+        </div>`
+      : `<label class="ratio-input">
+          <span class="sr-only">Your answer</span>
+          <input id="answer" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="e.g. 3:2">
+        </label>
+        <p class="muted small">You can type 3:2, 3 to 2, or 3/2.</p>`;
+
+    show(`
+      <section class="card practice">
+        <div class="practice-head">
+          <p class="eyebrow">Lesson ${lessonId} practice · Question ${index + 1} of ${questions.length}</p>
+          <button type="button" class="btn btn-ghost small" id="quit">Quit</button>
+        </div>
+        <div class="progress" aria-hidden="true"><div class="progress-bar" style="width:${(index / questions.length) * 100}%"></div></div>
+        <p class="skill-tag">${q.skill}</p>
+        <h2 class="prompt">${q.prompt}</h2>
+        ${q.visual ? `<div class="diagram-box">${Diagrams.render(q.visual)}</div>` : ''}
+        <form id="answerForm" novalidate>
+          ${answerArea}
+          <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+          <div class="actions">
+            <button type="submit" class="btn btn-primary" id="checkBtn">Check answer</button>
+            <button type="button" class="btn btn-primary" id="continueBtn" hidden>${index + 1 < questions.length ? 'Continue →' : 'See results →'}</button>
+          </div>
+        </form>
+      </section>`);
+
+    const form = app.querySelector('#answerForm');
+    const feedback = app.querySelector('#feedback');
+    const checkBtn = app.querySelector('#checkBtn');
+    const continueBtn = app.querySelector('#continueBtn');
+    const input = app.querySelector('#answer');
+
+    app.querySelector('#quit').addEventListener('click', renderHome);
+
+    if (q.format === 'mc') {
+      app.querySelectorAll('.option').forEach((btn) => btn.addEventListener('click', () => {
+        if (finished || btn.disabled) return;
+        selected = btn.dataset.id;
+        app.querySelectorAll('.option').forEach((b) => {
+          b.classList.toggle('is-selected', b === btn);
+          b.setAttribute('aria-checked', String(b === btn));
+        });
+      }));
+    } else {
+      input.focus();
+    }
+
+    const setFeedback = (kind, html) => {
+      feedback.className = `feedback ${kind}`;
+      feedback.innerHTML = html;
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (finished) return;
+      const value = q.format === 'mc' ? selected : input.value;
+      if (q.format === 'mc' && !value) {
+        setFeedback('info', 'Choose an answer first.');
+        return;
+      }
+      const res = q.check(value);
+      if (res.status === 'invalid') {
+        setFeedback('info', res.message);
+        return;
+      }
+
+      attempts++;
+      session.submissions++;
+
+      if (res.status === 'correct') {
+        session.correctSubmissions++;
+        finish(attempts === 1 ? 'first' : 'second');
+        markOption('is-correct');
+        setFeedback('good', `
+          <p class="fb-title">✅ Correct!</p>
+          ${res.message ? `<p>${res.message}</p>` : ''}
+          <p>${q.explanation}</p>`);
+        return;
+      }
+
+      markOption('is-wrong', true);
+      if (attempts < MAX_ATTEMPTS) {
+        setFeedback('hint', `
+          <p class="fb-title">🤔 Not quite. Try again!</p>
+          <p><strong>Hint:</strong> ${res.message || q.hint}</p>
+          ${res.message ? `<p class="muted">${q.hint}</p>` : ''}`);
+        if (input) { input.select(); input.focus(); }
+        selected = null;
+        return;
+      }
+
+      finish('missed');
+      revealCorrectOption();
+      setFeedback('bad', `
+        <p class="fb-title">Here's the solution</p>
+        <p>The answer is <strong>${q.solution}</strong>.</p>
+        ${q.solutionVisual && q.format !== 'mc' ? `<div class="diagram-box">${Diagrams.render(q.solutionVisual)}</div>` : ''}
+        <p>${q.explanation}</p>`);
+    });
+
+    // Marks the currently selected MC option; optionally disables it so it can't be picked again.
+    function markOption(cls, disable = false) {
+      if (q.format !== 'mc' || !selected) return;
+      const btn = app.querySelector(`.option[data-id="${selected}"]`);
+      btn.classList.remove('is-selected');
+      btn.classList.add(cls);
+      btn.setAttribute('aria-checked', 'false');
+      if (disable) btn.disabled = true;
+    }
+
+    function revealCorrectOption() {
+      if (q.format !== 'mc') return;
+      const correct = q.options.find((o) => o.correct);
+      app.querySelector(`.option[data-id="${correct.id}"]`).classList.add('is-answer');
+    }
+
+    function finish(outcome) {
+      finished = true;
+      session.results.push({ q, outcome, attempts });
+      checkBtn.hidden = true;
+      continueBtn.hidden = false;
+      continueBtn.focus();
+      if (input) input.readOnly = true;
+      app.querySelectorAll('.option').forEach((b) => { b.disabled = true; });
+    }
+
+    continueBtn.addEventListener('click', () => {
+      session.index++;
+      if (session.index < session.questions.length) renderQuestion();
+      else renderResults();
+    });
+  }
+
+  // ---------- Results ----------
+  function renderResults() {
+    const { results, lessonId, submissions, correctSubmissions } = session;
+    const total = results.length;
+    const score = results.reduce((s, r) => s + POINTS[r.outcome], 0);
+    const maxScore = total * POINTS.first;
+    const correct = results.filter((r) => r.outcome !== 'missed').length;
+    const incorrect = total - correct;
+    const accuracy = submissions ? Math.round((correctSubmissions / submissions) * 100) : 0;
+    const needsPractice = results.filter((r) => r.outcome !== 'first');
+
+    // Group the questions needing practice by skill.
+    const bySkill = {};
+    needsPractice.forEach((r) => { (bySkill[r.q.skill] ||= []).push(r); });
+
+    const headline = incorrect === 0 && needsPractice.length === 0
+      ? 'Perfect session! 🌟'
+      : correct >= Math.ceil(total * 0.6) ? 'Nice work! 👏' : 'Keep practicing, you\'re learning! 💪';
+
+    show(`
+      <section class="card">
+        <p class="eyebrow">Lesson ${lessonId} practice · Results</p>
+        <h2>${headline}</h2>
+        <div class="stats">
+          <div class="stat"><span class="stat-value">${score}<small>/${maxScore}</small></span><span class="stat-label">Score</span></div>
+          <div class="stat good"><span class="stat-value">${correct}</span><span class="stat-label">Correct</span></div>
+          <div class="stat bad"><span class="stat-value">${incorrect}</span><span class="stat-label">Incorrect</span></div>
+          <div class="stat"><span class="stat-value">${accuracy}%</span><span class="stat-label">Accuracy</span></div>
+        </div>
+        <p class="muted small">Score: ${POINTS.first} points for a correct first try, ${POINTS.second} for a correct second try.
+          Accuracy: ${correctSubmissions} of ${submissions} answers checked were correct.</p>
+
+        <h3>Questions needing more practice</h3>
+        ${needsPractice.length === 0
+          ? '<p>None. You got every question right on the first try!</p>'
+          : Object.entries(bySkill).map(([skill, items]) => `
+              <div class="practice-group">
+                <p class="skill-tag">${skill}</p>
+                <ul class="review-list">
+                  ${items.map((r) => `
+                    <li>
+                      <span class="badge ${r.outcome}">${r.outcome === 'missed' ? 'Missed' : 'Needed a hint'}</span>
+                      <span>${Util.escapeHtml(r.q.summary)}</span>
+                      <span class="muted">Answer: <strong>${r.q.solution}</strong></span>
+                    </li>`).join('')}
+                </ul>
+              </div>`).join('')}
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="again">Practice again</button>
+          <button type="button" class="btn btn-secondary" id="review">Review lesson</button>
+          <button type="button" class="btn btn-ghost" id="home">Home</button>
+        </div>
+      </section>`);
+
+    app.querySelector('#again').addEventListener('click', () => startPractice(lessonId));
+    app.querySelector('#review').addEventListener('click', () => renderLesson(lessonId, 0));
+    app.querySelector('#home').addEventListener('click', renderHome);
+  }
+
+  document.getElementById('homeBtn').addEventListener('click', renderHome);
+  renderHome();
+})();
+
+</script>
+</body>
+</html>
