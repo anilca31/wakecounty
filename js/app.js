@@ -5,6 +5,115 @@
   const MAX_ATTEMPTS = 2;
   const POINTS = { first: 10, second: 5, missed: 0 };
 
+  const SUBJECTS = [
+    { title: 'Maths 6+', blurb: 'Learn ratios, one step at a time.', lessons: Lessons.all },
+    { title: 'ELA 6th Grade', blurb: 'Get ready for the open-book test on Chapters 1–8 of <em>The Lightning Thief</em> and the Hero\'s Journey. It tests skills, not memory, so start with the tips.', lessons: Ela.lessons },
+  ];
+  const LESSONS = Object.fromEntries(SUBJECTS.flatMap((s) => s.lessons).map((l) => [l.id, l]));
+  const sessionLength = (lesson) => lesson.sessionLength || SESSION_LENGTH;
+
+  // ---------- Progress display helpers ----------
+  const lessonDone = (l) => Progress.isLearned(l.id) && Progress.sessionsFor(l.id).length > 0;
+
+  function completionBar(lessons, { compact = false } = {}) {
+    const c = Progress.completion(lessons);
+    return `
+      <div class="completion ${compact ? 'compact' : ''}">
+        <div class="completion-head"><span>${compact ? '' : 'Completion'}</span><span>${c.pct}%</span></div>
+        <div class="progress" role="progressbar" aria-label="Completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${c.pct}">
+          <div class="progress-bar" style="width:${c.pct}%"></div>
+        </div>
+        ${compact ? '' : `<p class="muted small">${c.done} of ${c.total} done (read each lesson and finish a practice session)</p>`}
+      </div>`;
+  }
+
+  const fmtDate = (iso) => new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+  // Table of practice sessions, newest first.
+  function sessionTable(sessions, { showLesson = false } = {}) {
+    if (!sessions.length) return '<p class="muted">No practice sessions yet.</p>';
+    return `
+      <table class="map-table session-table">
+        <thead><tr><th>Date</th>${showLesson ? '<th>Lesson</th>' : ''}<th>% correct</th><th>Correct</th><th>Failed</th></tr></thead>
+        <tbody>${sessions.slice().reverse().map((s) => `
+          <tr>
+            <td>${fmtDate(s.date)}</td>
+            ${showLesson ? `<td>${LESSONS[s.lessonId]?.title ?? 'Removed lesson'}</td>` : ''}
+            <td><strong>${Progress.percent(s)}%</strong></td>
+            <td class="good-text">${s.correct}</td>
+            <td class="bad-text">${s.missed}</td>
+          </tr>`).join('')}</tbody>
+      </table>`;
+  }
+
+  // One-line status for a lesson card.
+  function lessonStatus(l) {
+    const sessions = Progress.sessionsFor(l.id);
+    const last = sessions[sessions.length - 1];
+    const best = Math.max(0, ...sessions.map(Progress.percent));
+    return `
+      <ul class="lesson-status">
+        <li class="${Progress.isLearned(l.id) ? 'done' : ''}">${Progress.isLearned(l.id) ? '✓' : '○'} Lesson read</li>
+        <li class="${last ? 'done' : ''}">${last
+          ? `✓ Last practice: <strong>${Progress.percent(last)}% correct</strong>, ${last.missed} failed · best ${best}%`
+          : '○ No practice yet'}</li>
+      </ul>`;
+  }
+
+  // ---------- Sidebar ----------
+  const sidebar = document.getElementById('sidebar');
+  const menuBtn = document.getElementById('menuBtn');
+  let activeNav = null;
+
+  function renderNav() {
+    sidebar.innerHTML = `
+      <button type="button" class="nav-link nav-home" data-nav-home>🏠 Home</button>
+      <button type="button" class="nav-link" data-nav-progress>📊 Progress &amp; scores</button>
+      ${SUBJECTS.map((s, i) => `
+        <div class="nav-group">
+          <button type="button" class="nav-subject" data-nav-subject="${i}">${s.title}</button>
+          ${completionBar(s.lessons, { compact: true })}
+          ${s.lessons.map((l) => `<button type="button" class="nav-link" data-nav-lesson="${l.id}">${l.title}${lessonDone(l) ? ' <span class="nav-check" aria-label="completed">✓</span>' : ''}</button>`).join('')}
+        </div>`).join('')}`;
+    sidebar.querySelector('[data-nav-home]').addEventListener('click', () => { closeMenu(); renderHome(); });
+    sidebar.querySelector('[data-nav-progress]').addEventListener('click', () => { closeMenu(); renderProgress(); });
+    sidebar.querySelectorAll('[data-nav-subject]').forEach((b) => b.addEventListener('click', () => {
+      closeMenu();
+      renderHome();
+      app.querySelectorAll('.subject')[+b.dataset.navSubject].scrollIntoView({ block: 'start' });
+    }));
+    sidebar.querySelectorAll('[data-nav-lesson]').forEach((b) => b.addEventListener('click', () => {
+      closeMenu();
+      renderLesson(+b.dataset.navLesson, 0);
+    }));
+  }
+
+  // Highlights the current lesson id, 'progress', or Home (null).
+  function setActive(id) {
+    activeNav = id;
+    sidebar.querySelectorAll('.nav-link').forEach((b) => {
+      const on = id == null ? 'navHome' in b.dataset
+        : id === 'progress' ? 'navProgress' in b.dataset
+        : +b.dataset.navLesson === id;
+      b.classList.toggle('is-active', on);
+      if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+  }
+
+  function refreshNav() {
+    renderNav();
+    setActive(activeNav);
+  }
+
+  function closeMenu() {
+    document.body.classList.remove('menu-open');
+    menuBtn.setAttribute('aria-expanded', 'false');
+  }
+  menuBtn.addEventListener('click', () => {
+    const open = document.body.classList.toggle('menu-open');
+    menuBtn.setAttribute('aria-expanded', String(open));
+  });
+
   function show(html) {
     app.innerHTML = html;
     window.scrollTo(0, 0);
@@ -14,34 +123,42 @@
 
   // ---------- Home ----------
   function renderHome() {
+    setActive(null);
     show(`
       <section class="hero">
-        <h1>Learn ratios, one step at a time</h1>
-        <p class="muted">Pick a lesson. Learn the idea, then practice with ${SESSION_LENGTH} questions.</p>
+        <h1>Learn one step at a time</h1>
+        <p class="muted">Pick a subject and a lesson. Learn the ideas, then practice.</p>
       </section>
-      <section class="lesson-grid">
-        ${Lessons.all.map((l) => `
-          <article class="card lesson-card">
-            <div class="lesson-art" aria-hidden="true">${Diagrams.render(l.id === 1
-              ? { a: 3, b: 2, itemA: 'red', itemB: 'blue' }
-              : { a: 2, b: 4, itemA: 'green', itemB: 'orange', layout: 'rows' })}</div>
-            <h2>${l.title}</h2>
-            <p class="muted">${l.blurb}</p>
-            <div class="actions">
-              <button type="button" class="btn btn-secondary" data-learn="${l.id}">Learn</button>
-              <button type="button" class="btn btn-primary" data-practice="${l.id}">Start practice</button>
-            </div>
-          </article>`).join('')}
-      </section>`);
+      ${SUBJECTS.map((s) => `
+        <section class="subject">
+          <h2 class="subject-title">${s.title}</h2>
+          <p class="muted">${s.blurb}</p>
+          ${completionBar(s.lessons)}
+          <div class="lesson-grid">
+            ${s.lessons.map((l) => `
+              <article class="card lesson-card">
+                <div class="lesson-art" aria-hidden="true">${l.art}</div>
+                <h3>${l.title}</h3>
+                <p class="muted">${l.blurb}</p>
+                ${lessonStatus(l)}
+                <div class="actions">
+                  <button type="button" class="btn btn-secondary" data-learn="${l.id}">Learn</button>
+                  <button type="button" class="btn btn-primary" data-practice="${l.id}">Start practice</button>
+                </div>
+              </article>`).join('')}
+          </div>
+        </section>`).join('')}`);
     app.querySelectorAll('[data-learn]').forEach((b) => b.addEventListener('click', () => renderLesson(+b.dataset.learn, 0)));
     app.querySelectorAll('[data-practice]').forEach((b) => b.addEventListener('click', () => startPractice(+b.dataset.practice)));
   }
 
   // ---------- Lesson ----------
   function renderLesson(id, stepIndex) {
-    const lesson = Lessons.byId[id];
+    const lesson = LESSONS[id];
+    setActive(id);
     const step = lesson.steps[stepIndex];
     const last = stepIndex === lesson.steps.length - 1;
+    if (last) { Progress.markLearned(id); refreshNav(); }
     show(`
       <section class="card">
         <p class="eyebrow">${lesson.title} · Step ${stepIndex + 1} of ${lesson.steps.length}</p>
@@ -65,9 +182,13 @@
   let session = null;
 
   function startPractice(lessonId) {
+    const lesson = LESSONS[lessonId];
+    setActive(lessonId);
     session = {
       lessonId,
-      questions: Questions.buildSession(lessonId, SESSION_LENGTH),
+      questions: lesson.buildSession
+        ? lesson.buildSession(sessionLength(lesson))
+        : Questions.buildSession(lessonId, sessionLength(lesson)),
       index: 0,
       results: [],         // { q, outcome: 'first' | 'second' | 'missed' }
       submissions: 0,      // every checked answer
@@ -84,7 +205,7 @@
     let finished = false;
 
     const answerArea = q.format === 'mc'
-      ? `<div class="options ${q.wideOptions ? 'options-wide' : ''}" role="radiogroup" aria-label="Answer choices">
+      ? `<div class="options ${q.wideOptions ? 'options-wide' : ''} ${q.textOptions ? 'options-text' : ''}" role="radiogroup" aria-label="Answer choices">
           ${q.options.map((o) => `
             <button type="button" class="btn btn-option option" role="radio" aria-checked="false" data-id="${o.id}">
               <span class="opt-letter">${o.id}</span><span class="opt-body">${o.html}</span>
@@ -99,7 +220,7 @@
     show(`
       <section class="card practice">
         <div class="practice-head">
-          <p class="eyebrow">Lesson ${lessonId} practice · Question ${index + 1} of ${questions.length}</p>
+          <p class="eyebrow">${LESSONS[lessonId].short} practice · Question ${index + 1} of ${questions.length}</p>
           <button type="button" class="btn btn-ghost small" id="quit">Quit</button>
         </div>
         <div class="progress" aria-hidden="true"><div class="progress-bar" style="width:${(index / questions.length) * 100}%"></div></div>
@@ -232,6 +353,12 @@
     const correct = results.filter((r) => r.outcome !== 'missed').length;
     const incorrect = total - correct;
     const accuracy = submissions ? Math.round((correctSubmissions / submissions) * 100) : 0;
+    const pctCorrect = total ? Math.round((correct / total) * 100) : 0;
+    if (!session.saved) {
+      session.saved = true;
+      Progress.addSession({ lessonId, total, correct, missed: incorrect });
+      refreshNav();
+    }
     const needsPractice = results.filter((r) => r.outcome !== 'first');
 
     // Group the questions needing practice by skill.
@@ -244,16 +371,16 @@
 
     show(`
       <section class="card">
-        <p class="eyebrow">Lesson ${lessonId} practice · Results</p>
+        <p class="eyebrow">${LESSONS[lessonId].short} practice · Results</p>
         <h2>${headline}</h2>
         <div class="stats">
+          <div class="stat"><span class="stat-value">${pctCorrect}%</span><span class="stat-label">Correct</span></div>
+          <div class="stat good"><span class="stat-value">${correct}<small>/${total}</small></span><span class="stat-label">Questions right</span></div>
+          <div class="stat bad"><span class="stat-value">${incorrect}</span><span class="stat-label">Failed</span></div>
           <div class="stat"><span class="stat-value">${score}<small>/${maxScore}</small></span><span class="stat-label">Score</span></div>
-          <div class="stat good"><span class="stat-value">${correct}</span><span class="stat-label">Correct</span></div>
-          <div class="stat bad"><span class="stat-value">${incorrect}</span><span class="stat-label">Incorrect</span></div>
-          <div class="stat"><span class="stat-value">${accuracy}%</span><span class="stat-label">Accuracy</span></div>
         </div>
-        <p class="muted small">Score: ${POINTS.first} points for a correct first try, ${POINTS.second} for a correct second try.
-          Accuracy: ${correctSubmissions} of ${submissions} answers checked were correct.</p>
+        <p class="muted small">Failed means still wrong after ${MAX_ATTEMPTS} tries. Score: ${POINTS.first} points for a correct first try, ${POINTS.second} for a correct second try.
+          ${correctSubmissions} of ${submissions} answers checked were correct (${accuracy}%).</p>
 
         <h3>Questions needing more practice</h3>
         ${needsPractice.length === 0
@@ -271,6 +398,9 @@
                 </ul>
               </div>`).join('')}
 
+        <h3>Your sessions for this lesson</h3>
+        ${sessionTable(Progress.sessionsFor(lessonId).slice(-10))}
+
         <div class="actions">
           <button type="button" class="btn btn-primary" id="again">Practice again</button>
           <button type="button" class="btn btn-secondary" id="review">Review lesson</button>
@@ -283,6 +413,48 @@
     app.querySelector('#home').addEventListener('click', renderHome);
   }
 
-  document.getElementById('homeBtn').addEventListener('click', renderHome);
+  // ---------- Progress page ----------
+  function renderProgress() {
+    setActive('progress');
+    const all = Progress.allSessions();
+    show(`
+      <section class="card">
+        <h2>Progress &amp; scores</h2>
+        <p class="muted small">Saved in this browser on this device.</p>
+        ${SUBJECTS.map((s) => {
+          const ids = new Set(s.lessons.map((l) => l.id));
+          const sessions = all.filter((x) => ids.has(x.lessonId));
+          return `
+            <h3>${s.title}</h3>
+            ${completionBar(s.lessons)}
+            <table class="map-table">
+              <thead><tr><th>Lesson</th><th>Read</th><th>Sessions</th><th>Last</th><th>Best</th></tr></thead>
+              <tbody>${s.lessons.map((l) => {
+                const ls = Progress.sessionsFor(l.id);
+                const last = ls[ls.length - 1];
+                return `<tr>
+                  <td>${l.title}</td>
+                  <td>${Progress.isLearned(l.id) ? '✓' : '–'}</td>
+                  <td>${ls.length}</td>
+                  <td>${last ? `${Progress.percent(last)}% <span class="muted small">(${last.missed} failed)</span>` : '–'}</td>
+                  <td>${ls.length ? `${Math.max(...ls.map(Progress.percent))}%` : '–'}</td>
+                </tr>`;
+              }).join('')}</tbody>
+            </table>
+            <details class="qa"><summary>All ${s.title} sessions (${sessions.length})</summary>${sessionTable(sessions, { showLesson: true })}</details>`;
+        }).join('')}
+        <div class="actions">
+          <button type="button" class="btn btn-ghost" id="resetProgress">Reset all progress</button>
+        </div>
+      </section>`);
+    app.querySelector('#resetProgress').addEventListener('click', () => {
+      if (!window.confirm('Erase all saved progress and scores?')) return;
+      Progress.reset();
+      refreshNav();
+      renderProgress();
+    });
+  }
+
+  renderNav();
   renderHome();
 })();

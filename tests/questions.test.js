@@ -64,4 +64,56 @@ for (const lesson of [1, 2]) {
   }
 }
 
+// ELA: every bank item has 4 distinct options with hints, and sessions cover every skill.
+const elaSrc = fs.readFileSync(path.join(__dirname, '..', 'js', 'ela-questions.js'), 'utf8');
+vm.runInContext(`${elaSrc}\n;globalThis.ElaQuestions = ElaQuestions;`, ctx);
+const Ela = ctx.ElaQuestions;
+assert.strictEqual(Ela.STAGES.length, 10, 'ELA: 10 Hero\'s Journey stages');
+for (const s of Ela.STAGES) assert.ok(Ela.PLOT[s.plot], `ELA: ${s.name} maps to a plot part`);
+for (const item of Ela.BANK) {
+  assert.ok(Ela.SKILLS[item.skill], `ELA: unknown skill ${item.skill}`);
+  assert.strictEqual(item.options.length, 4, `ELA: 4 options for "${item.prompt}"`);
+  assert.strictEqual(new Set(item.options.map(([html]) => html)).size, 4, `ELA: distinct options for "${item.prompt}"`);
+  item.options.slice(1).forEach(([, hint]) => assert.ok(hint, `ELA: wrong option has a hint in "${item.prompt}"`));
+  assert.ok(item.explanation);
+}
+assert.strictEqual(new Set(Ela.BANK.map((q) => q.prompt)).size, Ela.BANK.length, 'ELA: no duplicate prompts');
+// Generated questions (gist, sequence): 4 distinct options, exactly one correct.
+for (const [skill, factories] of Object.entries(Ela.FACTORIES)) {
+  for (let i = 0; i < 300; i++) {
+    const q = factories[i % factories.length]();
+    assert.strictEqual(new Set(q.options.map((o) => o.html)).size, 4, `ELA ${skill}: 4 distinct options (${q.options.map((o) => o.html)})`);
+  }
+}
+// Sessions for each ELA lesson: [skills, length].
+const elaLessons = [[Object.keys(Ela.SKILLS), 12], [['early', 'camp', 'meaning', 'journey', 'traits'], 10], [['gist', 'sequence', 'early', 'camp', 'characters'], 8], [['stages', 'journey', 'plot'], 8], [['traits', 'races'], 8]];
+for (let i = 0; i < 2000; i++) {
+  const [skills, len] = elaLessons[i % elaLessons.length];
+  const s = Ela.buildSession(skills, len);
+  assert.strictEqual(s.length, len);
+  assert.strictEqual(new Set(s.map((q) => q.summary)).size, len, 'ELA: no duplicate questions in a session');
+  for (const k of skills) assert.ok(s.some((q) => q.type === k), `ELA session covers ${k}`);
+  for (const q of s) {
+    const correct = q.options.filter((o) => o.correct);
+    assert.strictEqual(correct.length, 1);
+    assert.strictEqual(q.check(correct[0].id).status, 'correct');
+    q.options.filter((o) => !o.correct).forEach((o) => assert.ok(q.check(o.id).message));
+    assert.strictEqual(q.check(undefined).status, 'invalid');
+  }
+}
+
+// Progress: completion counts reading + practice per lesson; works with storage unavailable.
+const progSrc = fs.readFileSync(path.join(__dirname, '..', 'js', 'progress.js'), 'utf8');
+vm.runInContext(`${progSrc}\n;globalThis.Progress = Progress;`, ctx);
+const { Progress } = ctx;
+const lessonsA = [{ id: 1 }, { id: 2 }];
+assert.strictEqual(Progress.completion(lessonsA).pct, 0);
+Progress.markLearned(1);
+Progress.addSession({ lessonId: 1, total: 5, correct: 4, missed: 1 });
+assert.deepStrictEqual({ ...Progress.completion(lessonsA) }, { done: 2, total: 4, pct: 50 });
+assert.strictEqual(Progress.percent(Progress.sessionsFor(1)[0]), 80);
+assert.strictEqual(Progress.sessionsFor(2).length, 0);
+Progress.reset();
+assert.strictEqual(Progress.allSessions().length, 0);
+
 console.log('All question tests passed.');

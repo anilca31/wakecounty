@@ -43,8 +43,10 @@ const Lessons = (() => {
 
   const lesson1 = {
     id: 1,
+    short: 'Lesson 1',
     title: 'Lesson 1: What Is a Ratio?',
     blurb: 'Compare two quantities, write ratios three ways, and learn why order matters.',
+    art: D.render({ a: 3, b: 2, itemA: 'red', itemB: 'blue' }),
     steps: [
       {
         title: 'What is a ratio?',
@@ -171,8 +173,10 @@ const Lessons = (() => {
 
   const lesson2 = {
     id: 2,
+    short: 'Lesson 2',
     title: 'Lesson 2: Ratios and Diagrams',
     blurb: 'Show ratios with objects, read ratios from diagrams, and build your own diagrams.',
+    art: D.render({ a: 2, b: 4, itemA: 'green', itemB: 'orange', layout: 'rows' }),
     steps: [
       {
         title: 'Representing ratios with objects',
@@ -294,5 +298,5 @@ const Lessons = (() => {
     ],
   };
 
-  return { all: [lesson1, lesson2], byId: { 1: lesson1, 2: lesson2 } };
+  return { all: [lesson1, lesson2], byId: { 1: lesson1, 2: lesson2 }, miniCheck };
 })();

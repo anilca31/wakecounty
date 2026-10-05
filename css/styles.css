@@ -65,20 +65,57 @@ p { margin: 0 0 .9em; }
 .muted { color: var(--muted); }
 .small { font-size: .88rem; }
 
-/* ---------- Top bar ---------- */
-.topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
-  padding: 10px 16px;
+/* ---------- Sidebar ---------- */
+.layout { display: flex; align-items: flex-start; min-height: 100vh; }
+.layout .container { flex: 1; min-width: 0; }
+.sidebar {
+  position: sticky; top: 0; flex: none; width: 250px; height: 100vh; overflow-y: auto;
+  background: var(--surface); border-right: 1px solid var(--line); padding: 16px 12px;
 }
-.brand {
-  display: inline-flex; align-items: center; gap: 10px;
-  background: none; border: 0; color: var(--ink); cursor: pointer;
-  font: inherit; font-weight: 700; font-size: 1.05rem; padding: 4px;
+.nav-link, .nav-subject {
+  display: block; width: 100%; text-align: left; font: inherit; cursor: pointer;
+  background: none; border: 0; border-radius: 8px; color: var(--ink);
 }
-.brand-mark {
-  background: var(--primary); color: var(--primary-ink);
-  border-radius: 8px; padding: 2px 8px; font-size: .9rem;
+.nav-link { padding: 8px 10px; font-size: .92rem; line-height: 1.35; }
+.nav-link:hover, .nav-subject:hover { background: var(--bg); }
+.nav-link.is-active { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+.nav-home { font-weight: 600; }
+.nav-group { margin-top: 18px; }
+.nav-subject {
+  padding: 4px 10px 6px; font-size: .78rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.nav-link:focus-visible, .nav-subject:focus-visible { outline: 3px solid var(--primary); outline-offset: -2px; }
+.mobile-bar { display: none; }
+.nav-check { color: var(--good); font-weight: 700; }
+.nav-group .completion { padding: 0 10px 6px; }
+
+/* ---------- Completion & scores ---------- */
+.completion { margin: 4px 0 18px; }
+.completion .progress { margin: 4px 0 6px; }
+.completion-head { display: flex; justify-content: space-between; font-size: .88rem; font-weight: 700; }
+.completion.compact { margin: 0; }
+.completion.compact .progress { height: 6px; margin: 2px 0 4px; }
+.completion.compact .completion-head { font-size: .75rem; color: var(--muted); }
+.lesson-status { list-style: none; padding: 0; margin: 0 0 4px; font-size: .88rem; color: var(--muted); }
+.lesson-status li { margin-bottom: 2px; }
+.lesson-status li.done { color: var(--good); }
+.lesson-status strong { color: var(--ink); }
+.good-text { color: var(--good); font-weight: 600; }
+.bad-text { color: var(--bad); font-weight: 600; }
+.session-table td:first-child { white-space: nowrap; }
+.qa .session-table { margin-bottom: 0; }
+
+@media (max-width: 860px) {
+  .mobile-bar {
+    display: block; position: sticky; top: 0; z-index: 20;
+    background: var(--surface); border-bottom: 1px solid var(--line); padding: 8px 16px;
+  }
+  .sidebar {
+    display: none; position: fixed; top: 51px; left: 0; bottom: 0; z-index: 30; height: auto;
+    width: min(300px, 85vw); box-shadow: 0 8px 24px rgba(20, 24, 40, .18);
+  }
+  .menu-open .sidebar { display: block; }
 }
 
 /* ---------- Cards & layout ---------- */
@@ -95,6 +132,48 @@ p { margin: 0 0 .9em; }
 .lesson-card .actions { margin-top: auto; }
 .lesson-art { display: flex; justify-content: center; align-items: center; min-height: 100px; margin-bottom: 12px; }
 .lesson-art .diagram { max-height: 90px; }
+.lesson-emoji { font-size: 3.2rem; line-height: 1; }
+.lesson-card h3 { margin-top: 0; }
+.subject + .subject { margin-top: 40px; }
+.subject-title { font-size: 1.5rem; padding-bottom: 8px; border-bottom: 2px solid var(--primary-soft); }
+
+.glossary { margin: 0; }
+.glossary dt { font-weight: 700; margin-top: 12px; }
+.glossary dd { margin: 2px 0 0; color: var(--ink); }
+.gist { margin: 6px 0 0; padding: 6px 10px; border-left: 3px solid var(--primary); background: var(--bg); border-radius: 0 8px 8px 0; }
+.mb0 { margin-bottom: 0; }
+
+.checklist, .tips { padding-left: 0; list-style: none; }
+.checklist li, .tips li { margin-bottom: 10px; }
+.checklist li::before { content: "☐ "; color: var(--primary); font-weight: 700; }
+
+.qa-list { display: grid; gap: 8px; margin: 12px 0; }
+.qa { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; background: var(--surface); }
+.qa summary { cursor: pointer; font-weight: 600; }
+.qa[open] summary { margin-bottom: 8px; color: var(--primary); }
+.qa-answer { padding-left: 12px; border-left: 3px solid var(--good); }
+
+.timeline { padding-left: 1.6em; margin: 12px 0; min-height: 1em; }
+.timeline li { margin-bottom: 6px; padding: 6px 10px; background: var(--good-soft); border-radius: 8px; }
+.seq-options .btn { text-align: left; }
+
+.plot .plot-seg { fill: none; stroke: var(--line); stroke-width: 6; stroke-linecap: round; }
+.plot .plot-seg.on { stroke: var(--primary); }
+.plot .plot-dot { fill: var(--line); stroke: none; }
+.plot .plot-dot.on { fill: var(--primary); }
+.plot .plot-here { fill: var(--hint); }
+
+.map-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: .95rem; }
+.map-table th, .map-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.map-table th { color: var(--muted); font-size: .85rem; }
+
+.races-model { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin: 12px 0; }
+.races-sentence { margin: 0 0 6px; }
+.races-model.labeled .races-sentence { padding: 4px 0; }
+.races-tag {
+  display: inline-grid; place-items: center; width: 24px; height: 24px; margin-right: 4px;
+  border-radius: 50%; background: var(--primary); color: var(--primary-ink); font-size: .8rem; font-weight: 800;
+}
 
 .eyebrow { font-size: .82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
 .dots { display: flex; gap: 6px; margin-bottom: 16px; }
@@ -183,6 +262,8 @@ p { margin: 0 0 .9em; }
 }
 .opt-body { flex: 1; display: flex; justify-content: center; }
 .opt-body .diagram { max-height: 110px; }
+.options-text .option { font-size: 1rem; }
+.options-text .opt-body { justify-content: flex-start; }
 
 .ratio-input input {
   font: inherit; font-size: 1.5rem; font-weight: 700; letter-spacing: .03em;
