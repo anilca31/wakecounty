@@ -67,6 +67,14 @@ p { margin: 0 0 .9em; }
 .narrow { max-width: 780px; margin: 0 auto; padding: 8px 24px 0; }
 .wide { padding: 8px 24px 0; }
 
+/* ---------- Footer ---------- */
+.site-footer {
+  position: relative; margin: 48px 24px 0; padding: 20px 0 8px; border-top: 1px solid var(--line);
+  color: var(--muted); font-size: .8rem; line-height: 1.5;
+}
+.site-footer p { max-width: 760px; }
+.site-footer .copyright { font-weight: 700; color: var(--ink); margin-bottom: 0; }
+
 /* ---------- Sidebar ---------- */
 .nav-brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 14px; }
 .nav-brand-logo {
@@ -228,6 +236,7 @@ p { margin: 0 0 .9em; }
   .menu-open .sidebar { display: flex; }
   .narrow, .wide { padding: 8px 16px 0; }
   .topbar { padding: 12px 16px 0; }
+  .site-footer { margin: 40px 16px 0; }
   .subject-hero { flex-direction: column; align-items: flex-start; gap: 16px; }
   .cover-lg { width: 150px; }
   .tile-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
@@ -410,4 +419,63 @@ p { margin: 0 0 .9em; }
   .card { padding: 18px; }
   h1 { font-size: 1.5rem; }
   .nav-actions .btn { flex: 1; }
+}
+
+/* ---------- Slam-dunk celebration ---------- */
+.dunk {
+  position: fixed; right: 20px; bottom: 20px; z-index: 50; width: 220px; pointer-events: none;
+  padding: 10px 10px 8px; border-radius: 12px; background: var(--surface-2); box-shadow: var(--shadow);
+  animation: dunk-card 3.6s ease both;
+}
+.dunk-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.dunk-caption { margin: 4px 0 0; text-align: center; font-weight: 800; font-size: .95rem; }
+.dunk-kid, .dunk-ball, .dunk-hoop { animation: 2.4s .2s ease-in-out both; }
+.dunk-kid { animation-name: dunk-kid; }
+.dunk-ball { animation-name: dunk-ball; }
+.dunk-hoop { animation-name: dunk-hoop; }
+.dunk-text {
+  fill: var(--primary); font: 900 18px system-ui, sans-serif; letter-spacing: .02em;
+  transform-box: fill-box; transform-origin: center; animation: dunk-text 2.4s .2s ease-out both;
+}
+@keyframes dunk-card {
+  0% { opacity: 0; transform: translateY(20px); }
+  6%, 88% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(10px); }
+}
+@keyframes dunk-kid {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(20px, -4px); }
+  20% { transform: translate(40px, 0); }
+  50% { transform: translate(100px, -40px); }
+  62% { transform: translate(100px, -36px); }
+  80%, 100% { transform: translate(85px, 0); }
+}
+@keyframes dunk-ball {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(20px, -4px); }
+  20% { transform: translate(40px, 0); }
+  50% { transform: translate(100px, -40px); }
+  58% { transform: translate(106px, -14px); }
+  72% { transform: translate(108px, 84px); }
+  82% { transform: translate(114px, 50px); }
+  92%, 100% { transform: translate(120px, 84px); }
+}
+@keyframes dunk-hoop {
+  0%, 50% { transform: none; }
+  54% { transform: translateY(5px); }
+  58% { transform: translateY(-2px); }
+  62%, 100% { transform: none; }
+}
+@keyframes dunk-text {
+  0%, 52% { opacity: 0; transform: scale(.3); }
+  62% { opacity: 1; transform: scale(1.2); }
+  70%, 100% { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Show the finished dunk as a still picture. */
+  .dunk-kid, .dunk-ball, .dunk-hoop, .dunk-text { animation-duration: 1ms; animation-delay: 0s; }
+  .dunk { animation-name: none; }
+}
+@media (max-width: 520px) {
+  .dunk { width: 170px; right: 12px; bottom: 12px; }
 }

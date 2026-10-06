@@ -183,13 +183,20 @@
     return { crumbs, back: () => renderSubject(si) };
   }
 
+  const FOOTER = `
+    <footer class="site-footer">
+      <p><strong>Disclaimer:</strong> 6th Grader Learning Hub is an independent study aid made for practice. It is not affiliated with or endorsed by any school or school district, and it does not replace your teacher's lessons, instructions or materials. Always check with your teacher about what will be on a test. <em>The Lightning Thief</em> is by Rick Riordan; the summaries here are for study only.</p>
+      <p class="copyright">© ${new Date().getFullYear()} Arman Madath. All rights reserved.</p>
+    </footer>`;
+
   // nav: { crumbs, back } for the top bar; color tints the header; wide pages skip the narrow reading column.
   function show(html, { nav, color = '#535353', wide = false } = {}) {
     app.style.setProperty('--tint', color);
     app.innerHTML = `
       <div class="view-tint" aria-hidden="true"></div>
       ${nav ? topbar(nav.crumbs, nav.back) : ''}
-      <div class="${wide ? 'wide' : 'narrow'}">${html}</div>`;
+      <div class="${wide ? 'wide' : 'narrow'}">${html}</div>
+      ${FOOTER}`;
     if (nav) wireTopbar(nav.crumbs, nav.back);
     window.scrollTo(0, 0);
     const heading = app.querySelector('h1, h2');
@@ -299,6 +306,7 @@
         </div>
       </section>`, { nav, color: SUBJECTS[si].color });
     if (step.mount) step.mount(app.querySelector('.step-body'));
+    if (last) Celebrate.play('Lesson complete!');
     app.querySelector('#back').addEventListener('click', () => (stepIndex === 0 ? nav.back() : renderLesson(id, stepIndex - 1)));
     if (last) app.querySelector('#practice').addEventListener('click', () => startPractice(id));
     else app.querySelector('#next').addEventListener('click', () => renderLesson(id, stepIndex + 1));
@@ -480,6 +488,7 @@
     const incorrect = total - correct;
     const accuracy = submissions ? Math.round((correctSubmissions / submissions) * 100) : 0;
     const pctCorrect = total ? Math.round((correct / total) * 100) : 0;
+    const justFinished = !session.saved;
     if (!session.saved) {
       session.saved = true;
       Progress.addSession({ lessonId, total, correct, missed: incorrect });
@@ -534,6 +543,7 @@
         </div>
       </section>`, { nav: lessonNav(lessonId, 'Results'), color: SUBJECTS[subjectOf(lessonId)].color });
 
+    if (justFinished) Celebrate.play('Practice complete!');
     app.querySelector('#again').addEventListener('click', () => startPractice(lessonId));
     app.querySelector('#review').addEventListener('click', () => renderLesson(lessonId, 0));
     app.querySelector('#home').addEventListener('click', () => renderSubject(subjectOf(lessonId)));

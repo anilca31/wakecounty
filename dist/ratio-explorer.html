@@ -74,6 +74,14 @@ p { margin: 0 0 .9em; }
 .narrow { max-width: 780px; margin: 0 auto; padding: 8px 24px 0; }
 .wide { padding: 8px 24px 0; }
 
+/* ---------- Footer ---------- */
+.site-footer {
+  position: relative; margin: 48px 24px 0; padding: 20px 0 8px; border-top: 1px solid var(--line);
+  color: var(--muted); font-size: .8rem; line-height: 1.5;
+}
+.site-footer p { max-width: 760px; }
+.site-footer .copyright { font-weight: 700; color: var(--ink); margin-bottom: 0; }
+
 /* ---------- Sidebar ---------- */
 .nav-brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 14px; }
 .nav-brand-logo {
@@ -235,6 +243,7 @@ p { margin: 0 0 .9em; }
   .menu-open .sidebar { display: flex; }
   .narrow, .wide { padding: 8px 16px 0; }
   .topbar { padding: 12px 16px 0; }
+  .site-footer { margin: 40px 16px 0; }
   .subject-hero { flex-direction: column; align-items: flex-start; gap: 16px; }
   .cover-lg { width: 150px; }
   .tile-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
@@ -417,6 +426,65 @@ p { margin: 0 0 .9em; }
   .card { padding: 18px; }
   h1 { font-size: 1.5rem; }
   .nav-actions .btn { flex: 1; }
+}
+
+/* ---------- Slam-dunk celebration ---------- */
+.dunk {
+  position: fixed; right: 20px; bottom: 20px; z-index: 50; width: 220px; pointer-events: none;
+  padding: 10px 10px 8px; border-radius: 12px; background: var(--surface-2); box-shadow: var(--shadow);
+  animation: dunk-card 3.6s ease both;
+}
+.dunk-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.dunk-caption { margin: 4px 0 0; text-align: center; font-weight: 800; font-size: .95rem; }
+.dunk-kid, .dunk-ball, .dunk-hoop { animation: 2.4s .2s ease-in-out both; }
+.dunk-kid { animation-name: dunk-kid; }
+.dunk-ball { animation-name: dunk-ball; }
+.dunk-hoop { animation-name: dunk-hoop; }
+.dunk-text {
+  fill: var(--primary); font: 900 18px system-ui, sans-serif; letter-spacing: .02em;
+  transform-box: fill-box; transform-origin: center; animation: dunk-text 2.4s .2s ease-out both;
+}
+@keyframes dunk-card {
+  0% { opacity: 0; transform: translateY(20px); }
+  6%, 88% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(10px); }
+}
+@keyframes dunk-kid {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(20px, -4px); }
+  20% { transform: translate(40px, 0); }
+  50% { transform: translate(100px, -40px); }
+  62% { transform: translate(100px, -36px); }
+  80%, 100% { transform: translate(85px, 0); }
+}
+@keyframes dunk-ball {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(20px, -4px); }
+  20% { transform: translate(40px, 0); }
+  50% { transform: translate(100px, -40px); }
+  58% { transform: translate(106px, -14px); }
+  72% { transform: translate(108px, 84px); }
+  82% { transform: translate(114px, 50px); }
+  92%, 100% { transform: translate(120px, 84px); }
+}
+@keyframes dunk-hoop {
+  0%, 50% { transform: none; }
+  54% { transform: translateY(5px); }
+  58% { transform: translateY(-2px); }
+  62%, 100% { transform: none; }
+}
+@keyframes dunk-text {
+  0%, 52% { opacity: 0; transform: scale(.3); }
+  62% { opacity: 1; transform: scale(1.2); }
+  70%, 100% { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Show the finished dunk as a still picture. */
+  .dunk-kid, .dunk-ball, .dunk-hoop, .dunk-text { animation-duration: 1ms; animation-delay: 0s; }
+  .dunk { animation-name: none; }
+}
+@media (max-width: 520px) {
+  .dunk { width: 170px; right: 12px; bottom: 12px; }
 }
 
 </style>
@@ -2296,6 +2364,66 @@ const Ela = (() => {
 
 </script>
   <script>
+// "Slam dunk" celebration: a kid jumps and dunks a basketball in the corner of the screen.
+// Plays when a section is completed. Purely decorative; it never blocks clicks.
+const Celebrate = (() => {
+  const DURATION = 3600; // ms on screen, including the fade-out
+
+  // The kid is drawn with feet at (0, 0); CSS keyframes move the whole group.
+  const KID = `
+    <g class="dunk-kid-body">
+      <ellipse cx="-8" cy="0" rx="6" ry="3" fill="#ffffff"/>
+      <ellipse cx="8" cy="0" rx="6" ry="3" fill="#ffffff"/>
+      <line x1="-5" y1="-28" x2="-8" y2="-2" stroke="#8d5524" stroke-width="5" stroke-linecap="round"/>
+      <line x1="5" y1="-28" x2="8" y2="-2" stroke="#8d5524" stroke-width="5" stroke-linecap="round"/>
+      <rect x="-11" y="-36" width="22" height="11" rx="3" fill="#ffffff"/>
+      <line x1="-8" y1="-54" x2="5" y2="-86" stroke="#8d5524" stroke-width="5" stroke-linecap="round"/>
+      <line x1="8" y1="-54" x2="13" y2="-86" stroke="#8d5524" stroke-width="5" stroke-linecap="round"/>
+      <rect x="-11" y="-60" width="22" height="27" rx="5" fill="#1ed760"/>
+      <text x="0" y="-41" text-anchor="middle" font-size="13" font-weight="900" fill="#000">6</text>
+      <circle cx="0" cy="-70" r="10" fill="#8d5524"/>
+      <path d="M-10 -72 Q-9 -84 0 -83 Q10 -84 10 -72 Q5 -78 -10 -72Z" fill="#2b1a0e"/>
+      <circle cx="4" cy="-70" r="1.4" fill="#000"/>
+      <path d="M1 -65 Q4 -62 7 -65" stroke="#000" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    </g>`;
+
+  const BALL = `
+    <circle r="8" fill="#f08c00" stroke="#7a3d00" stroke-width="1.2"/>
+    <path d="M-8 0 H8 M0 -8 V8 M-5.5 -5.5 Q0 0 -5.5 5.5 M5.5 -5.5 Q0 0 5.5 5.5" stroke="#7a3d00" stroke-width="1" fill="none"/>`;
+
+  const SCENE = `
+    <svg class="dunk-svg" viewBox="0 0 200 200" aria-hidden="true">
+      <line x1="0" y1="186" x2="200" y2="186" stroke="#3a3a3a" stroke-width="3"/>
+      <rect x="183" y="30" width="5" height="156" fill="#555"/>
+      <rect x="164" y="28" width="8" height="56" rx="2" fill="#e8e8e8"/>
+      <g class="dunk-hoop">
+        <path d="M134 74 L138 98 M142 74 L144 98 M150 74 L150 98 M158 74 L156 98 M164 74 L160 98 M138 98 H160"
+              stroke="#d9d9d9" stroke-width="1.4" fill="none"/>
+        <line x1="130" y1="73" x2="166" y2="73" stroke="#ff4d2e" stroke-width="4" stroke-linecap="round"/>
+      </g>
+      <g transform="translate(30 185)"><g class="dunk-kid">${KID}</g></g>
+      <g transform="translate(40 93)"><g class="dunk-ball">${BALL}</g></g>
+      <text class="dunk-text" x="82" y="40" text-anchor="middle">SLAM DUNK!</text>
+    </svg>`;
+
+  let timer = null;
+
+  function play(message = 'Section complete!') {
+    document.querySelector('.dunk')?.remove();
+    clearTimeout(timer);
+    const el = document.createElement('div');
+    el.className = 'dunk';
+    el.setAttribute('role', 'status');
+    el.innerHTML = `${SCENE}<p class="dunk-caption">🏀 ${message}</p>`;
+    document.body.appendChild(el);
+    timer = setTimeout(() => el.remove(), DURATION);
+  }
+
+  return { play };
+})();
+
+</script>
+  <script>
 // App shell: home → lesson → practice → results.
 (() => {
   const app = document.getElementById('app');
@@ -2481,13 +2609,20 @@ const Ela = (() => {
     return { crumbs, back: () => renderSubject(si) };
   }
 
+  const FOOTER = `
+    <footer class="site-footer">
+      <p><strong>Disclaimer:</strong> 6th Grader Learning Hub is an independent study aid made for practice. It is not affiliated with or endorsed by any school or school district, and it does not replace your teacher's lessons, instructions or materials. Always check with your teacher about what will be on a test. <em>The Lightning Thief</em> is by Rick Riordan; the summaries here are for study only.</p>
+      <p class="copyright">© ${new Date().getFullYear()} Arman Madath. All rights reserved.</p>
+    </footer>`;
+
   // nav: { crumbs, back } for the top bar; color tints the header; wide pages skip the narrow reading column.
   function show(html, { nav, color = '#535353', wide = false } = {}) {
     app.style.setProperty('--tint', color);
     app.innerHTML = `
       <div class="view-tint" aria-hidden="true"></div>
       ${nav ? topbar(nav.crumbs, nav.back) : ''}
-      <div class="${wide ? 'wide' : 'narrow'}">${html}</div>`;
+      <div class="${wide ? 'wide' : 'narrow'}">${html}</div>
+      ${FOOTER}`;
     if (nav) wireTopbar(nav.crumbs, nav.back);
     window.scrollTo(0, 0);
     const heading = app.querySelector('h1, h2');
@@ -2597,6 +2732,7 @@ const Ela = (() => {
         </div>
       </section>`, { nav, color: SUBJECTS[si].color });
     if (step.mount) step.mount(app.querySelector('.step-body'));
+    if (last) Celebrate.play('Lesson complete!');
     app.querySelector('#back').addEventListener('click', () => (stepIndex === 0 ? nav.back() : renderLesson(id, stepIndex - 1)));
     if (last) app.querySelector('#practice').addEventListener('click', () => startPractice(id));
     else app.querySelector('#next').addEventListener('click', () => renderLesson(id, stepIndex + 1));
@@ -2778,6 +2914,7 @@ const Ela = (() => {
     const incorrect = total - correct;
     const accuracy = submissions ? Math.round((correctSubmissions / submissions) * 100) : 0;
     const pctCorrect = total ? Math.round((correct / total) * 100) : 0;
+    const justFinished = !session.saved;
     if (!session.saved) {
       session.saved = true;
       Progress.addSession({ lessonId, total, correct, missed: incorrect });
@@ -2832,6 +2969,7 @@ const Ela = (() => {
         </div>
       </section>`, { nav: lessonNav(lessonId, 'Results'), color: SUBJECTS[subjectOf(lessonId)].color });
 
+    if (justFinished) Celebrate.play('Practice complete!');
     app.querySelector('#again').addEventListener('click', () => startPractice(lessonId));
     app.querySelector('#review').addEventListener('click', () => renderLesson(lessonId, 0));
     app.querySelector('#home').addEventListener('click', () => renderSubject(subjectOf(lessonId)));

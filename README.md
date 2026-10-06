@@ -26,11 +26,16 @@ Fuzzes every question generator: each answer key passes its own checker, MC opti
 - `js/lessons.js`: interactive maths lesson steps
 - `js/ela-questions.js`: ELA data (chapters, events, 10 Hero's Journey stages, plot diagram, traits, R.A.C.E.S.) and practice questions
 - `js/ela.js`: ELA lessons
+- `js/celebrate.js`: slam-dunk animation shown when a lesson or practice session is completed
 - `js/app.js`: subjects, views (home, lesson, practice, results) and the feedback flow
 
 ## Status
 
 P0 (MVP) is complete. P1 (diagram-builder questions, more question types, 10/15-question sessions, difficulty, LocalStorage progress) is next.
+
+## Copyright
+
+© 2026 Arman Madath. All rights reserved. This is an independent study aid and is not affiliated with or endorsed by any school or school district.
 
 ## Share
 
