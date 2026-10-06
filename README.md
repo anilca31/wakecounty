@@ -4,6 +4,7 @@ An interactive learning app with a practice engine, organized by subject:
 
 - **Maths 6+**: Lesson 1: What Is a Ratio?, Lesson 2: Ratios and Diagrams
 - **ELA 6th Grade**: test prep for Chapters 1–8 of The Lightning Thief and the Hero's Journey: Start Here (test tips, Q&A, full review), Gist & Sequence, The Hero's Journey & the Plot Diagram, Percy's Character & R.A.C.E.S., Chapter-by-Chapter Questions & Answers
+- **Science, Social Studies, Spanish**: subject cards in place, lessons coming soon
 
 ## Run
 
