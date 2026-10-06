@@ -5,16 +5,49 @@
   const MAX_ATTEMPTS = 2;
   const POINTS = { first: 10, second: 5, missed: 0 };
 
+  function numberUnit(u, i) {
+    return { ...u, short: `Unit ${i + 1}`, fullTitle: `Unit ${i + 1}: ${u.title}` };
+  }
+
+  // Maths is split into units; each unit holds its own lessons. Units with no lessons show as "Coming soon".
+  const MATH_UNITS = [
+    { title: 'Area & Surface Area', icon: '📐', color: '#e8590c', blurb: 'Reasoning about area of polygons, surface area, and solid nets.', lessons: [] },
+    { title: 'Introducing Ratios', icon: '⚖️', color: '#d6336c', blurb: 'Understanding ratio concepts and using ratio reasoning.', lessons: RatioUnit.sections },
+    { title: 'Unit Rates & Percentages', icon: '💯', color: '#e67700', blurb: 'Solving real-world rate and percentage problems.', lessons: [] },
+    { title: 'Scale Drawings', icon: '🗺️', color: '#0c8599', blurb: 'Reproducing scale drawings and understanding scale factor.', lessons: [] },
+    { title: 'Dividing Fractions', icon: '🍕', color: '#c92a2a', blurb: 'Extending multiplication and division to fractional values.', lessons: [] },
+    { title: 'Arithmetic in Base 10', icon: '🔟', color: '#5f3dc4', blurb: 'Computing fluently with multi-digit decimals and numbers.', lessons: [] },
+    { title: 'Expressions and Equations', icon: '🧮', color: '#2b8a3e', blurb: 'Introduction to variables, equivalent expressions, and simple equations.', lessons: [] },
+    { title: 'Introducing Proportional Relationships', icon: '📈', color: '#1971c2', blurb: 'Identifying proportional relationships in tables, graphs, and equations.', lessons: [] },
+    { title: 'Proportional Relationships and Percentages', icon: '🏷️', color: '#a61e4d', blurb: 'Advanced multi-step percentage and proportion applications.', lessons: [] },
+    { title: 'Rational Numbers', icon: '🌡️', color: '#087f5b', blurb: 'Working with signed numbers, absolute value, and the coordinate plane.', lessons: [] },
+  ].map(numberUnit);
+
+  const SOCIAL_UNITS = [
+    { title: 'River Valley Civilizations', icon: '🏺', color: '#b45309', blurb: 'How geography and water shaped early human organization in Mesopotamia, Egypt, the Indus Valley, and China.', lessons: SocialStudies.lessons, decks: SocialStudies.DECKS },
+  ].map(numberUnit);
+
   // `color` tints the cover art and the page header gradient. Subjects with no lessons show as "Coming soon".
+  // A subject with `units` lists those first; its `lessons` are all of its units' lessons.
   const SUBJECTS = [
-    { id: 'maths', title: 'Maths', icon: '🔢', color: '#e8590c', tagline: 'Ratios, one step at a time', blurb: 'Learn ratios, one step at a time.', lessons: Lessons.all },
+    { id: 'maths', title: 'Maths', icon: '🔢', color: '#e8590c', tagline: 'Ratios, fractions, equations & more', blurb: 'Maths 6+ in 10 units, from area and ratios to equations and rational numbers. Pick a unit to see its lessons.', units: MATH_UNITS, lessons: MATH_UNITS.flatMap((u) => u.lessons) },
     { id: 'ela', title: 'ELA', icon: '📚', color: '#8d67ab', tagline: 'The Lightning Thief test prep', blurb: 'Get ready for the open-book test on Chapters 1–8 of <em>The Lightning Thief</em> and the Hero\'s Journey. It tests skills, not memory, so start with the tips.', lessons: Ela.lessons },
     { id: 'science', title: 'Science', icon: '🔬', color: '#148a5b', tagline: 'Cells, energy & Earth', blurb: 'Cells, energy, Earth\'s systems and the scientific method.', lessons: [] },
-    { id: 'social', title: 'Social Studies', icon: '🌎', color: '#2d5bd7', tagline: 'Maps, history & government', blurb: 'Ancient civilizations, world geography, and how governments work.', lessons: [] },
+    { id: 'social', title: 'Social Studies', icon: '🌎', color: '#2d5bd7', tagline: 'Ancient river valley civilizations', blurb: 'Ancient civilizations and how geography shaped them. Topics follow the North Carolina 6th-grade standards. Pick a unit to see its lessons.', units: SOCIAL_UNITS, lessons: SOCIAL_UNITS.flatMap((u) => u.lessons) },
     { id: 'spanish', title: 'Spanish', icon: '💬', color: '#d42a3c', tagline: '¡Hola! Everyday Spanish', blurb: 'Greetings, numbers, and everyday conversations.', lessons: [] },
   ];
   const LESSONS = Object.fromEntries(SUBJECTS.flatMap((s) => s.lessons).map((l) => [l.id, l]));
   const subjectOf = (lessonId) => SUBJECTS.findIndex((s) => s.lessons.some((l) => l.id === lessonId));
+  // Index of the unit holding a lesson, or -1 when its subject has no units.
+  const unitOf = (lessonId) => (SUBJECTS[subjectOf(lessonId)].units || []).findIndex((u) => u.lessons.some((l) => l.id === lessonId));
+  // The page a lesson lives on (its unit, else its subject): title, color, and how to open it.
+  function parentOf(lessonId) {
+    const si = subjectOf(lessonId);
+    const ui = unitOf(lessonId);
+    return ui < 0
+      ? { title: SUBJECTS[si].title, color: SUBJECTS[si].color, open: () => renderSubject(si) }
+      : { title: SUBJECTS[si].units[ui].short, color: SUBJECTS[si].units[ui].color, open: () => renderUnit(si, ui) };
+  }
   const sessionLength = (lesson) => lesson.sessionLength || SESSION_LENGTH;
 
   // ---------- Progress display helpers ----------
@@ -68,18 +101,35 @@
   // ---------- Sidebar ----------
   const sidebar = document.getElementById('sidebar');
   const menuBtn = document.getElementById('menuBtn');
-  // What's on screen: { view: 'home' | 'progress' | 'subject' | 'lesson', subject?, lesson? }
+  // What's on screen: { view: 'home' | 'progress' | 'subject' | 'unit' | 'lesson', subject?, unit?, lesson? }
   let current = { view: 'home' };
 
   const cover = (s, cls = '') => `
     <span class="cover ${cls}" style="--cover:${s.color}" aria-hidden="true">
       <span class="cover-icon">${s.icon}</span>
-      <span class="cover-title">${s.title}</span>
+      <span class="cover-title">${s.short || s.title}</span>
     </span>`;
 
-  const subjectMeta = (s) => (s.lessons.length
-    ? `${s.lessons.length} lesson${s.lessons.length === 1 ? '' : 's'} · ${Progress.completion(s.lessons).pct}% done`
-    : 'Coming soon');
+  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  const subjectMeta = (s) => (s.units
+    ? `${plural(s.units.length, 'unit')} · ${Progress.completion(s.lessons).pct}% done`
+    : s.lessons.length
+      ? `${plural(s.lessons.length, 'lesson')} · ${Progress.completion(s.lessons).pct}% done`
+      : 'Coming soon');
+
+  const navLessons = (lessons) => `
+    <div class="library-lessons">
+      ${lessons.map((l) => `<button type="button" class="nav-link nav-lesson" data-nav-lesson="${l.id}">${l.navTitle || l.title}${lessonDone(l) ? ' <span class="nav-check" aria-label="completed">✓</span>' : ''}</button>`).join('')}
+    </div>`;
+
+  const navUnits = (si, units) => `
+    <div class="library-lessons">
+      ${units.map((u, ui) => `
+        <button type="button" class="nav-link nav-lesson nav-unit ${u.lessons.length ? '' : 'is-soon'}" data-nav-unit="${si}:${ui}"
+          ${u.lessons.length ? '' : 'title="Coming soon"'}><span aria-hidden="true">${u.icon}</span> ${u.fullTitle}${u.lessons.length ? '' : '<span class="sr-only"> (coming soon)</span>'}</button>
+        ${current.unit === ui && u.lessons.length ? navLessons(u.lessons) : ''}
+        ${current.unit === ui && u.decks ? `<div class="library-lessons"><button type="button" class="nav-link nav-lesson" data-nav-flash="${si}:${ui}">🃏 Flashcards</button></div>` : ''}`).join('')}
+    </div>`;
 
   function renderNav() {
     sidebar.innerHTML = `
@@ -102,10 +152,7 @@
                 <span class="library-meta">${subjectMeta(s)}</span>
               </span>
             </button>
-            ${current.subject === i && s.lessons.length ? `
-              <div class="library-lessons">
-                ${s.lessons.map((l) => `<button type="button" class="nav-link nav-lesson" data-nav-lesson="${l.id}">${l.title}${lessonDone(l) ? ' <span class="nav-check" aria-label="completed">✓</span>' : ''}</button>`).join('')}
-              </div>` : ''}
+            ${current.subject !== i ? '' : s.units ? navUnits(i, s.units) : s.lessons.length ? navLessons(s.lessons) : ''}
           </div>`).join('')}
       </div>`;
     sidebar.querySelector('[data-nav-home]').addEventListener('click', () => { closeMenu(); renderHome(); });
@@ -113,6 +160,16 @@
     sidebar.querySelectorAll('[data-nav-subject]').forEach((b) => b.addEventListener('click', () => {
       closeMenu();
       renderSubject(+b.dataset.navSubject);
+    }));
+    sidebar.querySelectorAll('[data-nav-unit]').forEach((b) => b.addEventListener('click', () => {
+      closeMenu();
+      const [si, ui] = b.dataset.navUnit.split(':').map(Number);
+      renderUnit(si, ui);
+    }));
+    sidebar.querySelectorAll('[data-nav-flash]').forEach((b) => b.addEventListener('click', () => {
+      closeMenu();
+      const [si, ui] = b.dataset.navFlash.split(':').map(Number);
+      renderFlashcards(si, ui, 'all');
     }));
     sidebar.querySelectorAll('[data-nav-lesson]').forEach((b) => b.addEventListener('click', () => {
       closeMenu();
@@ -129,6 +186,8 @@
     sidebar.querySelectorAll('[data-nav-home]').forEach((b) => set(b, current.view === 'home'));
     sidebar.querySelectorAll('[data-nav-progress]').forEach((b) => set(b, current.view === 'progress'));
     sidebar.querySelectorAll('[data-nav-subject]').forEach((b) => set(b, current.view === 'subject' && current.subject === +b.dataset.navSubject));
+    sidebar.querySelectorAll('[data-nav-unit]').forEach((b) => set(b, current.view === 'unit' && b.dataset.navUnit === `${current.subject}:${current.unit}`));
+    sidebar.querySelectorAll('[data-nav-flash]').forEach((b) => set(b, current.view === 'flashcards'));
     sidebar.querySelectorAll('[data-nav-lesson]').forEach((b) => set(b, current.lesson === +b.dataset.navLesson));
   }
 
@@ -145,6 +204,8 @@
   window.addEventListener('popstate', (e) => {
     const v = e.state || { view: 'home' };
     if (v.view === 'subject') renderSubject(v.subject, { push: false });
+    else if (v.view === 'unit') renderUnit(v.subject, v.unit, { push: false });
+    else if (v.view === 'flashcards') renderFlashcards(v.subject, v.unit, v.deck, { push: false });
     else if (v.view === 'progress') renderProgress({ push: false });
     else renderHome({ push: false });
   });
@@ -179,8 +240,14 @@
   // Crumbs/back target for anything inside a lesson.
   function lessonNav(lessonId, extra) {
     const si = subjectOf(lessonId);
-    const crumbs = [{ label: 'Home', go: () => renderHome() }, { label: SUBJECTS[si].title, go: () => renderSubject(si) }, { label: extra }];
-    return { crumbs, back: () => renderSubject(si) };
+    const ui = unitOf(lessonId);
+    const crumbs = [
+      { label: 'Home', go: () => renderHome() },
+      { label: SUBJECTS[si].title, go: () => renderSubject(si) },
+      ...(ui < 0 ? [] : [{ label: SUBJECTS[si].units[ui].short, go: () => renderUnit(si, ui) }]),
+      { label: extra },
+    ];
+    return { crumbs, back: parentOf(lessonId).open };
   }
 
   const FOOTER = `
@@ -233,61 +300,155 @@
     app.querySelectorAll('[data-subject]').forEach((b) => b.addEventListener('click', () => renderSubject(+b.dataset.subject)));
   }
 
-  // ---------- Subject (its lessons as cards) ----------
+  // ---------- Subject & unit pages ----------
+  // Big header with cover art; `item` is a subject or a unit.
+  const pageHero = (item, kind, title, meta) => `
+    <section class="subject-hero">
+      ${cover(item, 'cover-lg')}
+      <div class="subject-hero-text">
+        <p class="eyebrow">${kind}</p>
+        <h1 class="subject-name ${title.length > 14 ? 'is-long' : ''}">${title}</h1>
+        <p class="muted">${item.blurb}</p>
+        <p class="small"><strong>6th Grader Learning Hub</strong> · ${meta}</p>
+      </div>
+    </section>`;
+
+  // Play button, completion and lesson cards — or a "coming soon" note when there are none yet.
+  const lessonsSection = (lessons, name, backLabel) => (lessons.length ? `
+    <div class="subject-actions">
+      <button type="button" class="play-fab play-fab-lg" data-play aria-label="Start the first lesson">▶</button>
+      <div class="subject-progress">${completionBar(lessons)}</div>
+    </div>
+    <h2 class="shelf-title">Lessons</h2>
+    <div class="tile-grid lesson-tiles">
+      ${lessons.map((l) => `
+        <article class="tile lesson-tile">
+          <div class="lesson-art" aria-hidden="true">${l.art}</div>
+          <h3 class="tile-title">${l.title}</h3>
+          <p class="tile-meta">${l.blurb}</p>
+          ${lessonStatus(l)}
+          <div class="actions">
+            <button type="button" class="btn btn-secondary" data-learn="${l.id}">Learn</button>
+            <button type="button" class="btn btn-primary" data-practice="${l.id}">▶ Practice</button>
+          </div>
+        </article>`).join('')}
+    </div>` : `
+    <div class="empty-state">
+      <p class="empty-icon" aria-hidden="true">🚧</p>
+      <h2>Lessons coming soon</h2>
+      <p class="muted">We're still building ${name}. Try another one for now!</p>
+      <button type="button" class="btn btn-primary" data-up>${backLabel}</button>
+    </div>`);
+
+  function wireLessons(lessons, up) {
+    app.querySelector('[data-play]')?.addEventListener('click', () => renderLesson(lessons[0].id, 0));
+    app.querySelector('[data-up]')?.addEventListener('click', up);
+    app.querySelectorAll('[data-learn]').forEach((b) => b.addEventListener('click', () => renderLesson(+b.dataset.learn, 0)));
+    app.querySelectorAll('[data-practice]').forEach((b) => b.addEventListener('click', () => startPractice(+b.dataset.practice)));
+  }
+
   function renderSubject(i, { push = true } = {}) {
     const s = SUBJECTS[i];
     setView({ view: 'subject', subject: i }, { push });
     const home = () => renderHome();
-    show(`
-      <section class="subject-hero">
-        ${cover(s, 'cover-lg')}
-        <div class="subject-hero-text">
-          <p class="eyebrow">Subject</p>
-          <h1 class="subject-name">${s.title}</h1>
-          <p class="muted">${s.blurb}</p>
-          <p class="small"><strong>6th Grader Learning Hub</strong> · ${subjectMeta(s)}</p>
-        </div>
-      </section>
-      ${s.lessons.length ? `
-        <div class="subject-actions">
-          <button type="button" class="play-fab play-fab-lg" data-play aria-label="Start the first lesson">▶</button>
-          <div class="subject-progress">${completionBar(s.lessons)}</div>
-        </div>
-        <h2 class="shelf-title">Lessons</h2>
-        <div class="tile-grid lesson-tiles">
-          ${s.lessons.map((l) => `
-            <article class="tile lesson-tile">
-              <div class="lesson-art" aria-hidden="true">${l.art}</div>
-              <h3 class="tile-title">${l.title}</h3>
-              <p class="tile-meta">${l.blurb}</p>
-              ${lessonStatus(l)}
-              <div class="actions">
-                <button type="button" class="btn btn-secondary" data-learn="${l.id}">Learn</button>
-                <button type="button" class="btn btn-primary" data-practice="${l.id}">▶ Practice</button>
-              </div>
-            </article>`).join('')}
-        </div>` : `
-        <div class="empty-state">
-          <p class="empty-icon" aria-hidden="true">${s.icon}🚧</p>
-          <h2>Lessons coming soon</h2>
-          <p class="muted">We're still building ${s.title}. Try another subject for now!</p>
-          <button type="button" class="btn btn-primary" data-home>Browse subjects</button>
-        </div>`}`, {
+    const body = s.units ? `
+      <div class="subject-actions">
+        <div class="subject-progress">${completionBar(s.lessons)}</div>
+      </div>
+      <h2 class="shelf-title">Units</h2>
+      <div class="tile-grid">
+        ${s.units.map((u, ui) => `
+          <button type="button" class="tile subject-tile" data-unit="${ui}">
+            <span class="tile-cover">
+              ${cover(u)}
+              ${u.lessons.length ? '<span class="play-fab" aria-hidden="true">▶</span>' : ''}
+            </span>
+            <span class="tile-title">${u.title}</span>
+            <span class="tile-meta">${u.blurb}</span>
+            ${u.lessons.length
+              ? `<span class="tile-foot">${plural(u.lessons.length, 'lesson')} · ${Progress.completion(u.lessons).pct}% done</span>`
+              : '<span class="soon-pill">🚧 Coming soon</span>'}
+          </button>`).join('')}
+      </div>` : lessonsSection(s.lessons, s.title, 'Browse subjects');
+    show(pageHero(s, 'Subject', s.title, subjectMeta(s)) + body, {
       wide: true,
       color: s.color,
       nav: { crumbs: [{ label: 'Home', go: home }, { label: s.title }], back: home },
     });
-    app.querySelector('[data-play]')?.addEventListener('click', () => renderLesson(s.lessons[0].id, 0));
-    app.querySelector('[data-home]')?.addEventListener('click', home);
-    app.querySelectorAll('[data-learn]').forEach((b) => b.addEventListener('click', () => renderLesson(+b.dataset.learn, 0)));
-    app.querySelectorAll('[data-practice]').forEach((b) => b.addEventListener('click', () => startPractice(+b.dataset.practice)));
+    app.querySelectorAll('[data-unit]').forEach((b) => b.addEventListener('click', () => renderUnit(i, +b.dataset.unit)));
+    wireLessons(s.lessons, home);
+  }
+
+  function renderUnit(si, ui, { push = true } = {}) {
+    const s = SUBJECTS[si];
+    const u = s.units[ui];
+    setView({ view: 'unit', subject: si, unit: ui }, { push });
+    const up = () => renderSubject(si);
+    const meta = `${s.title} · ${u.lessons.length ? `${plural(u.lessons.length, 'lesson')} · ${Progress.completion(u.lessons).pct}% done` : 'Coming soon'}`;
+    show(pageHero(u, u.short, u.title, meta) + lessonsSection(u.lessons, u.fullTitle, `Back to ${s.title} units`) + decksSection(u), {
+      wide: true,
+      color: u.color,
+      nav: { crumbs: [{ label: 'Home', go: () => renderHome() }, { label: s.title, go: up }, { label: u.short }], back: up },
+    });
+    wireLessons(u.lessons, up);
+    app.querySelectorAll('[data-deck]').forEach((b) => b.addEventListener('click', () => renderFlashcards(si, ui, b.dataset.deck)));
+  }
+
+  // ---------- Flashcards ----------
+  const deckMeta = (d) => {
+    const m = Flashcards.masteredCount(d.cards);
+    return `${plural(d.cards.length, 'card')} · ${m} mastered`;
+  };
+
+  // "Master …" shelf of flashcard decks on a unit page.
+  const decksSection = (u) => (u.decks ? `
+    <section class="deck-shelf">
+      <h2 class="shelf-title">🃏 Master Grade 6 ${u.title}</h2>
+      <p class="muted">Flashcards for quick revision: review key vocabulary and facts, flip each card, and sort it into <strong>Got it</strong> or <strong>Still learning</strong>. Cards you master are remembered on this device.</p>
+      <div class="tile-grid">
+        ${u.decks.map((d) => {
+          const pct = Math.round((Flashcards.masteredCount(d.cards) / d.cards.length) * 100);
+          return `
+            <button type="button" class="tile subject-tile deck-tile" data-deck="${d.key}">
+              <span class="tile-cover">${cover(d)}<span class="play-fab" aria-hidden="true">▶</span></span>
+              <span class="tile-title">${d.title}</span>
+              <span class="tile-foot">${deckMeta(d)}</span>
+              <span class="progress deck-progress" aria-hidden="true"><span class="progress-bar" style="width:${pct}%"></span></span>
+            </button>`;
+        }).join('')}
+      </div>
+    </section>` : '');
+
+  function renderFlashcards(si, ui, key, { push = true } = {}) {
+    const s = SUBJECTS[si];
+    const u = s.units[ui];
+    const deck = u.decks.find((d) => d.key === key) || u.decks[0];
+    setView({ view: 'flashcards', subject: si, unit: ui, deck: deck.key }, { push });
+    const up = () => renderUnit(si, ui);
+    show(`
+      <section class="card fc-page">
+        <p class="eyebrow">Flashcards · ${u.fullTitle}</p>
+        <h2>${deck.icon} ${deck.title}</h2>
+        <div class="deck-switch" role="group" aria-label="Choose a deck">
+          ${u.decks.map((d) => `<button type="button" class="fc-toggle" data-switch="${d.key}" aria-pressed="${d === deck}">${d.icon} ${d.short}</button>`).join('')}
+        </div>
+        <div id="fcHost"></div>
+      </section>`, {
+      color: deck.color,
+      nav: { crumbs: [{ label: 'Home', go: () => renderHome() }, { label: s.title, go: () => renderSubject(si) }, { label: u.short, go: up }, { label: `Flashcards: ${deck.short}` }], back: up },
+    });
+    app.querySelectorAll('[data-switch]').forEach((b) => b.addEventListener('click', () => renderFlashcards(si, ui, b.dataset.switch)));
+    Flashcards.study(app.querySelector('#fcHost'), deck, {
+      onExit: up,
+      onDone: () => Celebrate.play('Deck complete!'),
+    });
   }
 
   // ---------- Lesson ----------
   function renderLesson(id, stepIndex) {
     const lesson = LESSONS[id];
-    const si = subjectOf(id);
-    setView({ view: 'lesson', subject: si, lesson: id });
+    const parent = parentOf(id);
+    setView({ view: 'lesson', subject: subjectOf(id), unit: unitOf(id), lesson: id });
     const step = lesson.steps[stepIndex];
     const last = stepIndex === lesson.steps.length - 1;
     if (last) { Progress.markLearned(id); refreshNav(); }
@@ -299,12 +460,12 @@
         <h2>${step.title}</h2>
         <div class="step-body">${step.html}</div>
         <div class="actions nav-actions">
-          <button type="button" class="btn btn-ghost" id="back">${stepIndex === 0 ? `← ${SUBJECTS[si].title}` : '← Back'}</button>
+          <button type="button" class="btn btn-ghost" id="back">${stepIndex === 0 ? `← ${parent.title}` : '← Back'}</button>
           ${last
             ? `<button type="button" class="btn btn-primary" id="practice">Start practice →</button>`
             : `<button type="button" class="btn btn-primary" id="next">Next →</button>`}
         </div>
-      </section>`, { nav, color: SUBJECTS[si].color });
+      </section>`, { nav, color: parent.color });
     if (step.mount) step.mount(app.querySelector('.step-body'));
     if (last) Celebrate.play('Lesson complete!');
     app.querySelector('#back').addEventListener('click', () => (stepIndex === 0 ? nav.back() : renderLesson(id, stepIndex - 1)));
@@ -317,7 +478,7 @@
 
   function startPractice(lessonId) {
     const lesson = LESSONS[lessonId];
-    setView({ view: 'lesson', subject: subjectOf(lessonId), lesson: lessonId });
+    setView({ view: 'lesson', subject: subjectOf(lessonId), unit: unitOf(lessonId), lesson: lessonId });
     session = {
       lessonId,
       questions: lesson.buildSession
@@ -345,7 +506,13 @@
               <span class="opt-letter">${o.id}</span><span class="opt-body">${o.html}</span>
             </button>`).join('')}
         </div>`
-      : `<label class="ratio-input">
+      : q.format === 'number'
+        ? `<label class="ratio-input">
+            <span class="sr-only">Your answer</span>
+            <input id="answer" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="e.g. 12">
+          </label>
+          <p class="muted small">Type just the number, like 12 or 1.5.</p>`
+        : `<label class="ratio-input">
           <span class="sr-only">Your answer</span>
           <input id="answer" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="e.g. 3:2">
         </label>
@@ -361,6 +528,7 @@
         <p class="skill-tag">${q.skill}</p>
         <h2 class="prompt">${q.prompt}</h2>
         ${q.visual ? `<div class="diagram-box">${Diagrams.render(q.visual)}</div>` : ''}
+        ${q.visualHtml ? `<div class="diagram-box">${q.visualHtml}</div>` : ''}
         <form id="answerForm" novalidate>
           ${answerArea}
           <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
@@ -369,7 +537,7 @@
             <button type="button" class="btn btn-primary" id="continueBtn" hidden>${index + 1 < questions.length ? 'Continue →' : 'See results →'}</button>
           </div>
         </form>
-      </section>`, { nav: lessonNav(lessonId, `${LESSONS[lessonId].short} practice`), color: SUBJECTS[subjectOf(lessonId)].color });
+      </section>`, { nav: lessonNav(lessonId, `${LESSONS[lessonId].short} practice`), color: parentOf(lessonId).color });
 
     const form = app.querySelector('#answerForm');
     const feedback = app.querySelector('#feedback');
@@ -377,7 +545,7 @@
     const continueBtn = app.querySelector('#continueBtn');
     const input = app.querySelector('#answer');
 
-    app.querySelector('#quit').addEventListener('click', () => renderSubject(subjectOf(lessonId)));
+    app.querySelector('#quit').addEventListener('click', parentOf(lessonId).open);
 
     if (q.format === 'mc') {
       app.querySelectorAll('.option').forEach((btn) => btn.addEventListener('click', () => {
@@ -539,14 +707,14 @@
         <div class="actions">
           <button type="button" class="btn btn-primary" id="again">Practice again</button>
           <button type="button" class="btn btn-secondary" id="review">Review lesson</button>
-          <button type="button" class="btn btn-ghost" id="home">← Back to ${SUBJECTS[subjectOf(lessonId)].title}</button>
+          <button type="button" class="btn btn-ghost" id="home">← Back to ${parentOf(lessonId).title}</button>
         </div>
-      </section>`, { nav: lessonNav(lessonId, 'Results'), color: SUBJECTS[subjectOf(lessonId)].color });
+      </section>`, { nav: lessonNav(lessonId, 'Results'), color: parentOf(lessonId).color });
 
     if (justFinished) Celebrate.play('Practice complete!');
     app.querySelector('#again').addEventListener('click', () => startPractice(lessonId));
     app.querySelector('#review').addEventListener('click', () => renderLesson(lessonId, 0));
-    app.querySelector('#home').addEventListener('click', () => renderSubject(subjectOf(lessonId)));
+    app.querySelector('#home').addEventListener('click', parentOf(lessonId).open);
   }
 
   // ---------- Progress page ----------
@@ -584,8 +752,9 @@
         </div>
       </section>`, { nav: { crumbs: [{ label: 'Home', go: () => renderHome() }, { label: 'Progress & scores' }], back: () => renderHome() }, color: '#b8860b' });
     app.querySelector('#resetProgress').addEventListener('click', () => {
-      if (!window.confirm('Erase all saved progress and scores?')) return;
+      if (!window.confirm('Erase all saved progress, scores, and flashcard mastery?')) return;
       Progress.reset();
+      Flashcards.reset();
       refreshNav();
       renderProgress();
     });

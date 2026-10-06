@@ -298,5 +298,5 @@ const Lessons = (() => {
     ],
   };
 
-  return { all: [lesson1, lesson2], byId: { 1: lesson1, 2: lesson2 }, miniCheck };
+  return { all: [lesson1, lesson2], byId: { 1: lesson1, 2: lesson2 }, miniCheck, stepper };
 })();

@@ -102,6 +102,125 @@ for (let i = 0; i < 2000; i++) {
   }
 }
 
+// Maths Unit 2 (js/ratio-unit.js): fuzz every generator and every section's practice session.
+for (const f of ['lessons.js', 'ratio-unit.js']) {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8');
+  vm.runInContext(`${src}\n;globalThis.${f === 'lessons.js' ? 'Lessons = Lessons' : 'RatioUnit = RatioUnit'};`, ctx);
+}
+const { RatioUnit } = ctx;
+const num = RatioUnit.parseNumber;
+assert.strictEqual(num('12'), 12);
+assert.strictEqual(num('$1.50'), 1.5);
+assert.strictEqual(num('.5'), 0.5);
+assert.strictEqual(num('3/2'), 1.5);
+assert.strictEqual(num('15 cups of flour'), 15);
+assert.strictEqual(num('1,200'), 1200);
+assert.strictEqual(num('twelve'), null);
+assert.strictEqual(num(''), null);
+
+for (const [type, gen] of Object.entries(RatioUnit.GENERATORS)) {
+  for (let i = 0; i < 2000; i++) {
+    const q = gen();
+    assert.strictEqual(q.type, type);
+    assert.ok(q.prompt && q.hint && q.explanation && q.solution && q.skill && q.summary, `${type}: missing text`);
+    if (q.format === 'mc') {
+      assert.ok(q.options.length >= 3, `${type}: at least 3 options`);
+      assert.strictEqual(new Set(q.options.map((o) => o.html)).size, q.options.length, `${type}: distinct options`);
+      const correct = q.options.filter((o) => o.correct);
+      assert.strictEqual(correct.length, 1, `${type}: exactly one correct option`);
+      assert.strictEqual(q.check(correct[0].id).status, 'correct');
+      for (const o of q.options.filter((o) => !o.correct)) {
+        const res = q.check(o.id);
+        assert.strictEqual(res.status, 'incorrect');
+        assert.ok(res.message, `${type}: wrong option has a targeted hint`);
+      }
+      assert.strictEqual(q.check(undefined).status, 'invalid');
+    } else if (q.format === 'number') {
+      const ans = num(q.solution);
+      assert.ok(ans != null && Number.isFinite(ans), `${type}: solution "${q.solution}" is a number`);
+      assert.strictEqual(q.check(q.solution).status, 'correct', `${type}: solution checks`);
+      assert.strictEqual(q.check(String(ans)).status, 'correct');
+      assert.strictEqual(q.check(String(ans + 1000)).status, 'incorrect');
+      assert.strictEqual(q.check('hello').status, 'invalid');
+    } else {
+      assert.strictEqual(q.format, 'ratio');
+      assert.strictEqual(q.check(q.solution).status, 'correct', `${type}: solution checks`);
+      assert.strictEqual(q.check('hello').status, 'invalid');
+    }
+  }
+}
+// makeEquiv: the same ratio or an "added" ratio is wrong; any multiple is right.
+for (let i = 0; i < 500; i++) {
+  const q = RatioUnit.GENERATORS.makeEquiv();
+  const [a, b] = q.summary.match(/(\d+) : (\d+)/).slice(1).map(Number);
+  assert.strictEqual(q.check(`${a}:${b}`).status, 'incorrect');
+  assert.strictEqual(q.check(`${a * 5}:${b * 5}`).status, 'correct');
+  assert.strictEqual(q.check(`${a + 2}:${b + 2}`).status, 'incorrect');
+}
+// Sessions: right length, no duplicates, every type in the section shows up.
+assert.strictEqual(RatioUnit.sections.length, 10, 'Unit 2 has 10 sections');
+assert.strictEqual(new Set(RatioUnit.sections.map((l) => l.id)).size, 10, 'section ids are unique');
+for (const l of RatioUnit.sections) {
+  assert.ok(l.steps.length >= 3 && l.steps[0].title === 'Learning targets', `${l.short}: starts with learning targets`);
+  for (let i = 0; i < 300; i++) {
+    const s = l.buildSession(l.sessionLength);
+    assert.strictEqual(s.length, l.sessionLength, `${l.short}: session length`);
+    assert.strictEqual(new Set(s.map((q) => q.summary)).size, s.length, `${l.short}: no duplicate questions`);
+    for (const t of l.types) assert.ok(s.some((q) => q.type === t), `${l.short}: covers ${t}`);
+  }
+}
+
+// Social Studies Unit 1 (js/social-studies.js): bank quality, generated questions, and sessions.
+{
+  const src = fs.readFileSync(path.join(__dirname, '..', 'js', 'social-studies.js'), 'utf8');
+  vm.runInContext(`${src}\n;globalThis.SocialStudies = SocialStudies;`, ctx);
+  const SS = ctx.SocialStudies;
+  for (const item of SS.BANK) {
+    assert.ok(SS.SKILLS[item.skill], `SS: unknown skill ${item.skill}`);
+    assert.strictEqual(item.options.length, 4, `SS: 4 options for "${item.prompt}"`);
+    assert.strictEqual(new Set(item.options.map(([html]) => html)).size, 4, `SS: distinct options for "${item.prompt}"`);
+    item.options.slice(1).forEach(([, hint]) => assert.ok(hint, `SS: wrong option has a hint in "${item.prompt}"`));
+    assert.ok(item.explanation);
+  }
+  assert.strictEqual(new Set(SS.BANK.map((q) => q.prompt)).size, SS.BANK.length, 'SS: no duplicate prompts');
+  for (const [skill, factories] of Object.entries(SS.FACTORIES)) {
+    assert.ok(SS.SKILLS[skill], `SS: factory for unknown skill ${skill}`);
+    for (const f of factories) {
+      const q = f();
+      assert.strictEqual(new Set(q.options.map((o) => o.html)).size, 4, `SS ${skill}: 4 distinct options (${q.prompt})`);
+      const correct = q.options.filter((o) => o.correct);
+      assert.strictEqual(correct.length, 1);
+      assert.strictEqual(q.check(correct[0].id).status, 'correct');
+      q.options.filter((o) => !o.correct).forEach((o) => assert.ok(q.check(o.id).message, `SS ${skill}: hint for wrong option (${q.prompt})`));
+      assert.strictEqual(q.check(undefined).status, 'invalid');
+    }
+  }
+  // Flashcards: every deck has cards with text on both sides and unique ids; "all" holds every topic card.
+  const [all, ...topics] = SS.DECKS;
+  assert.strictEqual(all.key, 'all');
+  assert.strictEqual(all.cards.length, topics.reduce((n, d) => n + d.cards.length, 0));
+  assert.ok(all.cards.length >= 100, `SS: at least 100 flashcards (${all.cards.length})`);
+  assert.strictEqual(new Set(all.cards.map((c) => c.id)).size, all.cards.length, 'SS: flashcard ids are unique');
+  for (const c of all.cards) assert.ok(c.front.trim() && c.back.trim() && c.tag, `SS: flashcard ${c.id} has both sides`);
+  for (const d of SS.DECKS) assert.ok(d.title && d.short && d.icon && d.color && d.cards.length >= 15, `SS: deck ${d.key} is complete`);
+  assert.strictEqual(SS.lessons.length, 6);
+  assert.strictEqual(new Set(SS.lessons.map((l) => l.id)).size, 6, 'SS: lesson ids are unique');
+  for (const l of SS.lessons) {
+    assert.strictEqual(l.steps[0].title, 'Learning targets', `SS ${l.short}: starts with targets`);
+    for (let i = 0; i < 300; i++) {
+      const s = l.buildSession(l.sessionLength);
+      assert.strictEqual(s.length, l.sessionLength, `SS ${l.short}: session length`);
+      assert.strictEqual(new Set(s.map((q) => q.summary)).size, s.length, `SS ${l.short}: no duplicates`);
+      for (const k of l.skills) assert.ok(s.some((q) => q.type === k), `SS ${l.short}: covers ${k}`);
+    }
+  }
+}
+// Lesson ids must be unique across every subject.
+{
+  const ids = [...ctx.RatioUnit.sections, ...ctx.SocialStudies.lessons].map((l) => l.id).concat([3, 4, 5, 6, 7]);
+  assert.strictEqual(new Set(ids).size, ids.length, 'lesson ids are unique across subjects');
+}
+
 // Progress: completion counts reading + practice per lesson; works with storage unavailable.
 const progSrc = fs.readFileSync(path.join(__dirname, '..', 'js', 'progress.js'), 'utf8');
 vm.runInContext(`${progSrc}\n;globalThis.Progress = Progress;`, ctx);
