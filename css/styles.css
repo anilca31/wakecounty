@@ -478,6 +478,41 @@ kbd {
   .fc-keys { display: none; }
 }
 
+/* ---------- South Asia map ---------- */
+.sa-map { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto; border-radius: 10px; }
+.map-ocean { fill: #16324a; }
+.map-land { fill: #45553a; stroke: #c9d6a3; stroke-width: 1.2; }
+.map-grid line { stroke: rgba(255, 255, 255, .22); stroke-dasharray: 3 4; }
+.map-grid text { fill: rgba(255, 255, 255, .65); font: 600 10px system-ui, sans-serif; }
+.map-river { fill: none; stroke: #5ab4ff; stroke-width: 2.4; stroke-linejoin: round; }
+.map-range path { fill: none; stroke: #e9d8a6; stroke-width: 1.7; }
+.map-text { fill: #fff; font: 700 11px system-ui, sans-serif; paint-order: stroke; stroke: rgba(0, 0, 0, .55); stroke-width: 3px; }
+.water-text { fill: #9fd3ff; font-style: italic; }
+.river-text { fill: #9fd3ff; }
+.map-label { display: none; }
+.map-label.is-on { display: inline; }
+.map-panel { fill: rgba(0, 0, 0, .6); }
+.map-scale line { stroke: #fff; stroke-width: 2.2; }
+.map-scale text, .map-compass text { fill: #fff; font: 700 10px system-ui, sans-serif; }
+.needle { fill: #ff6b6b; }
+.needle-ew { fill: #cfcfcf; }
+.map-everest { fill: #fff; stroke: #000; stroke-width: 1; }
+.map-measure { stroke: #ffd43b; stroke-width: 3; stroke-dasharray: 8 5; }
+.map-dot { fill: #ffd43b; stroke: #000; stroke-width: 1.5; }
+.map-place { fill: #ffd43b; font: 800 12px system-ui, sans-serif; paint-order: stroke; stroke: rgba(0, 0, 0, .8); stroke-width: 3px; }
+.map-letter { fill: #ffd43b; stroke: #000; stroke-width: 1.5; }
+.map-letter-text { fill: #000; font: 900 13px system-ui, sans-serif; }
+.ruler-map .sa-map { cursor: crosshair; }
+.ruler-line { stroke: #1ed760; stroke-width: 3; stroke-dasharray: 8 5; }
+.ruler-dot { fill: #1ed760; stroke: #000; stroke-width: 1.5; }
+.ruler-tag { fill: #000; stroke: #1ed760; stroke-width: 1.5; }
+.ruler-text { fill: #1ed760; font: 800 11px system-ui, sans-serif; }
+.ruler-readout { min-height: 3.2em; }
+.map-highlight .map-river.is-hl { stroke: #ffd43b; stroke-width: 4; }
+.map-highlight .map-range.is-hl path { stroke: #ffd43b; stroke-width: 2.6; }
+.find-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.diagram-box .sa-map { max-width: 560px; }
+
 /* ---------- Practice ---------- */
 .practice-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .practice-head .eyebrow { margin: 0; }

@@ -172,8 +172,18 @@ for (const l of RatioUnit.sections) {
 
 // Social Studies Unit 1 (js/social-studies.js): bank quality, generated questions, and sessions.
 {
+  const mapSrc = fs.readFileSync(path.join(__dirname, '..', 'js', 'south-asia-map.js'), 'utf8');
+  vm.runInContext(`${mapSrc}\n;globalThis.SouthAsiaMap = SouthAsiaMap;`, ctx);
   const src = fs.readFileSync(path.join(__dirname, '..', 'js', 'social-studies.js'), 'utf8');
   vm.runInContext(`${src}\n;globalThis.SocialStudies = SocialStudies;`, ctx);
+  const SAM = ctx.SouthAsiaMap;
+  // Map scale sanity: measurements match real-world distances closely.
+  const near = (v, want, tol) => assert.ok(Math.abs(v - want) <= tol, `map distance ${Math.round(v)} should be about ${want}`);
+  near(SAM.miles(SAM.PLACES.delhi.at, SAM.PLACES.kolkata.at), 815, 60);
+  near(SAM.miles(SAM.PLACES.mumbai.at, SAM.PLACES.chennai.at), 640, 50);
+  assert.strictEqual(SAM.direction(SAM.PLACES.chennai.at, SAM.PLACES.delhi.at).dir, 'north');
+  assert.strictEqual(SAM.direction(SAM.PLACES.delhi.at, SAM.PLACES.colombo.at).dir, 'south');
+  assert.match(SAM.render({ labels: false, line: [[70, 20], [80, 20]] }), /^<svg/);
   const SS = ctx.SocialStudies;
   for (const item of SS.BANK) {
     assert.ok(SS.SKILLS[item.skill], `SS: unknown skill ${item.skill}`);
@@ -203,8 +213,18 @@ for (const l of RatioUnit.sections) {
   assert.strictEqual(new Set(all.cards.map((c) => c.id)).size, all.cards.length, 'SS: flashcard ids are unique');
   for (const c of all.cards) assert.ok(c.front.trim() && c.back.trim() && c.tag, `SS: flashcard ${c.id} has both sides`);
   for (const d of SS.DECKS) assert.ok(d.title && d.short && d.icon && d.color && d.cards.length >= 15, `SS: deck ${d.key} is complete`);
-  assert.strictEqual(SS.lessons.length, 6);
-  assert.strictEqual(new Set(SS.lessons.map((l) => l.id)).size, 6, 'SS: lesson ids are unique');
+  // Map questions: fuzz every map generator (factories are shared, so run them many times).
+  for (const skill of ['distance', 'latlong', 'direction']) {
+    for (let i = 0; i < 400; i++) {
+      const q = SS.FACTORIES[skill][SS.FACTORIES[skill].length - 1]();
+      assert.match(q.visualHtml, /^<svg/, `SS ${skill}: has a map`);
+      assert.strictEqual(new Set(q.options.map((o) => o.html)).size, 4, `SS ${skill}: 4 distinct options (${q.options.map((o) => o.html)})`);
+      assert.strictEqual(q.options.filter((o) => o.correct).length, 1);
+      q.options.filter((o) => !o.correct).forEach((o) => assert.ok(q.check(o.id).message));
+    }
+  }
+  assert.strictEqual(SS.lessons.length, 7);
+  assert.strictEqual(new Set(SS.lessons.map((l) => l.id)).size, 7, 'SS: lesson ids are unique');
   for (const l of SS.lessons) {
     assert.strictEqual(l.steps[0].title, 'Learning targets', `SS ${l.short}: starts with targets`);
     for (let i = 0; i < 300; i++) {

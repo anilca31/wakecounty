@@ -13,6 +13,9 @@ const SocialStudies = (() => {
     beliefs: 'Roots of Hinduism and Buddhism',
     china:   'Ancient China',
     compare: 'Compare river valley civilizations',
+    distance:  'Find distance with a map scale',
+    latlong:   'Latitude, longitude & absolute location',
+    direction: 'Directions & relative location',
   };
 
   // ---------- Civilization data ----------
@@ -222,6 +225,58 @@ const SocialStudies = (() => {
       explanation: 'China was surrounded by mountains, deserts, and the ocean. Egypt had desert protection too. Mesopotamia had very little.' },
   ];
 
+  BANK.push(
+    // Map skills
+    { skill: 'distance', prompt: 'What does a <strong>map scale</strong> tell you?',
+      options: [['How a distance on the map compares to the real distance on Earth'], ['Which way is north', 'That is the compass rose.'], ['What the symbols on the map mean', 'That is the map key (legend).'], ['The exact latitude of a place', 'Latitude comes from the grid lines, not the scale.']],
+      explanation: 'A scale bar shows how much real distance one length on the map stands for, like "this bar = 200 miles."' },
+    { skill: 'distance', prompt: 'The scale bar on a map stands for <strong>200 miles</strong>. A line between two cities is exactly <strong>3 scale bars</strong> long. How far apart are the cities?',
+      options: [['600 miles'], ['3 miles', 'That is the number of scale bars. Each bar stands for 200 miles.'], ['203 miles', 'Multiply, don\'t add: 3 × 200.'], ['200 miles', 'That is just one scale bar. The line is 3 bars long.']],
+      explanation: '3 scale bars × 200 miles per bar = 600 miles.' },
+    { skill: 'distance', prompt: 'How can you measure a distance with a scale bar if you don\'t have a ruler?',
+      options: [['Mark the two points on the edge of a strip of paper, then lay the strip along the scale bar'], ['Guess based on how big the country looks', 'Guessing isn\'t measuring. Use the scale bar.'], ['Count the latitude lines', 'Latitude lines help find location, but the scale bar finds distance.'], ['Measure the compass rose', 'The compass rose shows direction, not distance.']],
+      explanation: 'Mark both points on a paper strip, then lay it along the scale bar to count how many bars long it is. Multiply by the bar\'s distance.' },
+    { skill: 'distance', prompt: 'Sri Lanka measures about <strong>130 miles</strong> wide and <strong>270 miles</strong> long on the map. Using Length × Width, about what is its area?',
+      options: [['About 35,000 square miles'], ['About 400 square miles', '130 + 270 = 400, but area means multiplying: 130 × 270.'], ['About 3,500 square miles', 'Check your zeros: 130 × 270 = 35,100.'], ['About 270 miles', 'That is just the length. Area is length × width, in square miles.']],
+      explanation: '130 × 270 = 35,100, so about 35,000 square miles. (Sri Lanka\'s real area is about 25,000 square miles, because it isn\'t a rectangle.)' },
+    { skill: 'distance', prompt: 'Why is Length × Width only an <strong>estimate</strong> of Sri Lanka\'s area?',
+      options: [['Sri Lanka isn\'t a perfect rectangle, so the rectangle includes some ocean'], ['Because it is not an absolute location', 'Absolute location is about latitude and longitude, not area.'], ['Because islands do not have an area', 'Every island has an area. The problem is its shape.'], ['Because the scale bar only works on land', 'The scale works everywhere on the map.']],
+      explanation: 'L × W gives the exact area of a rectangle. Sri Lanka is shaped more like a teardrop, so the rectangle covers extra water. Map measurements are also rounded.' },
+    { skill: 'latlong', prompt: 'Lines of <strong>latitude</strong> measure distance…',
+      options: [['north or south of the Equator'], ['east or west of the Prime Meridian', 'That is longitude.'], ['from one city to another', 'That is what a map scale measures.'], ['above sea level', 'That is elevation.']],
+      explanation: 'Latitude lines run east–west and measure how far north or south a place is from the Equator (0°).' },
+    { skill: 'latlong', prompt: 'Lines of <strong>longitude</strong> measure distance…',
+      options: [['east or west of the Prime Meridian'], ['north or south of the Equator', 'That is latitude.'], ['between mountains', 'Longitude is about east–west position.'], ['across an ocean only', 'Longitude lines cover the whole Earth.']],
+      explanation: 'Longitude lines run from the North Pole to the South Pole and measure how far east or west a place is from the Prime Meridian (0°).' },
+    { skill: 'latlong', prompt: 'How do you write an absolute location?',
+      options: [['Latitude first, then longitude, like (20°N, 80°E)'], ['Longitude first, then latitude, like (80°E, 20°N)', 'Latitude always comes first.'], ['Just the country name', 'That is a place name, not an absolute location.'], ['The distance in miles', 'Distance comes from the scale bar.']],
+      explanation: 'Absolute location is written (latitude, longitude). Remember: "latitude is like the rungs of a ladder (lat-der)," and it goes first.' },
+    { skill: 'latlong', prompt: 'What is <strong>absolute location</strong>?',
+      options: [['The exact spot of a place, given by latitude and longitude'], ['Where a place is compared to other places', 'That is relative location.'], ['How far apart two places are', 'That is distance.'], ['The biggest city in a country', 'Absolute location is about an exact position on Earth.']],
+      explanation: 'Absolute location is an exact address on Earth, like (28°N, 87°E) for Mount Everest.' },
+    { skill: 'latlong', prompt: 'India is in which two hemispheres?',
+      options: [['Northern and Eastern'], ['Southern and Western', 'India is north of the Equator and east of the Prime Meridian.'], ['Northern and Western', 'India\'s longitudes are °E, so it is in the Eastern Hemisphere.'], ['Southern and Eastern', 'India\'s latitudes are °N, so it is in the Northern Hemisphere.']],
+      explanation: 'All of India\'s latitudes are °N and its longitudes are °E, so it is in the Northern and Eastern Hemispheres.' },
+    { skill: 'latlong', prompt: 'Which is the best estimate for the absolute location of the <strong>mouth of the Ganges River</strong>?',
+      options: [['(22°N, 90°E)'], ['(34°N, 85°E)', 'That is up in the mountains of Tibet. The mouth is where the river meets the Bay of Bengal.'], ['(22°N, 68°E)', 'That is near the mouth of the Indus, on the Arabian Sea.'], ['(90°N, 22°E)', 'Latitude and longitude are switched. Write latitude first.']],
+      explanation: 'The Ganges flows east and empties into the Bay of Bengal at about 22°N, 90°E (in Bangladesh).' },
+    { skill: 'direction', prompt: 'What is <strong>relative location</strong>?',
+      options: [['Describing where a place is compared to other places'], ['The exact latitude and longitude of a place', 'That is absolute location.'], ['How many people live in a place', 'That is population.'], ['The distance shown on a scale bar', 'That is map scale.']],
+      explanation: 'Relative location uses other places: "Sri Lanka is southeast of India, in the Indian Ocean."' },
+    { skill: 'direction', prompt: 'Which sentence describes the <strong>relative location</strong> of Sri Lanka?',
+      options: [['Sri Lanka is an island southeast of India, in the Indian Ocean.'], ['Sri Lanka is at about 7°N, 81°E.', 'That is absolute location (latitude and longitude).'], ['Sri Lanka is about 270 miles long.', 'That is its size, not its location.'], ['Sri Lanka is a country.', 'That doesn\'t say where it is. Compare it to nearby places.']],
+      explanation: 'Relative location compares a place to its neighbors: Sri Lanka is off the southeast tip of India, across the Palk Strait, in the Indian Ocean.' },
+    { skill: 'direction', prompt: 'Mount Everest is mostly north and a little west of the middle of the Bay of Bengal. Which <strong>intermediate direction</strong> fits best?',
+      options: [['Northwest'], ['Northeast', 'Everest is a little west of the Bay\'s middle, not east.'], ['Southeast', 'Everest is north of the Bay, up in the Himalayas.'], ['Southwest', 'Everest is north of the Bay, not south.']],
+      explanation: 'Everest (about 87°E) is north of the Bay of Bengal and slightly west of its middle (about 88–90°E), so northwest is the best fit.' },
+    { skill: 'direction', prompt: 'What are the <strong>intermediate directions</strong>?',
+      options: [['Northeast, southeast, southwest, and northwest'], ['North, south, east, and west', 'Those are the cardinal directions.'], ['Up, down, left, and right', 'Maps use compass directions instead.'], ['Latitude and longitude', 'Those are grid lines, not directions.']],
+      explanation: 'Intermediate directions fall between the cardinal directions: NE, SE, SW, and NW.' },
+    { skill: 'direction', prompt: 'Which body of water is <strong>west</strong> of India?',
+      options: [['The Arabian Sea'], ['The Bay of Bengal', 'The Bay of Bengal is east of India.'], ['The Mediterranean Sea', 'That is far away, near Egypt.'], ['The Yellow River', 'That is a river in China.']],
+      explanation: 'The Arabian Sea is west of India, the Bay of Bengal is east, and the Indian Ocean is south.' },
+  );
+
   const toQuestion = (skill, prompt, options, explanation, hint) => {
     const opts = shuffle(options.map(([html, h], i) => ({ html, correct: i === 0, hint: h })))
       .map((o, i) => ({ ...o, id: 'ABCD'[i] }));
@@ -252,10 +307,88 @@ const SocialStudies = (() => {
     [[c.name], ...CIVS.filter((o) => o !== c).map((o) => [o.name, `${o.name} is known for ${o.achievement}.`])],
     `${c.name} ${clue}. It is known for ${c.achievement}.`)));
 
+  // Map questions drawn on the South Asia map.
+  const M = SouthAsiaMap;
+  const PLACE_KEYS = Object.keys(M.PLACES);
+  const placeName = (p) => p.short || p.name;
+
+  function mapDistance() {
+    let a; let b; let d;
+    do {
+      [a, b] = Util.pickTwo(PLACE_KEYS).map((k) => M.PLACES[k]);
+      d = M.miles(a.at, b.at);
+    } while (d < 300 || d > 1700);
+    const ans = M.roundTo(d, 50);
+    const bars = d / M.SCALE_MILES;
+    const q = toQuestion('distance',
+      `Use the map scale. About how far is it from <strong>${placeName(a)}</strong> to <strong>${placeName(b)}</strong>?`,
+      [
+        [`About ${ans.toLocaleString()} miles`],
+        [`About ${M.roundTo(d * 0.5, 50).toLocaleString()} miles`, 'Too short. Count how many scale bars fit along the dashed line, then multiply by 200.'],
+        [`About ${M.roundTo(d * 1.6, 50).toLocaleString()} miles`, 'Too long. Lay the scale bar along the line again and count carefully.'],
+        [`About ${Math.max(1, Math.round(bars))} miles`, 'That is how many scale bars long the line is. Each bar stands for 200 miles, so multiply by 200.'],
+      ],
+      `The line is about ${bars.toFixed(1)} scale bars long. ${bars.toFixed(1)} × 200 ≈ ${ans.toLocaleString()} miles.`,
+      'Mark the line\'s length (a paper strip works), count how many 200-mile scale bars fit, then multiply by 200.');
+    q.visualHtml = M.render({ labels: false, line: [a.at, b.at], markers: [{ at: a.at, label: placeName(a) }, { at: b.at, label: placeName(b) }] });
+    q.summary = `Distance ${placeName(a)} to ${placeName(b)}`;
+    return q;
+  }
+
+  function mapLatLon() {
+    const lat = pick([10, 15, 20, 25, 30, 35]);
+    const lon = pick([65, 70, 75, 80, 85, 90, 95]);
+    const letter = pick(['A', 'B', 'C', 'D']);
+    const loc = (la, lo) => `(${la}°N, ${lo}°E)`;
+    const lat2 = lat + 5 <= 35 ? lat + 5 : lat - 5;
+    const lon2 = lon + 5 <= 95 ? lon + 5 : lon - 5;
+    const q = toQuestion('latlong',
+      `What is the latitude and longitude of point <strong>${letter}</strong>?`,
+      [
+        [loc(lat, lon)],
+        [`(${lon}°N, ${lat}°E)`, 'Latitude and longitude are switched. Write latitude (°N) first, then longitude (°E).'],
+        [loc(lat2, lon), `Check the latitude: find the °N line that runs east–west through point ${letter}.`],
+        [loc(lat, lon2), `Check the longitude: find the °E line that runs north–south through point ${letter}.`],
+      ],
+      `Point ${letter} sits where the ${lat}°N latitude line crosses the ${lon}°E longitude line: ${loc(lat, lon)}.`,
+      'Follow the horizontal line to the right edge for latitude (°N). Follow the vertical line to the top for longitude (°E).');
+    q.visualHtml = M.render({ labels: false, markers: [{ at: [lon, lat], label: letter, kind: 'letter' }] });
+    q.summary = `Lat/long of ${loc(lat, lon)}`;
+    return q;
+  }
+
+  function mapDirection() {
+    let a; let b; let dir;
+    do {
+      [a, b] = Util.pickTwo(PLACE_KEYS).map((k) => M.PLACES[k]);
+      dir = M.direction(a.at, b.at);
+    } while (dir.off > 15 || M.miles(a.at, b.at) < 250);
+    const D = M.DIRS;
+    const i = dir.index;
+    const cap = (t) => t[0].toUpperCase() + t.slice(1);
+    const q = toQuestion('direction',
+      `Look at the map. <strong>${cap(placeName(b))}</strong> is ________ of <strong>${placeName(a)}</strong>.`,
+      [
+        [D[i]],
+        [D[(i + 4) % 8], `That is backwards. Start at ${placeName(a)} and look toward ${placeName(b)}.`],
+        [D[(i + 2) % 8], 'Use the compass rose: north is toward the top of the map.'],
+        [D[(i + 6) % 8], 'Use the compass rose: north is toward the top of the map.'],
+      ],
+      `Starting at ${placeName(a)}, you travel ${D[i]} to reach ${placeName(b)}.`,
+      'Put your finger on the starting place, then see which way you move to reach the other place. Top = north, right = east.');
+    q.visualHtml = M.render({ labels: false, markers: [{ at: a.at, label: placeName(a) }, { at: b.at, label: placeName(b) }] });
+    q.summary = `Direction from ${placeName(a)} to ${placeName(b)}`;
+    return q;
+  }
+
   const FACTORIES = {};
   BANK.forEach((item) => (FACTORIES[item.skill] ||= []).push(() => toQuestion(item.skill, item.prompt, item.options, item.explanation)));
   FACTORIES.compare.push(...riverFactories);
   CIVS.forEach((c, i) => FACTORIES[c.key].push(...clueFactories[i]));
+  // Map questions show up about as often as all the written ones for the skill.
+  FACTORIES.distance.push(...Array(5).fill(mapDistance));
+  FACTORIES.latlong.push(...Array(6).fill(mapLatLon));
+  FACTORIES.direction.push(...Array(5).fill(mapDirection));
 
   // Picks `count` different questions from the given skills, rotating so each skill shows up.
   function buildSession(skills, count) {
@@ -398,6 +531,168 @@ const SocialStudies = (() => {
           ['Were all river floods helpful?', 'Floods brought silt, but they could also destroy homes. The Nile flooded predictably; the Tigris, Euphrates, and Yellow Rivers were harder to predict and could be deadly.'],
           ['What is a social hierarchy?', 'A ranking of groups in a society from most to least powerful, such as rulers and priests at the top and farmers and enslaved people near the bottom.'],
         ]),
+      },
+    ],
+  };
+
+  // ---------- Map skills ----------
+  const PRESET_TEXT = (m) => `📏 The line is <strong>${m.bars.toFixed(1)}</strong> scale bars long → ${m.bars.toFixed(1)} × 200 ≈ <strong>${M.roundTo(m.miles, 10).toLocaleString()} miles</strong>.`;
+  const FIND = [
+    ['indus', 'Indus River'], ['ganges', 'Ganges River'], ['brahmaputra', 'Brahmaputra River'],
+    ['arabianSea', 'Arabian Sea'], ['bayOfBengal', 'Bay of Bengal'], ['indianOcean', 'Indian Ocean'],
+    ['himalayas', 'Himalayas'], ['everest', 'Mt. Everest'], ['hinduKush', 'Hindu Kush'],
+    ['westernGhats', 'Western Ghats'], ['easternGhats', 'Eastern Ghats'], ['deccan', 'Deccan Plateau'],
+    ['thar', 'Thar Desert'], ['sriLanka', 'Sri Lanka'],
+  ];
+
+  const maps = {
+    id: 46,
+    short: 'Map skills',
+    navTitle: 'Map skills: Distance & location',
+    title: 'Map Skills: Distance, Location & Direction in South Asia',
+    blurb: 'Use a map scale to measure distance, find latitude and longitude, describe direction and relative location, and estimate area.',
+    art: '<span class="lesson-emoji">🗺️📏</span>',
+    sessionLength: 8,
+    skills: ['distance', 'latlong', 'direction'],
+    steps: [
+      targets([
+        'I can use a map scale to find the distance between two places.',
+        'I can find the latitude and longitude (absolute location) of a place.',
+        'I can use cardinal and intermediate directions.',
+        'I can describe the relative location of a place.',
+        'I can estimate area using Length × Width and explain why it is an estimate.',
+      ]),
+      {
+        title: 'Reading a map scale',
+        html: `
+          <p>A <strong>map scale</strong> (scale bar) shows how a distance on the map compares to the real distance on Earth. On our map, one bar stands for <strong>200 miles</strong>.</p>
+          <ol class="language-list">
+            <li>Lay the edge of a strip of paper between the two places. Make a mark at each place.</li>
+            <li>Line up the first mark with <strong>0</strong> on the scale bar.</li>
+            <li>Count how many scale bars fit between the marks (you can use halves!).</li>
+            <li><strong>Multiply</strong>: number of bars × 200 miles.</li>
+          </ol>
+          <div class="callout">Example: the line is <strong>4½</strong> scale bars long → 4.5 × 200 = <strong>900 miles</strong>.</div>
+          <p>A line is <strong>2½</strong> scale bars long. How far is that?</p>
+          <div id="check"></div>`,
+        mount(el) {
+          miniCheck(el, '#check', [
+            { label: '2.5 miles', correct: false, feedback: 'That is how many bars long it is. Each bar is 200 miles.' },
+            { label: '500 miles', correct: true, feedback: 'Yes! 2.5 × 200 = 500 miles.' },
+            { label: '202.5 miles', correct: false, feedback: 'Multiply, don\'t add: 2.5 × 200.' },
+          ]);
+        },
+      },
+      {
+        title: 'Measure it!',
+        html: `
+          <p><strong>Tap two places on the map</strong> to measure the distance between them, or try a measurement from the worksheet:</p>
+          <div class="find-buttons">${M.PRESETS.map((p, i) => `<button type="button" class="fc-toggle" data-preset="${i}">${p.label}</button>`).join('')}</div>
+          <div class="ruler-map">${M.render({ labels: true })}</div>
+          <p class="ruler-readout callout" role="status">Tap a starting point on the map.</p>`,
+        mount(el) {
+          const out = el.querySelector('.ruler-readout');
+          const ruler = M.attachRuler(el.querySelector('.sa-map'), (m) => {
+            out.innerHTML = m ? PRESET_TEXT(m) : 'Now tap the second point.';
+          });
+          el.querySelectorAll('[data-preset]').forEach((b) => b.addEventListener('click', () => {
+            const p = M.PRESETS[+b.dataset.preset];
+            el.querySelectorAll('[data-preset]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+            ruler.show(p.a, p.b);
+          }));
+        },
+      },
+      {
+        title: 'Find the features',
+        html: `
+          <p>Can you find each feature before you tap its name? Tap a name to show it on the map.</p>
+          <div class="find-buttons">${FIND.map(([k, n]) => `<button type="button" class="fc-toggle" data-find="${k}" aria-pressed="false">${n}</button>`).join('')}
+            <button type="button" class="fc-toggle" data-find-all>Show all</button></div>
+          <div class="map-highlight">${M.render({ labels: false, gridLines: false })}</div>`,
+        mount(el) {
+          const toggle = (key, on) => {
+            el.querySelectorAll(`[data-key="${key}"]`).forEach((n) => n.classList.toggle(n.classList.contains('map-label') ? 'is-on' : 'is-hl', on));
+            el.querySelector(`[data-find="${key}"]`).setAttribute('aria-pressed', String(on));
+          };
+          el.querySelectorAll('[data-find]').forEach((b) => b.addEventListener('click', () => toggle(b.dataset.find, b.getAttribute('aria-pressed') !== 'true')));
+          el.querySelector('[data-find-all]').addEventListener('click', () => FIND.forEach(([k]) => toggle(k, true)));
+        },
+      },
+      {
+        title: 'Latitude & longitude',
+        html: `
+          <ul class="language-list">
+            <li><strong>Latitude</strong> lines run east–west. They measure how far <strong>north or south</strong> of the Equator a place is (°N or °S).</li>
+            <li><strong>Longitude</strong> lines run north–south. They measure how far <strong>east or west</strong> of the Prime Meridian a place is (°E or °W).</li>
+            <li><strong>Absolute location</strong> = (latitude, longitude). Latitude always goes <strong>first</strong>.</li>
+          </ul>
+          <div class="diagram-box">${M.render({ labels: false, markers: [{ at: [85, 35], label: 'A', kind: 'letter' }, { at: [90, 10], label: 'B', kind: 'letter' }] })}</div>
+          <p>What is the absolute location of point <strong>A</strong>?</p>
+          <div id="check"></div>`,
+        mount(el) {
+          miniCheck(el, '#check', [
+            { label: '(35°N, 85°E)', correct: true, feedback: 'Yes! A is on the 35°N line and the 85°E line. (B is at 10°N, 90°E.)' },
+            { label: '(85°N, 35°E)', correct: false, feedback: 'Switched! Latitude (°N) goes first.' },
+            { label: '(30°N, 85°E)', correct: false, feedback: 'Check the latitude: follow A\'s line to the right edge.' },
+          ]);
+        },
+      },
+      {
+        title: 'Direction & relative location',
+        html: `
+          <p>The <strong>compass rose</strong> shows direction. <strong>Cardinal</strong> directions: N, E, S, W. <strong>Intermediate</strong> directions are in between: NE, SE, SW, NW.</p>
+          <table class="map-table">
+            <thead><tr><th>Absolute location</th><th>Relative location</th></tr></thead>
+            <tbody><tr>
+              <td>An exact spot using latitude and longitude.<br><em>Sri Lanka is at about (7°N, 81°E).</em></td>
+              <td>Where a place is compared to other places.<br><em>Sri Lanka is an island southeast of India, in the Indian Ocean.</em></td>
+            </tr></tbody>
+          </table>
+          <p>Mount Everest is mostly north and a little west of the middle of the Bay of Bengal. Which direction fits best?</p>
+          <div id="check"></div>`,
+        mount(el) {
+          miniCheck(el, '#check', [
+            { label: 'NE', correct: false, feedback: 'Everest (about 87°E) is a little west of the Bay\'s middle, not east.' },
+            { label: 'SE', correct: false, feedback: 'Everest is north of the Bay, up in the Himalayas.' },
+            { label: 'NW', correct: true, feedback: 'Yes! North and a little west = northwest.' },
+            { label: 'SW', correct: false, feedback: 'Everest is north of the Bay, not south.' },
+          ]);
+        },
+      },
+      {
+        title: 'Estimating area',
+        html: `
+          <p>The area of a rectangle is <strong>Length × Width</strong>. We can use it to <em>estimate</em> the area of Sri Lanka:</p>
+          <ul class="language-list">
+            <li>Width (east to west): about <strong>130 miles</strong></li>
+            <li>Length (north to south): about <strong>270 miles</strong></li>
+            <li>130 × 270 = 35,100 → about <strong>35,000 square miles</strong></li>
+          </ul>
+          <p>Sri Lanka's real area is about <strong>25,000 square miles</strong>. Why is our answer too big?</p>
+          <div id="check"></div>`,
+        mount(el) {
+          miniCheck(el, '#check', [
+            { label: 'Sri Lanka is not an absolute location', correct: false, feedback: 'Absolute location is about latitude and longitude. This question is about shape and area.' },
+            { label: 'Sri Lanka is not a rectangle, so the rectangle includes ocean too', correct: true, feedback: 'Yes! Sri Lanka is shaped like a teardrop, so L × W counts extra water. Our map measurements are rounded too.' },
+            { label: 'We should have added 130 + 270', correct: false, feedback: 'Area means multiplying length × width, and the answer is in square miles.' },
+          ]);
+        },
+      },
+      {
+        title: 'Worksheet questions & answers',
+        html: `
+          <p class="muted small">Use the "Measure it!" map to check each one. Answers are measured on this app's map, so your worksheet's map may give slightly different numbers.</p>
+          ${qa([
+            ['How wide is India at 20°N?', 'About <strong>880 miles</strong> (about 4.4 scale bars × 200).'],
+            ['How wide is India at 10°N?', 'About <strong>240 miles</strong> (a little more than 1 scale bar). India gets narrower toward the south.'],
+            ['What is the distance from the mouth of the Indus River to the mouth of the Ganges River?', 'About <strong>1,500 miles</strong> (about 7½ scale bars × 200).'],
+            ['Mount Everest is (NE, SE, NW, SW) of the Bay of Bengal.', '<strong>NW</strong>: Everest is north of the bay and a little west of its middle.'],
+            ['Best estimate for the absolute location of the Ganges River\'s mouth?', 'About <strong>(22°N, 90°E)</strong>, where the river meets the Bay of Bengal in Bangladesh.'],
+            ['Write a sentence describing the relative location of Sri Lanka.', '<strong>"Sri Lanka is an island southeast of India, in the Indian Ocean."</strong> (Relative location compares a place to other places. Latitude and longitude would be absolute location.)'],
+            ['Estimate the area of Sri Lanka (L × W).', 'About 130 miles × 270 miles ≈ <strong>35,000 square miles</strong>.'],
+            ['Why is your answer to the area question only an estimate?', 'Because <strong>Sri Lanka is not a perfect rectangle</strong>: the rectangle also covers some ocean, and map measurements are rounded.'],
+            ['Which mountains are in the north of India? Which are along the coasts?', 'The <strong>Himalayas</strong> (with Mt. Everest) are in the north and the <strong>Hindu Kush</strong> is in the northwest. The <strong>Western Ghats</strong> and <strong>Eastern Ghats</strong> run along the west and east coasts, with the <strong>Deccan Plateau</strong> between them.'],
+          ])}`,
       },
     ],
   };
@@ -859,6 +1154,27 @@ const SocialStudies = (() => {
       ],
     },
     {
+      key: 'maps', title: 'Map Skills', short: 'Map Skills', icon: '🗺️', color: '#0369a1',
+      cards: [
+        ['Map scale', 'Shows how a distance on the map compares to the real distance on Earth (for example, 1 bar = 200 miles).'],
+        ['How to measure distance with a scale bar', 'Mark the two places on a paper strip, count how many scale bars fit, then multiply by the bar\'s distance.'],
+        ['Latitude', 'Lines that run east–west and measure distance north or south of the Equator.'],
+        ['Longitude', 'Lines that run north–south and measure distance east or west of the Prime Meridian.'],
+        ['Equator', 'The 0° line of latitude that divides Earth into the Northern and Southern Hemispheres.'],
+        ['Prime Meridian', 'The 0° line of longitude that divides Earth into the Eastern and Western Hemispheres.'],
+        ['Absolute location', 'The exact spot of a place, written (latitude, longitude), like (28°N, 87°E).'],
+        ['Relative location', 'Where a place is compared to other places: "Sri Lanka is southeast of India."'],
+        ['Which comes first: latitude or longitude?', 'Latitude first, then longitude: (20°N, 80°E).'],
+        ['Compass rose', 'The symbol on a map that shows directions.'],
+        ['Cardinal directions', 'North, south, east, and west.'],
+        ['Intermediate directions', 'Northeast, southeast, southwest, and northwest.'],
+        ['Hemisphere', 'Half of Earth. India is in the Northern and Eastern Hemispheres.'],
+        ['Map key (legend)', 'Explains what the symbols and colors on a map mean.'],
+        ['Area of a rectangle', 'Length × Width. Using it on a real country gives only an estimate, because countries are not rectangles.'],
+        ['Physical features of South Asia', 'Himalayas, Hindu Kush, Western & Eastern Ghats, Deccan Plateau, Thar Desert, and the Indus, Ganges & Brahmaputra Rivers.'],
+      ],
+    },
+    {
       key: 'meso', title: 'Mesopotamia', short: 'Mesopotamia', icon: '🏛️', color: '#c2410c',
       cards: [
         ['Mesopotamia', 'Greek for "land between the rivers": the land between the Tigris and Euphrates, in today\'s Iraq.'],
@@ -994,7 +1310,7 @@ const SocialStudies = (() => {
     ...topicDecks,
   ];
 
-  const lessons = [startHere, meso, egypt, indus, china, review];
+  const lessons = [startHere, maps, meso, egypt, indus, china, review];
   lessons.forEach((l) => { l.buildSession = (count) => buildSession(l.skills, count); });
 
   return { SKILLS, CIVS, BANK, FACTORIES, DECKS, lessons, buildSession };
