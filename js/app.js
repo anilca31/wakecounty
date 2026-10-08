@@ -27,14 +27,27 @@
     { title: 'River Valley Civilizations', icon: '🏺', color: '#b45309', blurb: 'How geography and water shaped early human organization in Mesopotamia, Egypt, the Indus Valley, and China.', lessons: SocialStudies.lessons, decks: SocialStudies.DECKS },
   ].map(numberUnit);
 
-  // `color` tints the cover art and the page header gradient. Subjects with no lessons show as "Coming soon".
+  const SPANISH_UNITS = [
+    {
+      title: 'Spanish Countries & Capitals',
+      icon: '🗺️',
+      color: '#d42a3c',
+      blurb: 'Learn the English and Spanish names of 20 Spanish-speaking countries plus Puerto Rico, and recall their capitals.',
+      lessons: [],
+      decks: Spanish.DECKS,
+      deckTitle: 'Interactive Spanish Countries & Capitals Flashcards',
+      deckDescription: 'Study in three ways: match English and Spanish country names, recall a capital from its country, or name the country from its capital. The set includes 20 countries and Puerto Rico, a U.S. territory.',
+    },
+  ].map(numberUnit);
+
+  // `color` tints the cover art and page header gradient. Subjects with no content show as "Coming soon".
   // A subject with `units` lists those first; its `lessons` are all of its units' lessons.
   const SUBJECTS = [
     { id: 'maths', title: 'Maths', icon: '🔢', color: '#e8590c', tagline: 'Ratios, fractions, equations & more', blurb: 'Maths 6+ in 10 units, from area and ratios to equations and rational numbers. Pick a unit to see its lessons.', units: MATH_UNITS, lessons: MATH_UNITS.flatMap((u) => u.lessons) },
     { id: 'ela', title: 'ELA', icon: '📚', color: '#8d67ab', tagline: 'The Lightning Thief test prep', blurb: 'Get ready for the open-book test on Chapters 1–8 of <em>The Lightning Thief</em> and the Hero\'s Journey. It tests skills, not memory, so start with the tips.', lessons: Ela.lessons },
     { id: 'science', title: 'Science', icon: '🔬', color: '#148a5b', tagline: 'Cells, energy & Earth', blurb: 'Cells, energy, Earth\'s systems and the scientific method.', lessons: [] },
     { id: 'social', title: 'Social Studies', icon: '🌎', color: '#2d5bd7', tagline: 'Ancient river valley civilizations', blurb: 'Ancient civilizations and how geography shaped them. Topics follow the North Carolina 6th-grade standards. Pick a unit to see its lessons.', units: SOCIAL_UNITS, lessons: SOCIAL_UNITS.flatMap((u) => u.lessons) },
-    { id: 'spanish', title: 'Spanish', icon: '💬', color: '#d42a3c', tagline: '¡Hola! Everyday Spanish', blurb: 'Greetings, numbers, and everyday conversations.', lessons: [] },
+    { id: 'spanish', title: 'Spanish', icon: '💬', color: '#d42a3c', tagline: 'Countries, capitals & everyday Spanish', blurb: 'Build Spanish vocabulary and geography skills. Start with the countries and capitals flashcards.', units: SPANISH_UNITS, lessons: [] },
   ];
   const LESSONS = Object.fromEntries(SUBJECTS.flatMap((s) => s.lessons).map((l) => [l.id, l]));
   const subjectOf = (lessonId) => SUBJECTS.findIndex((s) => s.lessons.some((l) => l.id === lessonId));
@@ -111,6 +124,7 @@
     </span>`;
 
   const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  const hasSubjectContent = (s) => s.lessons.length > 0 || (s.units || []).length > 0;
   const subjectMeta = (s) => (s.units
     ? `${plural(s.units.length, 'unit')} · ${Progress.completion(s.lessons).pct}% done`
     : s.lessons.length
@@ -290,11 +304,11 @@
           <button type="button" class="tile subject-tile" data-subject="${i}">
             <span class="tile-cover">
               ${cover(s)}
-              ${s.lessons.length ? '<span class="play-fab" aria-hidden="true">▶</span>' : ''}
+              ${hasSubjectContent(s) ? '<span class="play-fab" aria-hidden="true">▶</span>' : ''}
             </span>
             <span class="tile-title">${s.title}</span>
             <span class="tile-meta">${s.tagline}</span>
-            ${s.lessons.length ? `<span class="tile-foot">${subjectMeta(s)}</span>` : '<span class="soon-pill">🚧 Coming soon</span>'}
+            ${hasSubjectContent(s) ? `<span class="tile-foot">${subjectMeta(s)}</span>` : '<span class="soon-pill">🚧 Coming soon</span>'}
           </button>`).join('')}
       </div>`, { wide: true, color: '#4b3f8f' });
     app.querySelectorAll('[data-subject]').forEach((b) => b.addEventListener('click', () => renderSubject(+b.dataset.subject)));
@@ -361,13 +375,15 @@
           <button type="button" class="tile subject-tile" data-unit="${ui}">
             <span class="tile-cover">
               ${cover(u)}
-              ${u.lessons.length ? '<span class="play-fab" aria-hidden="true">▶</span>' : ''}
+              ${u.lessons.length || u.decks ? '<span class="play-fab" aria-hidden="true">▶</span>' : ''}
             </span>
             <span class="tile-title">${u.title}</span>
             <span class="tile-meta">${u.blurb}</span>
             ${u.lessons.length
               ? `<span class="tile-foot">${plural(u.lessons.length, 'lesson')} · ${Progress.completion(u.lessons).pct}% done</span>`
-              : '<span class="soon-pill">🚧 Coming soon</span>'}
+              : u.decks
+                ? `<span class="tile-foot">${plural(u.decks.length, 'flashcard deck')} · ${u.decks.reduce((count, deck) => count + deck.cards.length, 0)} cards</span>`
+                : '<span class="soon-pill">🚧 Coming soon</span>'}
           </button>`).join('')}
       </div>` : lessonsSection(s.lessons, s.title, 'Browse subjects');
     show(pageHero(s, 'Subject', s.title, subjectMeta(s)) + body, {
@@ -384,8 +400,10 @@
     const u = s.units[ui];
     setView({ view: 'unit', subject: si, unit: ui }, { push });
     const up = () => renderSubject(si);
-    const meta = `${s.title} · ${u.lessons.length ? `${plural(u.lessons.length, 'lesson')} · ${Progress.completion(u.lessons).pct}% done` : 'Coming soon'}`;
-    show(pageHero(u, u.short, u.title, meta) + lessonsSection(u.lessons, u.fullTitle, `Back to ${s.title} units`) + decksSection(u), {
+    const meta = `${s.title} · ${u.lessons.length
+      ? `${plural(u.lessons.length, 'lesson')} · ${Progress.completion(u.lessons).pct}% done`
+      : u.decks ? `${plural(u.decks.length, 'flashcard deck')}` : 'Coming soon'}`;
+    show(pageHero(u, u.short, u.title, meta) + (u.lessons.length ? lessonsSection(u.lessons, u.fullTitle, `Back to ${s.title} units`) : '') + decksSection(u), {
       wide: true,
       color: u.color,
       nav: { crumbs: [{ label: 'Home', go: () => renderHome() }, { label: s.title, go: up }, { label: u.short }], back: up },
@@ -403,8 +421,8 @@
   // "Master …" shelf of flashcard decks on a unit page.
   const decksSection = (u) => (u.decks ? `
     <section class="deck-shelf">
-      <h2 class="shelf-title">🃏 Master Grade 6 ${u.title}</h2>
-      <p class="muted">Flashcards for quick revision: review key vocabulary and facts, flip each card, and sort it into <strong>Got it</strong> or <strong>Still learning</strong>. Cards you master are remembered on this device.</p>
+      <h2 class="shelf-title">🃏 ${u.deckTitle || `Master Grade 6 ${u.title}`}</h2>
+      <p class="muted">${u.deckDescription || 'Flashcards for quick revision: review key vocabulary and facts, flip each card, and sort it into <strong>Got it</strong> or <strong>Still learning</strong>. Cards you master are remembered on this device.'}</p>
       <div class="tile-grid">
         ${u.decks.map((d) => {
           const pct = Math.round((Flashcards.masteredCount(d.cards) / d.cards.length) * 100);
