@@ -12,6 +12,7 @@ const ElaQuestions = (() => {
     stages:     'Hero\'s Journey stages',
     journey:    'Connect Percy to the Hero\'s Journey',
     plot:       'Hero\'s Journey and the plot diagram',
+    align:      'Align the 10 stages with the plot diagram (worksheet)',
     traits:     'Analyze Percy\'s character with evidence',
     races:      'Answer with R.A.C.E.S.',
     meaning:    'Inference, symbols, and theme',
@@ -536,6 +537,8 @@ const ElaQuestions = (() => {
     gist: gistFactories,
     sequence: sequenceFactories,
   };
+  // Worksheet-style: place the class's 10 stages on the plot diagram (js/plot-align.js).
+  FACTORIES.align = PlotAlign.factories('align', SKILLS.align);
   BANK.forEach((item) => (FACTORIES[item.skill] ||= []).push(() => toQuestion(item.skill, item.prompt, item.options, item.explanation)));
 
   // Picks `count` different questions from the given skills, rotating through skills so each one shows up.

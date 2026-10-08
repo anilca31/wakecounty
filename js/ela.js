@@ -230,7 +230,7 @@ const Ela = (() => {
     blurb: 'Learn the 10 stages, connect them to the 5 parts of a plot diagram, and map Percy\'s journey so far.',
     art: '<span class="lesson-emoji">⚡️🗺️</span>',
     sessionLength: 8,
-    skills: ['stages', 'journey', 'plot'],
+    skills: ['stages', 'journey', 'plot', 'align'],
     steps: [
       {
         title: 'The 10 stages of the Hero\'s Journey',
@@ -276,6 +276,59 @@ const Ela = (() => {
           el.querySelectorAll('#mapTabs [data-t]').forEach((btn) => btn.addEventListener('click', () => {
             box.innerHTML = plotSvg(plotParts[+btn.dataset.t]);
           }));
+        },
+      },
+      {
+        title: 'Worksheet: Align the 10 stages with the plot diagram',
+        html: `
+          <div class="callout"><strong>Heads up:</strong> books name the 10 stages a little differently. Your class worksheet uses the list below (for example, <em>Entering the Unknown</em> instead of <em>Crossing the Threshold</em>, and <em>The Supreme Ordeal</em> instead of <em>The Ordeal</em>). The big idea is the same.</div>
+          <p>Place each stage on the plot diagram. Tap the part of the mountain where it belongs, or pick from the list. Stage numbers go on the diagram just like on the worksheet.</p>
+          <div id="align"></div>
+          <div class="actions">
+            <button type="button" class="btn btn-primary" id="alignCheck">Check my diagram</button>
+            <button type="button" class="btn btn-ghost" id="alignKey">Show the answer key</button>
+          </div>
+          <div id="alignFb" class="feedback" role="status"></div>`,
+        mount(el) {
+          let placer = PlotAlign.mount(el.querySelector('#align'));
+          const all = PlotAlign.STAGES.map((_, i) => i);
+          const fb = el.querySelector('#alignFb');
+          el.querySelector('#alignCheck').addEventListener('click', () => {
+            const res = PlotAlign.check(all, placer.value());
+            if (res.marks) placer.mark(res.marks);
+            fb.className = `feedback ${res.status === 'correct' ? 'good' : res.status === 'invalid' ? 'info' : 'hint'}`;
+            fb.innerHTML = res.status === 'correct'
+              ? `<p class="fb-title">✅ All 10 are right!</p>${res.message ? `<p>${res.message}</p>` : ''}`
+              : `<p>${res.message}</p>`;
+          });
+          el.querySelector('#alignKey').addEventListener('click', () => {
+            placer.reveal();
+            fb.className = 'feedback info';
+            fb.innerHTML = `
+              <p class="fb-title">Answer key</p>
+              <table class="map-table">
+                <thead><tr><th>Plot diagram</th><th>Hero's Journey stages</th></tr></thead>
+                <tbody>${PlotAlign.PART_KEYS.map((k) => `<tr><td><strong>${PlotAlign.PARTS[k].name}</strong></td><td>${PlotAlign.STAGES.map((st, i) => (st.parts[0] === k ? `${i + 1}. ${st.name}` : null)).filter(Boolean).join('<br>')}</td></tr>`).join('')}</tbody>
+              </table>
+              <p class="muted small">The Call to Adventure is the inciting incident, the event that starts the rising action, so some teachers also accept it in the rising action. <button type="button" class="btn btn-ghost small" id="alignAgain">Try again</button></p>`;
+            el.querySelector('#alignAgain').addEventListener('click', () => {
+              placer = PlotAlign.mount(el.querySelector('#align'));
+              fb.className = 'feedback';
+              fb.innerHTML = '';
+            });
+          });
+        },
+      },
+      {
+        title: 'What each worksheet stage means',
+        html: `
+          <p>Tap a stage to see what it means and where it shows up for Percy.</p>
+          <div id="wsStages"></div>`,
+        mount(el) {
+          tabs(el, '#wsStages', PlotAlign.STAGES.map((st, i) => ({
+            label: `${i + 1}. ${st.name}`,
+            html: `<strong>${i + 1}. ${st.name}</strong> → <em>${PlotAlign.PARTS[st.parts[0]].name}</em><br>${st.what}<br><span class="muted">Percy: ${st.percy}</span>`,
+          })));
         },
       },
       {

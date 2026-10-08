@@ -65,6 +65,31 @@ for (const lesson of [1, 2]) {
 }
 
 // ELA: every bank item has 4 distinct options with hints, and sessions cover every skill.
+const paSrc = fs.readFileSync(path.join(__dirname, '..', 'js', 'plot-align.js'), 'utf8');
+vm.runInContext(`${paSrc}\n;globalThis.PlotAlign = PlotAlign;`, ctx);
+{
+  // Plot alignment: answer key passes, mistakes are marked, gaps are invalid, the Call may also go in rising action.
+  const PA = ctx.PlotAlign;
+  const all = PA.STAGES.map((_, i) => i);
+  const key = Object.fromEntries(all.map((i) => [i, PA.STAGES[i].parts[0]]));
+  assert.strictEqual(PA.STAGES.length, 10);
+  assert.strictEqual(PA.check(all, key).status, 'correct');
+  assert.strictEqual(PA.check(all, { ...key, 1: 'rising' }).status, 'correct', 'Call to Adventure accepted in rising action');
+  const oops = PA.check(all, { ...key, 6: 'falling' });
+  assert.strictEqual(oops.status, 'incorrect');
+  assert.strictEqual(oops.marks[6], false);
+  assert.strictEqual(oops.marks[0], true);
+  assert.match(oops.message, /9 of 10/);
+  assert.strictEqual(PA.check(all, { 0: 'exposition' }).status, 'invalid');
+  assert.strictEqual(PA.answerKey(all), 'Exposition: 1 · Inciting incident: 2 · Rising action: 3, 4, 5, 6 · Climax: 7 · Falling action: 8, 9 · Resolution: 10');
+  // Taps snap to the right part of the mountain.
+  assert.strictEqual(PA.nearestPart(60, 230), 'exposition');
+  assert.strictEqual(PA.nearestPart(152, 238), 'inciting');
+  assert.strictEqual(PA.nearestPart(230, 140), 'rising');
+  assert.strictEqual(PA.nearestPart(305, 30), 'climax');
+  assert.strictEqual(PA.nearestPart(380, 130), 'falling');
+  assert.strictEqual(PA.nearestPart(540, 214), 'resolution');
+}
 const elaSrc = fs.readFileSync(path.join(__dirname, '..', 'js', 'ela-questions.js'), 'utf8');
 vm.runInContext(`${elaSrc}\n;globalThis.ElaQuestions = ElaQuestions;`, ctx);
 const Ela = ctx.ElaQuestions;
@@ -82,11 +107,12 @@ assert.strictEqual(new Set(Ela.BANK.map((q) => q.prompt)).size, Ela.BANK.length,
 for (const [skill, factories] of Object.entries(Ela.FACTORIES)) {
   for (let i = 0; i < 300; i++) {
     const q = factories[i % factories.length]();
+    if (q.format === 'custom') continue;
     assert.strictEqual(new Set(q.options.map((o) => o.html)).size, 4, `ELA ${skill}: 4 distinct options (${q.options.map((o) => o.html)})`);
   }
 }
 // Sessions for each ELA lesson: [skills, length].
-const elaLessons = [[Object.keys(Ela.SKILLS), 12], [['early', 'camp', 'meaning', 'journey', 'traits'], 10], [['gist', 'sequence', 'early', 'camp', 'characters'], 8], [['stages', 'journey', 'plot'], 8], [['traits', 'races'], 8]];
+const elaLessons = [[Object.keys(Ela.SKILLS), 12], [['early', 'camp', 'meaning', 'journey', 'traits'], 10], [['gist', 'sequence', 'early', 'camp', 'characters'], 8], [['stages', 'journey', 'plot', 'align'], 8], [['traits', 'races'], 8]];
 for (let i = 0; i < 2000; i++) {
   const [skills, len] = elaLessons[i % elaLessons.length];
   const s = Ela.buildSession(skills, len);
@@ -94,6 +120,11 @@ for (let i = 0; i < 2000; i++) {
   assert.strictEqual(new Set(s.map((q) => q.summary)).size, len, 'ELA: no duplicate questions in a session');
   for (const k of skills) assert.ok(s.some((q) => q.type === k), `ELA session covers ${k}`);
   for (const q of s) {
+    if (q.format === 'custom') {
+      assert.strictEqual(q.check({}).status, 'invalid', 'ELA align: empty diagram is invalid');
+      assert.ok(q.solution && q.explanation && typeof q.mount === 'function');
+      continue;
+    }
     const correct = q.options.filter((o) => o.correct);
     assert.strictEqual(correct.length, 1);
     assert.strictEqual(q.check(correct[0].id).status, 'correct');

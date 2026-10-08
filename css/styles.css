@@ -513,6 +513,41 @@ kbd {
 .find-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
 .diagram-box .sa-map { max-width: 560px; }
 
+/* ---------- Plot diagram alignment ---------- */
+.pa-prompt { min-height: 1.5em; margin-bottom: 6px; }
+.pa-diagram { background: var(--surface-2); border-radius: 12px; padding: 6px; }
+.pa-svg { display: block; width: 100%; height: auto; touch-action: manipulation; }
+.pa-line { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
+.pa-star { fill: var(--hint); stroke: var(--ink); stroke-width: 1; }
+.pa-label { fill: var(--muted); font: 700 13px system-ui, sans-serif; transition: fill .1s; }
+.pa-label.is-hot { fill: var(--primary); }
+.pa-zone { fill: transparent; }
+.pa-zone.is-armed { cursor: pointer; }
+.pa-chip { cursor: pointer; }
+.pa-chip circle { fill: var(--ink); stroke: #000; stroke-width: 1.5; }
+.pa-chip text { fill: #000; font: 800 13px system-ui, sans-serif; pointer-events: none; }
+.pa-chip.is-right circle { fill: var(--good); }
+.pa-chip.is-wrong circle { fill: var(--bad); }
+.pa-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; }
+.pa-row { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 10px; border: 2px solid transparent; }
+.pa-row.is-picking { border-color: var(--primary); background: var(--primary-soft); }
+.pa-row.is-right { background: var(--good-soft); }
+.pa-row.is-wrong { background: var(--bad-soft); }
+.pa-pick {
+  flex: 1; display: flex; align-items: center; gap: 10px; text-align: left; font: inherit; font-size: .95rem;
+  color: var(--ink); background: none; border: 0; padding: 4px; cursor: pointer;
+}
+.pa-pick:disabled { cursor: default; }
+.pa-num {
+  flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--ink); color: #000; font-weight: 800; font-size: .85rem;
+}
+.pa-row select {
+  font: inherit; font-size: .9rem; padding: 6px 8px; border-radius: 8px; max-width: 46%;
+  background: var(--surface-2); color: var(--ink); border: 1px solid var(--line);
+}
+.pa-pick:focus-visible, .pa-row select:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
 /* ---------- Practice ---------- */
 .practice-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .practice-head .eyebrow { margin: 0; }

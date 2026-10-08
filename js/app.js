@@ -499,7 +499,10 @@
     let selected = null;
     let finished = false;
 
-    const answerArea = q.format === 'mc'
+    // 'custom' questions bring their own answer area: q.mount(el) → { value(), mark(marks), reveal(), disable() }.
+    const answerArea = q.format === 'custom'
+      ? '<div class="custom-answer"></div>'
+      : q.format === 'mc'
       ? `<div class="options ${q.wideOptions ? 'options-wide' : ''} ${q.textOptions ? 'options-text' : ''}" role="radiogroup" aria-label="Answer choices">
           ${q.options.map((o) => `
             <button type="button" class="btn btn-option option" role="radio" aria-checked="false" data-id="${o.id}">
@@ -556,9 +559,10 @@
           b.setAttribute('aria-checked', String(b === btn));
         });
       }));
-    } else {
+    } else if (input) {
       input.focus();
     }
+    const custom = q.format === 'custom' ? q.mount(app.querySelector('.custom-answer')) : null;
 
     const setFeedback = (kind, html) => {
       feedback.className = `feedback ${kind}`;
@@ -568,12 +572,13 @@
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       if (finished) return;
-      const value = q.format === 'mc' ? selected : input.value;
+      const value = custom ? custom.value() : q.format === 'mc' ? selected : input.value;
       if (q.format === 'mc' && !value) {
         setFeedback('info', 'Choose an answer first.');
         return;
       }
       const res = q.check(value);
+      if (custom && res.marks) custom.mark(res.marks);
       if (res.status === 'invalid') {
         setFeedback('info', res.message);
         return;
@@ -624,6 +629,7 @@
     }
 
     function revealCorrectOption() {
+      if (custom) { custom.reveal(); return; }
       if (q.format !== 'mc') return;
       const correct = q.options.find((o) => o.correct);
       app.querySelector(`.option[data-id="${correct.id}"]`).classList.add('is-answer');
@@ -636,6 +642,7 @@
       continueBtn.hidden = false;
       continueBtn.focus();
       if (input) input.readOnly = true;
+      custom?.disable();
       app.querySelectorAll('.option').forEach((b) => { b.disabled = true; });
     }
 
