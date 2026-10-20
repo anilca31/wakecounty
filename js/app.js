@@ -38,6 +38,16 @@
       deckTitle: 'Interactive Spanish Countries & Capitals Flashcards',
       deckDescription: 'Study in three ways: match English and Spanish country names, recall a capital from its country, or name the country from its capital. The set includes 20 countries and Puerto Rico, a U.S. territory.',
     },
+    {
+      title: 'Spanish-Speaking Countries & Continents',
+      icon: '🌎',
+      color: '#0f766e',
+      blurb: 'Collect 21 passport stamps! Match Spanish country names and capitals to their continents.',
+      lessons: [],
+      decks: Spanish.UNIT2_DECKS,
+      deckTitle: 'Your Unit 2 geography passport',
+      deckDescription: 'Say the continent, flip to check, then choose “I Know It” or “Practice Again.” Use América del Norte, El Caribe, América del Sur, Europa, and África. The Caribbean is a separate classroom category; North America is accepted for those three cards too. This is a self-check activity, not an automatically graded quiz.',
+    },
   ].map(numberUnit);
 
   // `color` tints the cover art and page header gradient. Subjects with no content show as "Coming soon".
@@ -447,6 +457,7 @@
       <section class="card fc-page">
         <p class="eyebrow">Flashcards · ${u.fullTitle}</p>
         <h2>${deck.icon} ${deck.title}</h2>
+        ${deck.geography ? `<p class="geo-intro">21 places. Five classroom categories. One world to explore.</p><p class="muted">${deck.blurb} Choose <strong>I Know It</strong> if your answer matches, or <strong>Practice Again</strong> to review it.</p><p class="geo-note">The Caribbean is a separate classroom category here. North America also counts for Cuba, República Dominicana, and Puerto Rico if that is how your class groups them.</p>` : ''}
         <div class="deck-switch" role="group" aria-label="Choose a deck">
           ${u.decks.map((d) => `<button type="button" class="fc-toggle" data-switch="${d.key}" aria-pressed="${d === deck}">${d.icon} ${d.short}</button>`).join('')}
         </div>

@@ -75,5 +75,93 @@ const Spanish = (() => {
     },
   ];
 
-  return { places, DECKS };
+  const regions = {
+    north: { spanish: 'América del Norte', english: 'North America' },
+    caribbean: { spanish: 'El Caribe', english: 'Caribbean' },
+    south: { spanish: 'América del Sur', english: 'South America' },
+    europe: { spanish: 'Europa', english: 'Europe' },
+    africa: { spanish: 'África', english: 'Africa' },
+  };
+  // Coordinates locate each country or territory, not its capital.
+  const geography = {
+    mexico: ['north', '🇲🇽', 23, -102],
+    guatemala: ['north', '🇬🇹', 15.5, -90.2],
+    honduras: ['north', '🇭🇳', 15, -86.5],
+    'el-salvador': ['north', '🇸🇻', 13.8, -88.9],
+    nicaragua: ['north', '🇳🇮', 13, -85],
+    'costa-rica': ['north', '🇨🇷', 9.7, -84],
+    panama: ['north', '🇵🇦', 8.5, -80],
+    cuba: ['caribbean', '🇨🇺', 22, -79.5],
+    'dominican-republic': ['caribbean', '🇩🇴', 19, -70.7],
+    'puerto-rico': ['caribbean', '🇵🇷', 18.2, -66.5],
+    colombia: ['south', '🇨🇴', 4, -73],
+    venezuela: ['south', '🇻🇪', 8, -66],
+    ecuador: ['south', '🇪🇨', -1.5, -78],
+    peru: ['south', '🇵🇪', -10, -76],
+    bolivia: ['south', '🇧🇴', -17, -65],
+    chile: ['south', '🇨🇱', -30, -71],
+    argentina: ['south', '🇦🇷', -34, -64],
+    paraguay: ['south', '🇵🇾', -23, -58],
+    uruguay: ['south', '🇺🇾', -33, -56],
+    spain: ['europe', '🇪🇸', 40, -4],
+    'equatorial-guinea': ['africa', '🇬🇶', 1.5, 10],
+  };
+
+  function locator(place, latitude, longitude) {
+    const x = longitude + 180;
+    const y = 90 - latitude;
+    return `<svg class="geo-map" viewBox="0 0 360 180" role="img" aria-label="Approximate location of ${place.spanish} on a simplified world map">
+      <rect width="360" height="180" rx="12" fill="#e0f2f1"/>
+      <path d="M0 90H360M180 0V180M90 0V180M270 0V180" stroke="#badbd6" fill="none"/>
+      <g fill="#8db6a1" stroke="#fff" stroke-width="1">
+        <path d="M12 20L55 12 85 22 120 40 112 55 96 62 82 80 67 70 55 55 35 50Z"/>
+        <path d="M82 80L99 84 110 100 120 110 110 132 100 148 90 136 85 110 77 94Z"/>
+        <path d="M120 8L145 5 150 25 135 35 125 22Z"/>
+        <path d="M170 32L190 25 207 35 200 48 183 55 170 49Z"/>
+        <path d="M165 55L190 50 215 65 228 85 215 115 200 125 188 105 178 82 164 73Z"/>
+        <path d="M200 25L245 15 290 22 335 40 320 65 295 70 280 90 265 75 245 65 225 50 210 48Z"/>
+        <path d="M290 115L320 110 335 130 315 140 292 135Z"/>
+      </g>
+      <circle cx="${x}" cy="${y}" r="8" fill="#c2410c" fill-opacity=".2"/>
+      <circle cx="${x}" cy="${y}" r="3.5" fill="#b83219" stroke="white" stroke-width="1.5"/>
+    </svg>`;
+  }
+
+  const continentCards = Object.entries(geography).map(([key, [regionKey, flag, latitude, longitude]]) => {
+    const place = places.find((entry) => entry.key === key);
+    const region = regions[regionKey];
+    const identity = `<span class="geo-country" lang="es">País: ${place.spanish}</span>
+      <span class="geo-capital" lang="es">Capital: ${place.capital}</span>`;
+    const regionName = `${region.spanish} (${region.english})`;
+    return {
+      id: `spanish-continent:${key}`,
+      tag: place.type === 'territory' ? 'Unit 2 · Territory' : 'Unit 2 · Country',
+      country: place.spanish,
+      capital: place.capital,
+      region: regionKey,
+      acceptedRegions: regionKey === 'caribbean' ? ['caribbean', 'north'] : [regionKey],
+      review: `${flag} ${place.spanish} — ${place.capital} — ${regionName}`,
+      front: `<span class="geo-flag" role="img" aria-label="Flag of ${place.spanish}">${flag}</span>
+        ${identity}<span class="geo-question" lang="es">¿En qué continente está ${place.spanish}?</span>
+        <span class="geo-translation">Which continent is this country in?</span>`,
+      back: `<span class="geo-answer"><span lang="es">Continente: ${region.spanish}</span> <span>(${region.english})</span></span>
+        ${identity}${locator(place, latitude, longitude)}
+        <span class="geo-map-caption">Approximate country location · simplified map</span>
+        ${regionKey === 'caribbean' ? '<span class="geo-note">Classroom category: Caribbean. América del Norte (North America) is also correct if your class groups the Caribbean there.</span>' : ''}
+        ${place.note ? `<span class="geo-note">${place.note}</span>` : ''}`,
+    };
+  });
+
+  const UNIT2_DECKS = [{
+    key: 'continents',
+    title: 'Passport practice: ¿En qué continente?',
+    short: 'Continents',
+    icon: '🌎',
+    color: '#0f766e',
+    blurb: 'Read the country and capital, recall its continent, then flip to check.',
+    geography: true,
+    cards: continentCards,
+  }];
+
+  return { places, DECKS, UNIT2_DECKS };
 })();

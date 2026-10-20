@@ -34,6 +34,10 @@ const Flashcards = (() => {
   // Runs a study session for `deck` ({ title, cards: [{ id, front, back, tag }] }) inside `host`.
   // opts: { onExit() — leave the deck, onDone() — finished a pass, onChange() — mastery changed }
   function study(host, deck, opts = {}) {
+    const geography = !!deck.geography;
+    const gotLabel = geography ? 'I Know It' : 'Got it';
+    const learningLabel = geography ? 'Practice Again' : 'Still learning';
+    host.classList.toggle('geo-study', geography);
     const settings = { shuffle: false, reverse: false, onlyNew: false };
     let queue = [];
     let index = 0;
@@ -58,7 +62,7 @@ const Flashcards = (() => {
       return `
         <div class="fc-toolbar">
           ${toggle('shuffle', '🔀 Shuffle')}
-          ${toggle('reverse', '↔ Definition first')}
+          ${geography ? '' : toggle('reverse', '↔ Definition first')}
           ${toggle('onlyNew', `🎯 Not mastered yet (${left})`)}
         </div>`;
     }
@@ -82,10 +86,10 @@ const Flashcards = (() => {
         ${toolbar()}
         <div class="fc-status">
           <span>Card <strong>${index + 1}</strong> of ${queue.length}</span>
-          <span><span class="good-text">✅ ${count('got')}</span> · <span class="hint-text">😅 ${count('learning')}</span></span>
+          <span><span class="good-text">✅ ${count('got')}${geography ? ' correct' : ''}</span> · <span class="hint-text">😅 ${count('learning')}${geography ? ' missed' : ''}</span></span>
         </div>
         <div class="progress" aria-hidden="true"><div class="progress-bar" style="width:${(index / queue.length) * 100}%"></div></div>
-        <button type="button" class="fc-card" aria-label="Flashcard. Press to flip.">
+        <button type="button" class="fc-card" aria-label="${geography ? `${card.country}. Capital: ${card.capital}. Which continent is this country in? Press to reveal the answer.` : 'Flashcard. Press to flip.'}">
           <span class="fc-inner">
             <span class="fc-face fc-front">
               <span class="fc-tag">${card.tag}${isMastered(card.id) ? ' · ✅ mastered' : ''}</span>
@@ -101,13 +105,13 @@ const Flashcards = (() => {
         <div class="fc-actions" data-when="front">
           <button type="button" class="btn btn-ghost" data-act="prev" ${index === 0 ? 'disabled' : ''}>← Back</button>
           <button type="button" class="btn btn-primary" data-act="flip">Flip card</button>
-          <button type="button" class="btn btn-ghost" data-act="skip">Skip →</button>
+          ${geography ? '' : '<button type="button" class="btn btn-ghost" data-act="skip">Skip →</button>'}
         </div>
         <div class="fc-actions" data-when="back" hidden>
-          <button type="button" class="btn fc-learning" data-act="learning">😅 Still learning</button>
-          <button type="button" class="btn btn-primary" data-act="got">✅ Got it</button>
+          <button type="button" class="btn fc-learning" data-act="learning">😅 ${learningLabel}</button>
+          <button type="button" class="btn btn-primary" data-act="got">✅ ${gotLabel}</button>
         </div>
-        <p class="muted small fc-keys">Keyboard: <kbd>Space</kbd> flip · <kbd>1</kbd> still learning · <kbd>2</kbd> got it · <kbd>←</kbd> <kbd>→</kbd> move</p>`;
+        <p class="muted small fc-keys">Keyboard: <kbd>Space</kbd> flip · <kbd>1</kbd> ${learningLabel} · <kbd>2</kbd> ${gotLabel} · ${geography ? '<kbd>←</kbd> back' : '<kbd>←</kbd> <kbd>→</kbd> move'}</p>`;
       wireToolbar();
       host.querySelector('.fc-card').addEventListener('click', flip);
       host.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', () => act(b.dataset.act)));
@@ -122,6 +126,9 @@ const Flashcards = (() => {
       cardEl.classList.toggle('is-flipped', on);
       cardEl.querySelector('.fc-front').setAttribute('aria-hidden', String(on));
       cardEl.querySelector('.fc-back').setAttribute('aria-hidden', String(!on));
+      if (geography) cardEl.setAttribute('aria-label', on
+        ? `${queue[index].review}. ${queue[index].region === 'caribbean' ? 'North America is also accepted if your class groups the Caribbean there. ' : ''}Press to return to the question.`
+        : `${queue[index].country}. Capital: ${queue[index].capital}. Which continent is this country in? Press to reveal the answer.`);
       host.querySelector('[data-when="front"]').hidden = on;
       host.querySelector('[data-when="back"]').hidden = !on;
       cardEl.focus({ preventScroll: true });
@@ -133,7 +140,7 @@ const Flashcards = (() => {
       const card = queue[index];
       if (kind === 'flip') return flip();
       if (kind === 'prev') { if (index > 0) { index--; flipped = false; draw(); } return; }
-      if (kind === 'skip') { index++; flipped = false; return draw(); }
+      if (kind === 'skip') { if (geography) return; index++; flipped = false; return draw(); }
       if (!flipped) return;
       results[card.id] = kind;
       setMastered(card.id, kind === 'got');
@@ -152,13 +159,15 @@ const Flashcards = (() => {
         <div class="fc-summary">
           <p class="empty-icon" aria-hidden="true">${learning.length ? '💪' : '🌟'}</p>
           <h3>${learning.length ? 'Nice work! Keep going.' : 'Perfect round!'}</h3>
+          ${geography ? `<p class="geo-score">Self-check score: <strong>${got} / ${queue.length}</strong> (${Math.round(got / queue.length * 100)}%)</p>` : ''}
           <div class="stats">
-            <div class="stat good"><span class="stat-value">${got}</span><span class="stat-label">Got it</span></div>
-            <div class="stat"><span class="stat-value">${learning.length}</span><span class="stat-label">Still learning</span></div>
+            <div class="stat good"><span class="stat-value">${got}</span><span class="stat-label">${gotLabel}</span></div>
+            <div class="stat"><span class="stat-value">${learning.length}</span><span class="stat-label">${learningLabel}</span></div>
             <div class="stat"><span class="stat-value">${done}<small>/${total}</small></span><span class="stat-label">Deck mastered</span></div>
           </div>
+          ${geography && learning.length ? `<section class="geo-review"><h4>Your missed cards</h4><ul>${learning.map((card) => `<li>${card.review}</li>`).join('')}</ul></section>` : ''}
           <div class="actions">
-            ${learning.length ? `<button type="button" class="btn btn-primary" data-sum="learning">Study the ${learning.length} I'm still learning</button>` : ''}
+            ${learning.length ? `<button type="button" class="btn btn-primary" data-sum="learning">${geography ? `Review ${learning.length} missed cards` : `Study the ${learning.length} I'm still learning`}</button>` : ''}
             <button type="button" class="btn btn-secondary" data-sum="again">Start the deck over</button>
             <button type="button" class="btn btn-ghost" data-sum="exit">← Back to unit</button>
           </div>

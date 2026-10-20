@@ -5,7 +5,7 @@ An interactive learning app with a practice engine, organized by subject:
 - **Maths 6+**: 10 units (Area & Surface Area, Introducing Ratios, Unit Rates & Percentages, Scale Drawings, Dividing Fractions, Arithmetic in Base 10, Expressions and Equations, Introducing Proportional Relationships, Proportional Relationships and Percentages, Rational Numbers). Unit 2 (Introducing Ratios) has 10 lesson sections covering Lessons 1–16: ratio language, diagrams, recipes, color mixtures, equivalent ratios, double number lines, unit price, constant speed, tables, part-part-whole, and mixed problems. The other units are coming soon
 - **ELA 6th Grade**: test prep for Chapters 1–8 of The Lightning Thief and the Hero's Journey: Start Here (test tips, Q&A, full review), Gist & Sequence, The Hero's Journey & the Plot Diagram (with the class worksheet's "align the 10 stages" activity), Percy's Character & R.A.C.E.S., Chapter-by-Chapter Questions & Answers
 - **Social Studies**: Unit 1: River Valley Civilizations (NC 6th-grade standards): Start Here (rivers and civilization, timeline), Map Skills (measure distance with a map scale on an interactive South Asia map, latitude/longitude, direction, relative location, estimating area), Mesopotamia, Ancient Egypt, Indus Valley (with the roots of Hinduism and Buddhism), Ancient China, and a Unit Review with a mixed 12-question test, plus "Master Grade 6 River Valley Civilizations" flashcards (131 cards in 8 decks)
-- **Spanish**: interactive flashcards for English/Spanish names of 20 Spanish-speaking countries plus Puerto Rico, country-to-capital recall, and a capital-to-country challenge (63 cards across 3 decks)
+- **Spanish**: Unit 1 has interactive flashcards for English/Spanish names of 20 Spanish-speaking countries plus Puerto Rico, country-to-capital recall, and a capital-to-country challenge (63 cards across 3 decks). Unit 2 adds 21 country/capital-to-continent flashcards with flags, simplified locator maps, self-check scoring, shuffle, and missed-card review.
 - **Science**: subject card in place, lessons coming soon
 
 ## Run
@@ -19,7 +19,13 @@ node tests/questions.test.js
 node tests/spanish.test.js
 ```
 
-The question test fuzzes every question generator: each answer key passes its own checker, MC options are distinct with exactly one correct, reversed answers get a targeted hint, and sessions cover every question type. It also checks the ELA question bank (4 distinct options, hints on every wrong answer, sessions cover every skill). The Spanish test validates all 21 places and the three 21-card decks.
+The question test fuzzes every question generator: each answer key passes its own checker, MC options are distinct with exactly one correct, reversed answers get a targeted hint, and sessions cover every question type. It also checks the ELA question bank (4 distinct options, hints on every wrong answer, sessions cover every skill). The Spanish test validates all 21 places, the three original decks, and every Unit 2 continent assignment, bilingual answer, and alternate Caribbean classification.
+
+### Spanish Unit 2
+
+Open **Spanish → Unit 2 → Continents**. Read the Spanish country and capital, recall the continent, and tap the card (or press Space) to reveal the answer. Choose **I Know It** (key 2) or **Practice Again** (key 1). The end-of-round self-check score includes a list of missed cards and a button to practice just those cards. Shuffle restarts the current round; mastery is remembered on this device.
+
+Classroom categories are **América del Norte (North America)**, **El Caribe (Caribbean)**, **América del Sur (South America)**, **Europa (Europe)**, and **África (Africa)**. Central American countries belong to North America in this activity. For Cuba, República Dominicana, and Puerto Rico, students may also mark North America as correct if their class uses that grouping. Puerto Rico is identified as a territory, and Bolivia uses Sucre (with La Paz noted as the seat of government). The offline maps show approximate country locations, not precise boundaries.
 
 ## Structure
 

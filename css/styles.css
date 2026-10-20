@@ -468,6 +468,37 @@ kbd {
 }
 .fc-summary, .fc-empty { text-align: center; padding: 12px 0; }
 .fc-summary .actions { justify-content: center; }
+
+/* Unit 2: a field-notebook passport inside the existing study shell. */
+.geo-intro { font: 700 clamp(1.2rem, 3vw, 1.7rem) Georgia, serif; color: #8fdbcc; }
+.geo-study .fc-card { margin-top: 16px; }
+.geo-study .fc-inner { min-height: 440px; }
+.geo-study .fc-face {
+  background: #fff9e9; color: #173f3b; border: 2px solid #d8cfae;
+  border-radius: 8px 28px 8px 28px; padding: 24px;
+  background-image: radial-gradient(#c4b995 0.7px, transparent 0.7px);
+  background-size: 18px 18px;
+}
+.geo-study .fc-back { background: #e9f6ef; border-color: #85bca7; }
+.geo-study .fc-tag, .geo-study .fc-hint { color: #52685d; }
+.geo-study .fc-tag { border: 1px solid #80998a; padding: 6px 12px; border-radius: 4px; }
+.geo-study .fc-text { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
+.geo-flag { font-size: 4rem; line-height: 1.2; }
+.geo-country { display: block; font: 700 clamp(1.5rem, 4vw, 2.2rem)/1.2 Georgia, serif; }
+.geo-capital { display: block; font-size: clamp(1.05rem, 2.6vw, 1.3rem); }
+.geo-question { display: block; font-size: clamp(1.1rem, 3vw, 1.5rem); margin-top: 12px; }
+.geo-translation, .geo-map-caption { display: block; font-size: .85rem; font-weight: 500; }
+.geo-answer { display: block; font-size: clamp(1.25rem, 3vw, 1.7rem); font-weight: 800; }
+.geo-answer > span { display: block; }
+.geo-map { width: min(100%, 280px); height: auto; display: block; }
+.geo-study .fc-text-back { gap: 8px; }
+.geo-note { display: block; font-size: .9rem; line-height: 1.5; font-weight: 500; }
+.geo-study .geo-note { max-width: 480px; }
+.geo-score { font-size: 1.3rem; }
+.geo-review { text-align: left; border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; margin: 20px 0; }
+.geo-review h4 { margin: 0 0 8px; }
+.geo-review ul { margin: 0; padding-left: 20px; }
+.geo-review li { padding: 6px 0; }
 @media (prefers-reduced-motion: reduce) {
   .fc-inner { transition: none; }
 }

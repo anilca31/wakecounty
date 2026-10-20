@@ -475,6 +475,37 @@ kbd {
 }
 .fc-summary, .fc-empty { text-align: center; padding: 12px 0; }
 .fc-summary .actions { justify-content: center; }
+
+/* Unit 2: a field-notebook passport inside the existing study shell. */
+.geo-intro { font: 700 clamp(1.2rem, 3vw, 1.7rem) Georgia, serif; color: #8fdbcc; }
+.geo-study .fc-card { margin-top: 16px; }
+.geo-study .fc-inner { min-height: 440px; }
+.geo-study .fc-face {
+  background: #fff9e9; color: #173f3b; border: 2px solid #d8cfae;
+  border-radius: 8px 28px 8px 28px; padding: 24px;
+  background-image: radial-gradient(#c4b995 0.7px, transparent 0.7px);
+  background-size: 18px 18px;
+}
+.geo-study .fc-back { background: #e9f6ef; border-color: #85bca7; }
+.geo-study .fc-tag, .geo-study .fc-hint { color: #52685d; }
+.geo-study .fc-tag { border: 1px solid #80998a; padding: 6px 12px; border-radius: 4px; }
+.geo-study .fc-text { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
+.geo-flag { font-size: 4rem; line-height: 1.2; }
+.geo-country { display: block; font: 700 clamp(1.5rem, 4vw, 2.2rem)/1.2 Georgia, serif; }
+.geo-capital { display: block; font-size: clamp(1.05rem, 2.6vw, 1.3rem); }
+.geo-question { display: block; font-size: clamp(1.1rem, 3vw, 1.5rem); margin-top: 12px; }
+.geo-translation, .geo-map-caption { display: block; font-size: .85rem; font-weight: 500; }
+.geo-answer { display: block; font-size: clamp(1.25rem, 3vw, 1.7rem); font-weight: 800; }
+.geo-answer > span { display: block; }
+.geo-map { width: min(100%, 280px); height: auto; display: block; }
+.geo-study .fc-text-back { gap: 8px; }
+.geo-note { display: block; font-size: .9rem; line-height: 1.5; font-weight: 500; }
+.geo-study .geo-note { max-width: 480px; }
+.geo-score { font-size: 1.3rem; }
+.geo-review { text-align: left; border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; margin: 20px 0; }
+.geo-review h4 { margin: 0 0 8px; }
+.geo-review ul { margin: 0; padding-left: 20px; }
+.geo-review li { padding: 6px 0; }
 @media (prefers-reduced-motion: reduce) {
   .fc-inner { transition: none; }
 }
@@ -4348,6 +4379,10 @@ const Flashcards = (() => {
   // Runs a study session for `deck` ({ title, cards: [{ id, front, back, tag }] }) inside `host`.
   // opts: { onExit() — leave the deck, onDone() — finished a pass, onChange() — mastery changed }
   function study(host, deck, opts = {}) {
+    const geography = !!deck.geography;
+    const gotLabel = geography ? 'I Know It' : 'Got it';
+    const learningLabel = geography ? 'Practice Again' : 'Still learning';
+    host.classList.toggle('geo-study', geography);
     const settings = { shuffle: false, reverse: false, onlyNew: false };
     let queue = [];
     let index = 0;
@@ -4372,7 +4407,7 @@ const Flashcards = (() => {
       return `
         <div class="fc-toolbar">
           ${toggle('shuffle', '🔀 Shuffle')}
-          ${toggle('reverse', '↔ Definition first')}
+          ${geography ? '' : toggle('reverse', '↔ Definition first')}
           ${toggle('onlyNew', `🎯 Not mastered yet (${left})`)}
         </div>`;
     }
@@ -4396,10 +4431,10 @@ const Flashcards = (() => {
         ${toolbar()}
         <div class="fc-status">
           <span>Card <strong>${index + 1}</strong> of ${queue.length}</span>
-          <span><span class="good-text">✅ ${count('got')}</span> · <span class="hint-text">😅 ${count('learning')}</span></span>
+          <span><span class="good-text">✅ ${count('got')}${geography ? ' correct' : ''}</span> · <span class="hint-text">😅 ${count('learning')}${geography ? ' missed' : ''}</span></span>
         </div>
         <div class="progress" aria-hidden="true"><div class="progress-bar" style="width:${(index / queue.length) * 100}%"></div></div>
-        <button type="button" class="fc-card" aria-label="Flashcard. Press to flip.">
+        <button type="button" class="fc-card" aria-label="${geography ? `${card.country}. Capital: ${card.capital}. Which continent is this country in? Press to reveal the answer.` : 'Flashcard. Press to flip.'}">
           <span class="fc-inner">
             <span class="fc-face fc-front">
               <span class="fc-tag">${card.tag}${isMastered(card.id) ? ' · ✅ mastered' : ''}</span>
@@ -4415,13 +4450,13 @@ const Flashcards = (() => {
         <div class="fc-actions" data-when="front">
           <button type="button" class="btn btn-ghost" data-act="prev" ${index === 0 ? 'disabled' : ''}>← Back</button>
           <button type="button" class="btn btn-primary" data-act="flip">Flip card</button>
-          <button type="button" class="btn btn-ghost" data-act="skip">Skip →</button>
+          ${geography ? '' : '<button type="button" class="btn btn-ghost" data-act="skip">Skip →</button>'}
         </div>
         <div class="fc-actions" data-when="back" hidden>
-          <button type="button" class="btn fc-learning" data-act="learning">😅 Still learning</button>
-          <button type="button" class="btn btn-primary" data-act="got">✅ Got it</button>
+          <button type="button" class="btn fc-learning" data-act="learning">😅 ${learningLabel}</button>
+          <button type="button" class="btn btn-primary" data-act="got">✅ ${gotLabel}</button>
         </div>
-        <p class="muted small fc-keys">Keyboard: <kbd>Space</kbd> flip · <kbd>1</kbd> still learning · <kbd>2</kbd> got it · <kbd>←</kbd> <kbd>→</kbd> move</p>`;
+        <p class="muted small fc-keys">Keyboard: <kbd>Space</kbd> flip · <kbd>1</kbd> ${learningLabel} · <kbd>2</kbd> ${gotLabel} · ${geography ? '<kbd>←</kbd> back' : '<kbd>←</kbd> <kbd>→</kbd> move'}</p>`;
       wireToolbar();
       host.querySelector('.fc-card').addEventListener('click', flip);
       host.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', () => act(b.dataset.act)));
@@ -4436,6 +4471,9 @@ const Flashcards = (() => {
       cardEl.classList.toggle('is-flipped', on);
       cardEl.querySelector('.fc-front').setAttribute('aria-hidden', String(on));
       cardEl.querySelector('.fc-back').setAttribute('aria-hidden', String(!on));
+      if (geography) cardEl.setAttribute('aria-label', on
+        ? `${queue[index].review}. ${queue[index].region === 'caribbean' ? 'North America is also accepted if your class groups the Caribbean there. ' : ''}Press to return to the question.`
+        : `${queue[index].country}. Capital: ${queue[index].capital}. Which continent is this country in? Press to reveal the answer.`);
       host.querySelector('[data-when="front"]').hidden = on;
       host.querySelector('[data-when="back"]').hidden = !on;
       cardEl.focus({ preventScroll: true });
@@ -4447,7 +4485,7 @@ const Flashcards = (() => {
       const card = queue[index];
       if (kind === 'flip') return flip();
       if (kind === 'prev') { if (index > 0) { index--; flipped = false; draw(); } return; }
-      if (kind === 'skip') { index++; flipped = false; return draw(); }
+      if (kind === 'skip') { if (geography) return; index++; flipped = false; return draw(); }
       if (!flipped) return;
       results[card.id] = kind;
       setMastered(card.id, kind === 'got');
@@ -4466,13 +4504,15 @@ const Flashcards = (() => {
         <div class="fc-summary">
           <p class="empty-icon" aria-hidden="true">${learning.length ? '💪' : '🌟'}</p>
           <h3>${learning.length ? 'Nice work! Keep going.' : 'Perfect round!'}</h3>
+          ${geography ? `<p class="geo-score">Self-check score: <strong>${got} / ${queue.length}</strong> (${Math.round(got / queue.length * 100)}%)</p>` : ''}
           <div class="stats">
-            <div class="stat good"><span class="stat-value">${got}</span><span class="stat-label">Got it</span></div>
-            <div class="stat"><span class="stat-value">${learning.length}</span><span class="stat-label">Still learning</span></div>
+            <div class="stat good"><span class="stat-value">${got}</span><span class="stat-label">${gotLabel}</span></div>
+            <div class="stat"><span class="stat-value">${learning.length}</span><span class="stat-label">${learningLabel}</span></div>
             <div class="stat"><span class="stat-value">${done}<small>/${total}</small></span><span class="stat-label">Deck mastered</span></div>
           </div>
+          ${geography && learning.length ? `<section class="geo-review"><h4>Your missed cards</h4><ul>${learning.map((card) => `<li>${card.review}</li>`).join('')}</ul></section>` : ''}
           <div class="actions">
-            ${learning.length ? `<button type="button" class="btn btn-primary" data-sum="learning">Study the ${learning.length} I'm still learning</button>` : ''}
+            ${learning.length ? `<button type="button" class="btn btn-primary" data-sum="learning">${geography ? `Review ${learning.length} missed cards` : `Study the ${learning.length} I'm still learning`}</button>` : ''}
             <button type="button" class="btn btn-secondary" data-sum="again">Start the deck over</button>
             <button type="button" class="btn btn-ghost" data-sum="exit">← Back to unit</button>
           </div>
@@ -6009,7 +6049,95 @@ const Spanish = (() => {
     },
   ];
 
-  return { places, DECKS };
+  const regions = {
+    north: { spanish: 'América del Norte', english: 'North America' },
+    caribbean: { spanish: 'El Caribe', english: 'Caribbean' },
+    south: { spanish: 'América del Sur', english: 'South America' },
+    europe: { spanish: 'Europa', english: 'Europe' },
+    africa: { spanish: 'África', english: 'Africa' },
+  };
+  // Coordinates locate each country or territory, not its capital.
+  const geography = {
+    mexico: ['north', '🇲🇽', 23, -102],
+    guatemala: ['north', '🇬🇹', 15.5, -90.2],
+    honduras: ['north', '🇭🇳', 15, -86.5],
+    'el-salvador': ['north', '🇸🇻', 13.8, -88.9],
+    nicaragua: ['north', '🇳🇮', 13, -85],
+    'costa-rica': ['north', '🇨🇷', 9.7, -84],
+    panama: ['north', '🇵🇦', 8.5, -80],
+    cuba: ['caribbean', '🇨🇺', 22, -79.5],
+    'dominican-republic': ['caribbean', '🇩🇴', 19, -70.7],
+    'puerto-rico': ['caribbean', '🇵🇷', 18.2, -66.5],
+    colombia: ['south', '🇨🇴', 4, -73],
+    venezuela: ['south', '🇻🇪', 8, -66],
+    ecuador: ['south', '🇪🇨', -1.5, -78],
+    peru: ['south', '🇵🇪', -10, -76],
+    bolivia: ['south', '🇧🇴', -17, -65],
+    chile: ['south', '🇨🇱', -30, -71],
+    argentina: ['south', '🇦🇷', -34, -64],
+    paraguay: ['south', '🇵🇾', -23, -58],
+    uruguay: ['south', '🇺🇾', -33, -56],
+    spain: ['europe', '🇪🇸', 40, -4],
+    'equatorial-guinea': ['africa', '🇬🇶', 1.5, 10],
+  };
+
+  function locator(place, latitude, longitude) {
+    const x = longitude + 180;
+    const y = 90 - latitude;
+    return `<svg class="geo-map" viewBox="0 0 360 180" role="img" aria-label="Approximate location of ${place.spanish} on a simplified world map">
+      <rect width="360" height="180" rx="12" fill="#e0f2f1"/>
+      <path d="M0 90H360M180 0V180M90 0V180M270 0V180" stroke="#badbd6" fill="none"/>
+      <g fill="#8db6a1" stroke="#fff" stroke-width="1">
+        <path d="M12 20L55 12 85 22 120 40 112 55 96 62 82 80 67 70 55 55 35 50Z"/>
+        <path d="M82 80L99 84 110 100 120 110 110 132 100 148 90 136 85 110 77 94Z"/>
+        <path d="M120 8L145 5 150 25 135 35 125 22Z"/>
+        <path d="M170 32L190 25 207 35 200 48 183 55 170 49Z"/>
+        <path d="M165 55L190 50 215 65 228 85 215 115 200 125 188 105 178 82 164 73Z"/>
+        <path d="M200 25L245 15 290 22 335 40 320 65 295 70 280 90 265 75 245 65 225 50 210 48Z"/>
+        <path d="M290 115L320 110 335 130 315 140 292 135Z"/>
+      </g>
+      <circle cx="${x}" cy="${y}" r="8" fill="#c2410c" fill-opacity=".2"/>
+      <circle cx="${x}" cy="${y}" r="3.5" fill="#b83219" stroke="white" stroke-width="1.5"/>
+    </svg>`;
+  }
+
+  const continentCards = Object.entries(geography).map(([key, [regionKey, flag, latitude, longitude]]) => {
+    const place = places.find((entry) => entry.key === key);
+    const region = regions[regionKey];
+    const identity = `<span class="geo-country" lang="es">País: ${place.spanish}</span>
+      <span class="geo-capital" lang="es">Capital: ${place.capital}</span>`;
+    const regionName = `${region.spanish} (${region.english})`;
+    return {
+      id: `spanish-continent:${key}`,
+      tag: place.type === 'territory' ? 'Unit 2 · Territory' : 'Unit 2 · Country',
+      country: place.spanish,
+      capital: place.capital,
+      region: regionKey,
+      acceptedRegions: regionKey === 'caribbean' ? ['caribbean', 'north'] : [regionKey],
+      review: `${flag} ${place.spanish} — ${place.capital} — ${regionName}`,
+      front: `<span class="geo-flag" role="img" aria-label="Flag of ${place.spanish}">${flag}</span>
+        ${identity}<span class="geo-question" lang="es">¿En qué continente está ${place.spanish}?</span>
+        <span class="geo-translation">Which continent is this country in?</span>`,
+      back: `<span class="geo-answer"><span lang="es">Continente: ${region.spanish}</span> <span>(${region.english})</span></span>
+        ${identity}${locator(place, latitude, longitude)}
+        <span class="geo-map-caption">Approximate country location · simplified map</span>
+        ${regionKey === 'caribbean' ? '<span class="geo-note">Classroom category: Caribbean. América del Norte (North America) is also correct if your class groups the Caribbean there.</span>' : ''}
+        ${place.note ? `<span class="geo-note">${place.note}</span>` : ''}`,
+    };
+  });
+
+  const UNIT2_DECKS = [{
+    key: 'continents',
+    title: 'Passport practice: ¿En qué continente?',
+    short: 'Continents',
+    icon: '🌎',
+    color: '#0f766e',
+    blurb: 'Read the country and capital, recall its continent, then flip to check.',
+    geography: true,
+    cards: continentCards,
+  }];
+
+  return { places, DECKS, UNIT2_DECKS };
 })();
 
 </script>
@@ -6053,6 +6181,16 @@ const Spanish = (() => {
       decks: Spanish.DECKS,
       deckTitle: 'Interactive Spanish Countries & Capitals Flashcards',
       deckDescription: 'Study in three ways: match English and Spanish country names, recall a capital from its country, or name the country from its capital. The set includes 20 countries and Puerto Rico, a U.S. territory.',
+    },
+    {
+      title: 'Spanish-Speaking Countries & Continents',
+      icon: '🌎',
+      color: '#0f766e',
+      blurb: 'Collect 21 passport stamps! Match Spanish country names and capitals to their continents.',
+      lessons: [],
+      decks: Spanish.UNIT2_DECKS,
+      deckTitle: 'Your Unit 2 geography passport',
+      deckDescription: 'Say the continent, flip to check, then choose “I Know It” or “Practice Again.” Use América del Norte, El Caribe, América del Sur, Europa, and África. The Caribbean is a separate classroom category; North America is accepted for those three cards too. This is a self-check activity, not an automatically graded quiz.',
     },
   ].map(numberUnit);
 
@@ -6463,6 +6601,7 @@ const Spanish = (() => {
       <section class="card fc-page">
         <p class="eyebrow">Flashcards · ${u.fullTitle}</p>
         <h2>${deck.icon} ${deck.title}</h2>
+        ${deck.geography ? `<p class="geo-intro">21 places. Five classroom categories. One world to explore.</p><p class="muted">${deck.blurb} Choose <strong>I Know It</strong> if your answer matches, or <strong>Practice Again</strong> to review it.</p><p class="geo-note">The Caribbean is a separate classroom category here. North America also counts for Cuba, República Dominicana, and Puerto Rico if that is how your class groups them.</p>` : ''}
         <div class="deck-switch" role="group" aria-label="Choose a deck">
           ${u.decks.map((d) => `<button type="button" class="fc-toggle" data-switch="${d.key}" aria-pressed="${d === deck}">${d.icon} ${d.short}</button>`).join('')}
         </div>
