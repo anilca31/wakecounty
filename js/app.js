@@ -25,6 +25,7 @@
 
   const SOCIAL_UNITS = [
     { title: 'River Valley Civilizations', icon: '🏺', color: '#b45309', blurb: 'How geography and water shaped early human organization in Mesopotamia, Egypt, the Indus Valley, and China.', lessons: SocialStudies.lessons, decks: SocialStudies.DECKS },
+    { title: 'Geography & Physical Features', icon: '🧭', color: '#2563a7', blurb: 'Prepare for the geography study guide with map and timeline skills, farming, physical features, and how civilizations adapted.', lessons: GeographyUnit.lessons },
   ].map(numberUnit);
 
   const SPANISH_UNITS = [
@@ -56,7 +57,7 @@
     { id: 'maths', title: 'Maths', icon: '🔢', color: '#e8590c', tagline: 'Ratios, fractions, equations & more', blurb: 'Maths 6+ in 10 units, from area and ratios to equations and rational numbers. Pick a unit to see its lessons.', units: MATH_UNITS, lessons: MATH_UNITS.flatMap((u) => u.lessons) },
     { id: 'ela', title: 'ELA', icon: '📚', color: '#8d67ab', tagline: 'The Lightning Thief test prep', blurb: 'Get ready for the open-book test on Chapters 1–8 of <em>The Lightning Thief</em> and the Hero\'s Journey. It tests skills, not memory, so start with the tips.', lessons: Ela.lessons },
     { id: 'science', title: 'Science', icon: '🔬', color: '#148a5b', tagline: 'Cells, energy & Earth', blurb: 'Cells, energy, Earth\'s systems and the scientific method.', lessons: [] },
-    { id: 'social', title: 'Social Studies', icon: '🌎', color: '#2d5bd7', tagline: 'Ancient river valley civilizations', blurb: 'Ancient civilizations and how geography shaped them. Topics follow the North Carolina 6th-grade standards. Pick a unit to see its lessons.', units: SOCIAL_UNITS, lessons: SOCIAL_UNITS.flatMap((u) => u.lessons) },
+    { id: 'social', title: 'Social Studies', icon: '🌎', color: '#2d5bd7', tagline: 'Geography & ancient civilizations', blurb: 'Study geography skills and how physical features shaped ancient civilizations. Pick a unit to explore the lessons and practice.', units: SOCIAL_UNITS, lessons: SOCIAL_UNITS.flatMap((u) => u.lessons) },
     { id: 'spanish', title: 'Spanish', icon: '💬', color: '#d42a3c', tagline: 'Countries, capitals & everyday Spanish', blurb: 'Build Spanish vocabulary and geography skills. Start with the countries and capitals flashcards.', units: SPANISH_UNITS, lessons: [] },
   ];
   const LESSONS = Object.fromEntries(SUBJECTS.flatMap((s) => s.lessons).map((l) => [l.id, l]));

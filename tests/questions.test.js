@@ -207,6 +207,8 @@ for (const l of RatioUnit.sections) {
   vm.runInContext(`${mapSrc}\n;globalThis.SouthAsiaMap = SouthAsiaMap;`, ctx);
   const src = fs.readFileSync(path.join(__dirname, '..', 'js', 'social-studies.js'), 'utf8');
   vm.runInContext(`${src}\n;globalThis.SocialStudies = SocialStudies;`, ctx);
+  const geographySrc = fs.readFileSync(path.join(__dirname, '..', 'js', 'geography-unit.js'), 'utf8');
+  vm.runInContext(`${geographySrc}\n;globalThis.GeographyUnit = GeographyUnit;`, ctx);
   const SAM = ctx.SouthAsiaMap;
   // Map scale sanity: measurements match real-world distances closely.
   const near = (v, want, tol) => assert.ok(Math.abs(v - want) <= tol, `map distance ${Math.round(v)} should be about ${want}`);
@@ -265,10 +267,38 @@ for (const l of RatioUnit.sections) {
       for (const k of l.skills) assert.ok(s.some((q) => q.type === k), `SS ${l.short}: covers ${k}`);
     }
   }
+  const Geography = ctx.GeographyUnit;
+  assert.ok(Geography.ITEMS.length >= 25, 'Geography Unit 2 has broad study-guide coverage');
+  assert.strictEqual(Geography.lessons.length, 5);
+  for (const item of Geography.ITEMS) {
+    assert.ok(Geography.FACTORIES[item.skill], `Geography: known skill ${item.skill}`);
+    assert.strictEqual(item.options.length, 4, `Geography: four options for "${item.prompt}"`);
+    assert.strictEqual(new Set(item.options.map(([text]) => text)).size, 4, `Geography: distinct options for "${item.prompt}"`);
+    item.options.slice(1).forEach(([, hint]) => assert.ok(hint, `Geography: targeted hint for "${item.prompt}"`));
+    assert.ok(item.explanation, `Geography: explanation for "${item.prompt}"`);
+  }
+  for (const lesson of Geography.lessons) {
+    assert.strictEqual(lesson.steps[0].title, 'Learning targets');
+    assert.strictEqual(lesson.steps[1].title, 'Study notes & tips');
+    assert.ok(lesson.steps[1].html.length > 300, `Geography ${lesson.short}: detailed notes`);
+    assert.ok(lesson.steps[2].html.includes('Test tip'), `Geography ${lesson.short}: test-taking tip`);
+    for (let i = 0; i < 300; i++) {
+      const questions = lesson.buildSession(lesson.sessionLength);
+      assert.strictEqual(questions.length, lesson.sessionLength, `Geography ${lesson.short}: session length`);
+      assert.strictEqual(new Set(questions.map((question) => question.summary)).size, questions.length, `Geography ${lesson.short}: unique questions`);
+      for (const question of questions) {
+        assert.strictEqual(question.options.length, 4);
+        assert.strictEqual(question.options.filter((option) => option.correct).length, 1);
+        assert.strictEqual(question.check(question.options.find((option) => option.correct).id).status, 'correct');
+        question.options.filter((option) => !option.correct).forEach((option) => assert.ok(question.check(option.id).message));
+        assert.strictEqual(question.check(undefined).status, 'invalid');
+      }
+    }
+  }
 }
 // Lesson ids must be unique across every subject.
 {
-  const ids = [...ctx.RatioUnit.sections, ...ctx.SocialStudies.lessons].map((l) => l.id).concat([3, 4, 5, 6, 7]);
+  const ids = [...ctx.RatioUnit.sections, ...ctx.SocialStudies.lessons, ...ctx.GeographyUnit.lessons].map((l) => l.id).concat([3, 4, 5, 6, 7]);
   assert.strictEqual(new Set(ids).size, ids.length, 'lesson ids are unique across subjects');
 }
 
