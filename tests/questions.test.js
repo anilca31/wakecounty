@@ -296,9 +296,73 @@ for (const l of RatioUnit.sections) {
     }
   }
 }
+// ELA end-of-novel guide: every worksheet part is represented and practice is self-contained.
+{
+  const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'ela-end-novel.js'), 'utf8');
+  vm.runInContext(`${source}\n;globalThis.ElaEndNovel = ElaEndNovel;`, ctx);
+  const end = ctx.ElaEndNovel;
+  assert.strictEqual(end.lessons.length, 6);
+  assert.strictEqual(end.VOCABULARY.length, 9);
+  assert.strictEqual(end.CHARACTERS.length, 5);
+  assert.strictEqual(end.PLOT.length, 5);
+  assert.strictEqual(end.JOURNEY.length, 5);
+  assert.strictEqual(end.MYTHS.length, 5);
+  assert.strictEqual(end.PASSAGES.length, 2);
+  assert.deepStrictEqual(Array.from(end.CHAPTERS, (chapter) => chapter[0]), [9, 15, 19, 21]);
+  assert.deepStrictEqual(Array.from(end.WORDS, (word) => word[0]), ['inadequate', 'formidable', 'ecstatic', 'yearned', 'charismatic']);
+  assert.ok(end.CHAPTERS.find(([chapter]) => chapter === 21)[3].includes('Chapter 20'), 'helm recovery is distinguished from returning the bolt');
+  assert.ok(end.JOURNEY.find(([stage]) => stage === 'The Magic Flight')[2].includes('pearls'));
+  assert.ok(end.CHARACTERS.find(([name]) => name === 'Mr. D')[1].includes('Dionysus'));
+  assert.strictEqual(new Set(end.BANK.map((item) => item.prompt)).size, end.BANK.length, 'end-of-novel prompts are unique');
+  for (const item of end.BANK) {
+    assert.ok(end.SKILLS[item.skill]);
+    assert.strictEqual(item.options.length, 4);
+    assert.strictEqual(new Set(item.options.map(([text]) => text)).size, 4);
+    item.options.slice(1).forEach(([, hint]) => assert.ok(hint, `end-of-novel targeted hint: ${item.prompt}`));
+    assert.ok(item.explanation);
+    if (item.skill === 'reading') {
+      assert.ok(item.passageId, 'every cold-read question includes its passage');
+      assert.ok(end.PASSAGES.some((passage) => passage.id === item.passageId));
+    }
+  }
+  for (const lesson of end.lessons) {
+    assert.strictEqual(lesson.steps[0].title, 'Learning targets');
+    assert.ok(lesson.steps[0].html.includes('spoilers'));
+    assert.ok(lesson.steps[1].html.length > 500, `${lesson.short}: detailed notes`);
+    assert.ok(lesson.steps[2].html.includes('<details'), `${lesson.short}: revealable model responses`);
+    for (let i = 0; i < 100; i++) {
+      const questions = lesson.buildSession(lesson.sessionLength);
+      assert.strictEqual(questions.length, lesson.sessionLength);
+      assert.strictEqual(new Set(questions.map((question) => question.summary)).size, questions.length);
+      for (const skill of lesson.skills) assert.ok(questions.some((question) => question.type === skill), `${lesson.short}: covers ${skill}`);
+      for (const question of questions) {
+        assert.strictEqual(question.skill, end.SKILLS[question.type]);
+        assert.ok(question.prompt && question.summary && question.solution && question.explanation && question.hint);
+        assert.strictEqual(question.options.filter((option) => option.correct).length, 1);
+        assert.strictEqual(question.check(question.options.find((option) => option.correct).id).status, 'correct');
+        for (const option of question.options.filter((entry) => !entry.correct)) {
+          assert.strictEqual(question.check(option.id).status, 'incorrect');
+          assert.ok(question.check(option.id).message);
+        }
+        assert.strictEqual(question.check(undefined).status, 'invalid');
+        assert.strictEqual(question.check('not-an-option').status, 'invalid');
+        if (question.type === 'reading') {
+          assert.ok(question.visualHtml.includes('Original practice passage'));
+          assert.ok(end.PASSAGES.some((passage) => question.visualHtml.includes(passage.text)));
+        }
+      }
+    }
+  }
+  const fullBank = end.buildSession(Object.keys(end.SKILLS), end.BANK.length);
+  assert.strictEqual(fullBank.length, end.BANK.length);
+  assert.strictEqual(new Set(fullBank.map((question) => question.summary)).size, end.BANK.length);
+  assert.throws(() => end.buildSession(['not-a-skill'], 1), /known skills/);
+  assert.throws(() => end.buildSession(['reading'], 1000), /available question bank/);
+  assert.throws(() => end.buildSession(['reading'], 0), /count/);
+}
 // Lesson ids must be unique across every subject.
 {
-  const ids = [...ctx.RatioUnit.sections, ...ctx.SocialStudies.lessons, ...ctx.GeographyUnit.lessons].map((l) => l.id).concat([3, 4, 5, 6, 7]);
+  const ids = [...ctx.RatioUnit.sections, ...ctx.SocialStudies.lessons, ...ctx.GeographyUnit.lessons, ...ctx.ElaEndNovel.lessons].map((l) => l.id).concat([3, 4, 5, 6, 7]);
   assert.strictEqual(new Set(ids).size, ids.length, 'lesson ids are unique across subjects');
 }
 

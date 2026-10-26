@@ -466,11 +466,11 @@ const ElaQuestions = (() => {
       explanation: 'Point to where your evidence comes from, like "In Chapter 4, the text says…" or "On page __, it states…"' },
   ];
 
-  const toQuestion = (skill, prompt, options, explanation, hint) => {
+  const toQuestion = (skill, prompt, options, explanation, hint, skillLabel = SKILLS[skill]) => {
     const opts = shuffle(options.map(([html, h], i) => ({ html, correct: i === 0, hint: h })))
       .map((o, i) => ({ ...o, id: 'ABCD'[i] }));
     return {
-      type: skill, skill: SKILLS[skill],
+      type: skill, skill: skillLabel,
       prompt, summary: prompt.replace(/<br>/g, ' ').replace(/<[^>]+>/g, ''),
       format: 'mc', options: opts, textOptions: true,
       check: (id) => {
@@ -558,5 +558,5 @@ const ElaQuestions = (() => {
     return shuffle(picked);
   }
 
-  return { SKILLS, CHAPTERS, EVENTS, STAGES, PLOT, TRAITS, RACES, SCOPE, CHAPTER_QA, JOURNEY_QA, MODEL_RESPONSES, CH8_KEY, BANK, FACTORIES, buildSession };
+  return { SKILLS, CHAPTERS, EVENTS, STAGES, PLOT, TRAITS, RACES, SCOPE, CHAPTER_QA, JOURNEY_QA, MODEL_RESPONSES, CH8_KEY, BANK, FACTORIES, buildSession, toQuestion };
 })();

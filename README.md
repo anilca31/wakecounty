@@ -3,7 +3,7 @@
 An interactive learning app with a practice engine, organized by subject:
 
 - **Maths 6+**: 10 units (Area & Surface Area, Introducing Ratios, Unit Rates & Percentages, Scale Drawings, Dividing Fractions, Arithmetic in Base 10, Expressions and Equations, Introducing Proportional Relationships, Proportional Relationships and Percentages, Rational Numbers). Unit 2 (Introducing Ratios) has 10 lesson sections covering Lessons 1–16: ratio language, diagrams, recipes, color mixtures, equivalent ratios, double number lines, unit price, constant speed, tables, part-part-whole, and mixed problems. The other units are coming soon
-- **ELA 6th Grade**: test prep for Chapters 1–8 of The Lightning Thief and the Hero's Journey: Start Here (test tips, Q&A, full review), Gist & Sequence, The Hero's Journey & the Plot Diagram (with the class worksheet's "align the 10 stages" activity), Percy's Character & R.A.C.E.S., Chapter-by-Chapter Questions & Answers
+- **ELA 6th Grade**: test prep for Chapters 1–8 of The Lightning Thief and the Hero's Journey: Start Here (test tips, Q&A, full review), Gist & Sequence, The Hero's Journey & the Plot Diagram (with the class worksheet's "align the 10 stages" activity), Percy's Character & R.A.C.E.S., Chapter-by-Chapter Questions & Answers. Six additional **End-of-Novel Guide** lessons cover all seven parts of the shared study guide, with study tips, revealable model answers, original cold reads, and scored practice.
 - **Social Studies**: Unit 1: River Valley Civilizations (NC 6th-grade standards): Start Here (rivers and civilization, timeline), Map Skills (measure distance with a map scale on an interactive South Asia map, latitude/longitude, direction, relative location, estimating area), Mesopotamia, Ancient Egypt, Indus Valley (with the roots of Hinduism and Buddhism), Ancient China, and a Unit Review with a mixed 12-question test, plus "Master Grade 6 River Valley Civilizations" flashcards (131 cards in 8 decks). Unit 2: Geography & Physical Features has five guided lessons and targeted practice on the five themes, map and timeline skills, farming and civilization, Greece and Rome, and geography's influence on the Inca, Indian Ocean sailors, Aztecs, Japan, Mesopotamia, and Mesoamerica.
 - **Spanish**: Unit 1 has interactive flashcards for English/Spanish names of 20 Spanish-speaking countries plus Puerto Rico, country-to-capital recall, and a capital-to-country challenge (63 cards across 3 decks). Unit 2 adds 21 country/capital-to-continent flashcards with flags, simplified locator maps, self-check scoring, shuffle, and missed-card review.
 - **Science**: subject card in place, lessons coming soon
@@ -19,7 +19,20 @@ node tests/questions.test.js
 node tests/spanish.test.js
 ```
 
-The question test fuzzes every question generator: each answer key passes its own checker, MC options are distinct with exactly one correct, reversed answers get a targeted hint, and sessions cover every question type. It also checks the ELA question bank, both Social Studies units, and the Spanish flashcard data.
+The question test fuzzes every question generator: each answer key passes its own checker, MC options are distinct with exactly one correct, reversed answers get a targeted hint, and sessions cover every question type. It also checks both ELA question banks (including end-of-novel coverage, self-contained cold reads, and complete mixed sessions) and both Social Studies units. The Spanish test checks the flashcard data and continent assignments.
+
+### ELA end-of-novel study guide
+
+Open **ELA**, then choose one of the **End-of-Novel Guide** lessons below the existing Chapters 1–8 lessons:
+
+- **Vocabulary & Characters**: nine literary terms, five character relationships, direct/indirect characterization, and Percy's development.
+- **Plot & Hero's Journey**: a five-part plot mountain, definitions, and the five later journey stages used in the classroom guide.
+- **Elements of Mythology**: power struggles, origins and the natural world, fate/prophecy, the supernatural, and quests, with novel connections.
+- **Cold-Read Practice**: two original passages, main idea versus theme, and context clues for inadequate, formidable, ecstatic, yearned, and charismatic. Every practice question includes its passage.
+- **Chapters 9, 15, 19 & 21**: gist statements and accuracy checks, including distinguishing Hades's helm from Zeus's bolt.
+- **Mixed Practice Test**: a 14-question round covering all seven skill groups.
+
+Choose **Learn** for notes and tips, or **Practice** for shuffled questions, targeted hints, explanations, scoring, missed-question review, and saved session history. End-of-novel lessons include spoilers through Chapter 22. These are original study notes, not worksheet transcriptions. Journey-stage interpretations can vary; the notes explain the guide's labels and the relationship between the Underworld escape and Ares confrontation. Existing Chapters 1–8 lessons retain their original scope.
 
 ### Social Studies Unit 2
 
@@ -41,6 +54,7 @@ Classroom categories are **América del Norte (North America)**, **El Caribe (Ca
 - `js/ela-questions.js`: ELA data (chapters, events, 10 Hero's Journey stages, plot diagram, traits, R.A.C.E.S.) and practice questions
 - `js/plot-align.js`: place the worksheet's 10 Hero's Journey stages on a plot diagram (tap the diagram or use the list); also a practice question type
 - `js/ela.js`: ELA lessons
+- `js/ela-end-novel.js`: end-of-novel ELA study guide, original cold-read passages, and practice bank
 - `js/celebrate.js`: slam-dunk animation shown when a lesson or practice session is completed
 - `js/south-asia-map.js`: South Asia map drawn from real latitude/longitude, with a working 200-mile scale bar and tap-to-measure ruler
 - `js/social-studies.js`: Social Studies Unit 1 lessons, Q&A, and question bank
