@@ -198,13 +198,20 @@ const Science = (() => {
       },
       {
         title: 'Compare and check',
-        html: `<div class="table-scroll"><table class="map-table"><thead><tr><th scope="col">Property</th><th scope="col">P waves</th><th scope="col">S waves</th></tr></thead>
+        html: `<h3>P waves versus S waves</h3>
+          <p>Earthquakes release energy as seismic waves. P and S waves are body waves: they travel through Earth’s interior, rather than only along its surface.</p>
+          <div class="table-scroll"><table class="map-table"><thead><tr><th scope="col">Property</th><th scope="col">P waves</th><th scope="col">S waves</th></tr></thead>
           <tbody><tr><th scope="row">Name</th><td>Primary</td><td>Secondary</td></tr>
           <tr><th scope="row">Relative speed</th><td>Faster; arrive first</td><td>Slower; arrive second</td></tr>
           <tr><th scope="row">Wave type</th><td>Longitudinal / compressional</td><td>Transverse / shear</td></tr>
-          <tr><th scope="row">Particle motion</th><td>Parallel to travel</td><td>Perpendicular to travel</td></tr>
-          <tr><th scope="row">Materials</th><td>Solids, liquids, gases</td><td>Solids only</td></tr></tbody></table></div>
+          <tr><th scope="row">Particle motion</th><td>Back and forth, parallel to travel</td><td>Perpendicular to travel</td></tr>
+          <tr><th scope="row">Materials</th><td>Solids, liquids, gases</td><td>Solids; not liquids or gases</td></tr>
+          <tr><th scope="row">Typical shaking</th><td>Squeezing and stretching</td><td>Shearing; side-to-side or up-and-down motion</td></tr>
+          <tr><th scope="row">Memory aid</th><td>P = Primary, Push–pull, Parallel</td><td>S = Secondary, Shear, Solids only</td></tr></tbody></table></div>
+          <p><strong>Key differences:</strong> Compare particle motion, arrival order, and whether the wave can pass through liquids.</p>
+          <p class="muted small">Learn more: <a href="https://pnsn.org/education/seismology/earthquake-waves">Pacific Northwest Seismic Network: Earthquake Waves</a>.</p>
           <div class="callout"><strong>Watch the wording:</strong> Energy moves through the material, but the particles vibrate locally. They do not ride the wave all the way to a recording station. Actual speeds vary with material, so there is no single speed for all P or S waves.</div>
+          <details class="qa"><summary>An earthquake wave travels through solid rock but cannot pass through a liquid layer. Is it a P wave or an S wave?</summary><div class="qa-answer"><strong>An S wave.</strong> S waves require a material that supports shear motion; liquids do not transmit S waves. P waves can pass through liquids.</div></details>
           <p>A seismic wave travels right while particles move up and down. Which wave is it?</p><div id="waveCheck"></div>`,
         mount(el) {
           Lessons.miniCheck(el, '#waveCheck', [

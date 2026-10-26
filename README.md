@@ -38,7 +38,7 @@ Choose **Learn** for notes and tips, or **Practice** for shuffled questions, tar
 
 Open **Science → Earthquake Waves: P Waves & S Waves**. Choose **Learn** for six guided steps or **Practice** for a shuffled 10-question round with hints, explanations, scoring, and saved progress. The lesson compares arrival order, parallel versus perpendicular particle motion, and the materials each wave can pass through. Diagrams are schematic models, not literal pictures of rock moving with a wave.
 
-Memory aids: **P = Primary, Push–pull, Parallel**; **S = Secondary, Shear, Solids only**. P and S are body waves, not surface waves. The lesson also explains evidence for the liquid outer core and how S–P arrival intervals help estimate distance (not magnitude or a unique direction). The question tests validate the science bank, correct answers, hints, diagrams, and skill coverage.
+Memory aids: **P = Primary, Push–pull, Parallel**; **S = Secondary, Shear, Solids only**. The comparison table includes shaking patterns and memory aids, followed by a revealable solid-rock-versus-liquid test question and a Pacific Northwest Seismic Network reference. P and S are body waves, not surface waves. The lesson also explains evidence for the liquid outer core and how S–P arrival intervals help estimate distance (not magnitude or a unique direction). The question tests validate the science bank, correct answers, hints, diagrams, and skill coverage.
 
 ### Social Studies Unit 2
 

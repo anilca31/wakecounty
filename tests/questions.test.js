@@ -376,6 +376,12 @@ for (const l of RatioUnit.sections) {
   }
   const lesson = science.lessons[0];
   assert.strictEqual(lesson.steps[0].title, 'Learning targets');
+  const comparison = lesson.steps.find((step) => step.title === 'Compare and check').html;
+  for (const text of ['Typical shaking', 'Squeezing and stretching', 'Shearing; side-to-side or up-and-down motion',
+    'Memory aid', 'P = Primary, Push–pull', 'S = Secondary, Shear, Solids only',
+    'cannot pass through a liquid layer', '<strong>An S wave.</strong>', 'https://pnsn.org/education/seismology/earthquake-waves']) {
+    assert.ok(comparison.includes(text), `Science comparison includes ${text}`);
+  }
   assert.ok(lesson.steps.some((step) => typeof step.mount === 'function'));
   for (const kind of ['P', 'S']) {
     const diagram = science.motionDiagram(kind);
