@@ -360,9 +360,59 @@ for (const l of RatioUnit.sections) {
   assert.throws(() => end.buildSession(['reading'], 1000), /available question bank/);
   assert.throws(() => end.buildSession(['reading'], 0), /count/);
 }
+// Science: P/S-wave practice covers motion, materials, arrivals, and wave basics.
+{
+  const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'science.js'), 'utf8');
+  vm.runInContext(`${source}\n;globalThis.Science = Science;`, ctx);
+  const science = ctx.Science;
+  assert.strictEqual(science.lessons.length, 1);
+  assert.strictEqual(science.BANK.length, 15);
+  assert.strictEqual(new Set(science.BANK.map((item) => item.prompt)).size, science.BANK.length);
+  for (const item of science.BANK) {
+    assert.strictEqual(item.options.length, 4);
+    assert.strictEqual(new Set(item.options.map(([text]) => text)).size, 4);
+    item.options.slice(1).forEach(([, hint]) => assert.ok(hint));
+    assert.ok(item.explanation);
+  }
+  const lesson = science.lessons[0];
+  assert.strictEqual(lesson.steps[0].title, 'Learning targets');
+  assert.ok(lesson.steps.some((step) => typeof step.mount === 'function'));
+  for (const kind of ['P', 'S']) {
+    const diagram = science.motionDiagram(kind);
+    assert.match(diagram, /^<svg/);
+    assert.ok(diagram.includes('role="img"') && diagram.includes('aria-label='));
+    assert.ok(diagram.includes(kind === 'P' ? 'parallel' : 'perpendicular'));
+  }
+  const allQuestions = science.buildSession(science.BANK.length);
+  const interval = allQuestions.find((question) => question.prompt.includes('10:02:15'));
+  assert.strictEqual(interval.solution, '30 seconds');
+  assert.ok(allQuestions.find((question) => question.prompt.includes('materials can P waves')).solution.includes('Solids, liquids, and gases'));
+  assert.strictEqual(allQuestions.find((question) => question.prompt.includes('material can carry S waves')).solution, 'Solid rock');
+  for (let i = 0; i < 200; i++) {
+    const questions = lesson.buildSession(lesson.sessionLength);
+    assert.strictEqual(questions.length, 10);
+    assert.strictEqual(new Set(questions.map((question) => question.summary)).size, 10);
+    for (const skill of new Set(science.BANK.map((item) => item.skill))) {
+      assert.ok(questions.some((question) => question.type === skill), `Science session covers ${skill}`);
+    }
+    for (const question of questions) {
+      assert.ok(question.skill && question.prompt && question.solution && question.explanation && question.hint);
+      assert.strictEqual(question.options.filter((option) => option.correct).length, 1);
+      assert.strictEqual(question.check(question.options.find((option) => option.correct).id).status, 'correct');
+      for (const option of question.options.filter((entry) => !entry.correct)) {
+        assert.strictEqual(question.check(option.id).status, 'incorrect');
+        assert.ok(question.check(option.id).message);
+      }
+      assert.strictEqual(question.check(undefined).status, 'invalid');
+      assert.strictEqual(question.check('not-an-option').status, 'invalid');
+    }
+  }
+  assert.strictEqual(new Set(allQuestions.map((question) => question.summary)).size, science.BANK.length);
+  for (const count of [0, -1, 16, 1.5]) assert.throws(() => science.buildSession(count), /count/);
+}
 // Lesson ids must be unique across every subject.
 {
-  const ids = [...ctx.RatioUnit.sections, ...ctx.SocialStudies.lessons, ...ctx.GeographyUnit.lessons, ...ctx.ElaEndNovel.lessons].map((l) => l.id).concat([3, 4, 5, 6, 7]);
+  const ids = [...ctx.RatioUnit.sections, ...ctx.SocialStudies.lessons, ...ctx.GeographyUnit.lessons, ...ctx.ElaEndNovel.lessons, ...ctx.Science.lessons].map((l) => l.id).concat([3, 4, 5, 6, 7]);
   assert.strictEqual(new Set(ids).size, ids.length, 'lesson ids are unique across subjects');
 }
 

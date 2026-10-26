@@ -6,7 +6,7 @@ An interactive learning app with a practice engine, organized by subject:
 - **ELA 6th Grade**: test prep for Chapters 1–8 of The Lightning Thief and the Hero's Journey: Start Here (test tips, Q&A, full review), Gist & Sequence, The Hero's Journey & the Plot Diagram (with the class worksheet's "align the 10 stages" activity), Percy's Character & R.A.C.E.S., Chapter-by-Chapter Questions & Answers. Six additional **End-of-Novel Guide** lessons cover all seven parts of the shared study guide, with study tips, revealable model answers, original cold reads, and scored practice.
 - **Social Studies**: Unit 1: River Valley Civilizations (NC 6th-grade standards): Start Here (rivers and civilization, timeline), Map Skills (measure distance with a map scale on an interactive South Asia map, latitude/longitude, direction, relative location, estimating area), Mesopotamia, Ancient Egypt, Indus Valley (with the roots of Hinduism and Buddhism), Ancient China, and a Unit Review with a mixed 12-question test, plus "Master Grade 6 River Valley Civilizations" flashcards (131 cards in 8 decks). Unit 2: Geography & Physical Features has five guided lessons and targeted practice on the five themes, map and timeline skills, farming and civilization, Greece and Rome, and geography's influence on the Inca, Indian Ocean sailors, Aztecs, Japan, Mesopotamia, and Mesoamerica.
 - **Spanish**: Unit 1 has interactive flashcards for English/Spanish names of 20 Spanish-speaking countries plus Puerto Rico, country-to-capital recall, and a capital-to-country challenge (63 cards across 3 decks). Unit 2 adds 21 country/capital-to-continent flashcards with flags, simplified locator maps, self-check scoring, shuffle, and missed-card review.
-- **Science**: subject card in place, lessons coming soon
+- **Science**: Earthquake Waves: P Waves & S Waves, with particle-motion diagrams, a comparison table, an interactive quick check, Earth-layer evidence, S–P arrival intervals, and 10-question practice rounds from a 15-question bank.
 
 ## Run
 
@@ -34,6 +34,12 @@ Open **ELA**, then choose one of the **End-of-Novel Guide** lessons below the ex
 
 Choose **Learn** for notes and tips, or **Practice** for shuffled questions, targeted hints, explanations, scoring, missed-question review, and saved session history. End-of-novel lessons include spoilers through Chapter 22. These are original study notes, not worksheet transcriptions. Journey-stage interpretations can vary; the notes explain the guide's labels and the relationship between the Underworld escape and Ares confrontation. Existing Chapters 1–8 lessons retain their original scope.
 
+### Science: P waves & S waves
+
+Open **Science → Earthquake Waves: P Waves & S Waves**. Choose **Learn** for six guided steps or **Practice** for a shuffled 10-question round with hints, explanations, scoring, and saved progress. The lesson compares arrival order, parallel versus perpendicular particle motion, and the materials each wave can pass through. Diagrams are schematic models, not literal pictures of rock moving with a wave.
+
+Memory aids: **P = Primary, Push–pull, Parallel**; **S = Secondary, Shear, Solids only**. P and S are body waves, not surface waves. The lesson also explains evidence for the liquid outer core and how S–P arrival intervals help estimate distance (not magnitude or a unique direction). The question tests validate the science bank, correct answers, hints, diagrams, and skill coverage.
+
 ### Social Studies Unit 2
 
 Open **Social Studies → Unit 2: Geography & Physical Features**. Each lesson has learning targets, detailed study notes with test tips, quick recall prompts, and its own practice session with hints and explanations. Topics follow the shared geography study guide: MR(LIP), map coordinates and hemispheres, chronological timelines and BC/BCE/AD/CE, flooding and irrigation, domestication and food surplus, ancient Greek and Roman geography, and how the Inca, Indian Ocean sailors, Aztecs, and Japanese communities adapted to their environments. The review lesson compares Mesopotamia and Mesoamerica.
@@ -60,6 +66,7 @@ Classroom categories are **América del Norte (North America)**, **El Caribe (Ca
 - `js/social-studies.js`: Social Studies Unit 1 lessons, Q&A, and question bank
 - `js/geography-unit.js`: Social Studies Unit 2 study notes, geography question bank, and targeted practice sessions
 - `js/spanish.js`: Spanish-speaking country and territory names, capitals, and flashcard decks
+- `js/science.js`: P/S-wave lesson, schematic diagrams, interactive check, and science practice bank
 - `js/flashcards.js`: flashcard study sessions (flip, Got it / Still learning, mastery saved in LocalStorage)
 - `js/app.js`: subjects, views (home, lesson, practice, results) and the feedback flow
 

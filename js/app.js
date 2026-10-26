@@ -56,7 +56,7 @@
   const SUBJECTS = [
     { id: 'maths', title: 'Maths', icon: '🔢', color: '#e8590c', tagline: 'Ratios, fractions, equations & more', blurb: 'Maths 6+ in 10 units, from area and ratios to equations and rational numbers. Pick a unit to see its lessons.', units: MATH_UNITS, lessons: MATH_UNITS.flatMap((u) => u.lessons) },
     { id: 'ela', title: 'ELA', icon: '📚', color: '#8d67ab', tagline: 'The Lightning Thief test prep', blurb: 'Study <em>The Lightning Thief</em>: start with Chapters 1–8, or choose an End-of-Novel Guide lesson for the complete-book study guide, cold reads, and practice. End-of-novel lessons include spoilers through Chapter 22.', lessons: [...Ela.lessons, ...ElaEndNovel.lessons] },
-    { id: 'science', title: 'Science', icon: '🔬', color: '#148a5b', tagline: 'Cells, energy & Earth', blurb: 'Cells, energy, Earth\'s systems and the scientific method.', lessons: [] },
+    { id: 'science', title: 'Science', icon: '🔬', color: '#148a5b', tagline: 'Earthquakes, P waves & S waves', blurb: 'Explore how earthquake waves move through Earth. Compare P and S waves with diagrams, study tips, and practice.', lessons: Science.lessons },
     { id: 'social', title: 'Social Studies', icon: '🌎', color: '#2d5bd7', tagline: 'Geography & ancient civilizations', blurb: 'Study geography skills and how physical features shaped ancient civilizations. Pick a unit to explore the lessons and practice.', units: SOCIAL_UNITS, lessons: SOCIAL_UNITS.flatMap((u) => u.lessons) },
     { id: 'spanish', title: 'Spanish', icon: '💬', color: '#d42a3c', tagline: 'Countries, capitals & everyday Spanish', blurb: 'Build Spanish vocabulary and geography skills. Start with the countries and capitals flashcards.', units: SPANISH_UNITS, lessons: [] },
   ];
