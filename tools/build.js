@@ -15,6 +15,11 @@ html = html.replace(/<script src="([^"]+)"><\/script>/g, (_, src) => {
   return `<script>\n${js}\n</script>`;
 });
 
+const celebrationMarker = "const DUNK_GIF = 'assets/dunking.gif';";
+if (!html.includes(celebrationMarker)) throw new Error('Could not find the celebration GIF reference to inline');
+const gifData = fs.readFileSync(path.join(root, 'assets/dunking.gif')).toString('base64');
+html = html.replace(celebrationMarker, `const DUNK_GIF = 'data:image/gif;base64,${gifData}';`);
+
 const outDir = path.join(root, 'dist');
 fs.mkdirSync(outDir, { recursive: true });
 const out = path.join(outDir, 'ratio-explorer.html');

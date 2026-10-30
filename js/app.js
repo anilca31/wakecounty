@@ -13,7 +13,7 @@
   const MATH_UNITS = [
     { title: 'Area & Surface Area', icon: '📐', color: '#e8590c', blurb: 'Reasoning about area of polygons, surface area, and solid nets.', lessons: [] },
     { title: 'Introducing Ratios', icon: '⚖️', color: '#d6336c', blurb: 'Understanding ratio concepts and using ratio reasoning.', lessons: RatioUnit.sections },
-    { title: 'Unit Rates & Percentages', icon: '💯', color: '#e67700', blurb: 'Solving real-world rate and percentage problems.', lessons: [] },
+    { title: 'Unit Rates & Percentages', icon: '💯', color: '#e67700', blurb: 'Convert percents and fractions, simplify fractions, and build fluency with equivalent values.', lessons: PercentUnit.sections },
     { title: 'Scale Drawings', icon: '🗺️', color: '#0c8599', blurb: 'Reproducing scale drawings and understanding scale factor.', lessons: [] },
     { title: 'Dividing Fractions', icon: '🍕', color: '#c92a2a', blurb: 'Extending multiplication and division to fractional values.', lessons: [] },
     { title: 'Arithmetic in Base 10', icon: '🔟', color: '#5f3dc4', blurb: 'Computing fluently with multi-digit decimals and numbers.', lessons: [] },

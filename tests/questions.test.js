@@ -139,6 +139,63 @@ for (const f of ['lessons.js', 'ratio-unit.js']) {
   vm.runInContext(`${src}\n;globalThis.${f === 'lessons.js' ? 'Lessons = Lessons' : 'RatioUnit = RatioUnit'};`, ctx);
 }
 const { RatioUnit } = ctx;
+const percentSrc = fs.readFileSync(path.join(__dirname, '..', 'js', 'percent-unit.js'), 'utf8');
+vm.runInContext(`${percentSrc}\n;globalThis.PercentUnit = PercentUnit;`, ctx);
+const PercentUnit = ctx.PercentUnit;
+assert.strictEqual(PercentUnit.sections.length, 3, 'Maths percentages have three sections');
+assert.strictEqual(PercentUnit.BANK.length, PercentUnit.PERCENTS.length + PercentUnit.FRACTIONS.length);
+assert.ok(PercentUnit.PERCENTS.includes(66) && PercentUnit.PERCENTS.includes(95), 'covers worksheet-style percent conversions');
+assert.ok(PercentUnit.FRACTIONS.some(([n, d]) => n === 67 && d === 100), 'covers hundredths as percentages');
+for (const question of PercentUnit.BANK) {
+  assert.ok(question.prompt && question.explanation && question.hint && question.solution);
+  assert.strictEqual(question.options.length, 4, `${question.summary}: four choices`);
+  assert.strictEqual(new Set(question.options.map((option) => option.html)).size, 4);
+  assert.strictEqual(question.options.filter((option) => option.correct).length, 1);
+  assert.strictEqual(question.check(question.options.find((option) => option.correct).id).status, 'correct');
+  for (const option of question.options.filter((entry) => !entry.correct)) {
+    assert.strictEqual(question.check(option.id).status, 'incorrect');
+    assert.ok(question.check(option.id).message, `${question.summary}: targeted distractor hint`);
+  }
+  assert.strictEqual(question.check(undefined).status, 'invalid');
+  if (question.type === 'percentToFraction') {
+    const valueOf = (text) => {
+      const [numerator, denominator = 1] = text.split('/').map(Number);
+      return numerator / denominator;
+    };
+    const answerValue = valueOf(question.solution);
+    assert.ok(Math.abs(answerValue - Number(question.summary.match(/(\d+)%/)[1] / 100)) < 1e-10);
+    assert.strictEqual(question.options.filter((option) => Math.abs(valueOf(option.html) - answerValue) < 1e-10).length, 1,
+      `${question.summary}: only one mathematically equivalent fraction`);
+  } else {
+    const answerValue = Number(question.solution.replace('%', ''));
+    assert.strictEqual(question.options.filter((option) => Number(option.html.replace('%', '')) === answerValue).length, 1,
+      `${question.summary}: only one mathematically equivalent percent`);
+  }
+}
+for (const percent of [20, 15, 25, 30, 4, 18, 66, 95, 50]) {
+  const question = PercentUnit.BANK.find((item) => item.summary.includes(`${percent}%`));
+  assert.ok(question, `${percent}% conversion exists`);
+  const expectedDivisor = Util.gcd(percent, 100);
+  assert.strictEqual(question.solution, `${percent / expectedDivisor}/${100 / expectedDivisor}`);
+}
+for (const [numerator, denominator, expected] of [[2, 5, '40%'], [9, 10, '90%'], [3, 25, '12%'], [1, 50, '2%'], [23, 50, '46%'], [67, 100, '67%']]) {
+  const question = PercentUnit.BANK.find((item) => item.summary.includes(`${numerator}/${denominator}`));
+  assert.ok(question, `${numerator}/${denominator} conversion exists`);
+  assert.strictEqual(question.solution, expected);
+}
+for (const section of PercentUnit.sections) {
+  assert.ok(section.steps.length >= 3 && section.steps[0].title === 'Learning targets');
+  assert.strictEqual(section.buildSession(section.sessionLength).length, section.sessionLength);
+  for (let i = 0; i < 300; i++) {
+    const round = section.buildSession(section.sessionLength);
+    assert.strictEqual(round.length, section.sessionLength);
+    assert.strictEqual(new Set(round.map((question) => question.summary)).size, round.length);
+    for (const type of section.types) assert.ok(round.some((question) => question.type === type));
+  }
+}
+for (const [skills, count] of [[['percentToFraction'], PercentUnit.PERCENTS.length + 1], [['unknown'], 1], [PercentUnit.SKILLS, 0]]) {
+  assert.throws(() => PercentUnit.buildSession(skills, count), /known skills|count/);
+}
 const num = RatioUnit.parseNumber;
 assert.strictEqual(num('12'), 12);
 assert.strictEqual(num('$1.50'), 1.5);
@@ -418,7 +475,7 @@ for (const l of RatioUnit.sections) {
 }
 // Lesson ids must be unique across every subject.
 {
-  const ids = [...ctx.RatioUnit.sections, ...ctx.SocialStudies.lessons, ...ctx.GeographyUnit.lessons, ...ctx.ElaEndNovel.lessons, ...ctx.Science.lessons].map((l) => l.id).concat([3, 4, 5, 6, 7]);
+  const ids = [...ctx.RatioUnit.sections, ...ctx.PercentUnit.sections, ...ctx.SocialStudies.lessons, ...ctx.GeographyUnit.lessons, ...ctx.ElaEndNovel.lessons, ...ctx.Science.lessons].map((l) => l.id).concat([3, 4, 5, 6, 7]);
   assert.strictEqual(new Set(ids).size, ids.length, 'lesson ids are unique across subjects');
 }
 

@@ -645,59 +645,21 @@ kbd {
 
 /* ---------- Slam-dunk celebration ---------- */
 .dunk {
-  position: fixed; right: 20px; bottom: 20px; z-index: 50; width: 220px; pointer-events: none;
-  padding: 10px 10px 8px; border-radius: 12px; background: var(--surface-2); box-shadow: var(--shadow);
-  animation: dunk-card 3.6s ease both;
+  position: fixed; top: 0; left: 0; z-index: 1000; width: 100vw; height: 100vh; height: 100dvh;
+  display: grid; place-items: center; overflow: hidden; background: #f35b4c;
 }
-.dunk-svg { display: block; width: 100%; height: auto; overflow: visible; }
-.dunk-caption { margin: 4px 0 0; text-align: center; font-weight: 800; font-size: .95rem; }
-.dunk-kid, .dunk-ball, .dunk-hoop { animation: 2.4s .2s ease-in-out both; }
-.dunk-kid { animation-name: dunk-kid; }
-.dunk-ball { animation-name: dunk-ball; }
-.dunk-hoop { animation-name: dunk-hoop; }
-.dunk-text {
-  fill: var(--primary); font: 900 18px system-ui, sans-serif; letter-spacing: .02em;
-  transform-box: fill-box; transform-origin: center; animation: dunk-text 2.4s .2s ease-out both;
+.dunk-gif { display: block; width: 100%; height: 100%; object-fit: contain; }
+.dunk-caption {
+  position: absolute; top: clamp(18px, 4vh, 42px); left: 50%; transform: translateX(-50%);
+  max-width: calc(100vw - 96px); margin: 0; padding: 8px 18px; border-radius: 999px;
+  background: rgba(25, 22, 21, .78); color: #fff; text-align: center; font-weight: 800;
+  font-size: clamp(1rem, 2.5vw, 1.4rem); line-height: 1.35;
 }
-@keyframes dunk-card {
-  0% { opacity: 0; transform: translateY(20px); }
-  6%, 88% { opacity: 1; transform: none; }
-  100% { opacity: 0; transform: translateY(10px); }
+.dunk-close {
+  position: absolute; top: 16px; right: 16px; display: grid; place-items: center;
+  width: 48px; height: 48px; border: 2px solid rgba(255, 255, 255, .8); border-radius: 50%;
+  background: rgba(25, 22, 21, .78); color: #fff; cursor: pointer; font: inherit;
+  font-size: 2rem; line-height: 1;
 }
-@keyframes dunk-kid {
-  0% { transform: translate(0, 0); }
-  10% { transform: translate(20px, -4px); }
-  20% { transform: translate(40px, 0); }
-  50% { transform: translate(100px, -40px); }
-  62% { transform: translate(100px, -36px); }
-  80%, 100% { transform: translate(85px, 0); }
-}
-@keyframes dunk-ball {
-  0% { transform: translate(0, 0); }
-  10% { transform: translate(20px, -4px); }
-  20% { transform: translate(40px, 0); }
-  50% { transform: translate(100px, -40px); }
-  58% { transform: translate(106px, -14px); }
-  72% { transform: translate(108px, 84px); }
-  82% { transform: translate(114px, 50px); }
-  92%, 100% { transform: translate(120px, 84px); }
-}
-@keyframes dunk-hoop {
-  0%, 50% { transform: none; }
-  54% { transform: translateY(5px); }
-  58% { transform: translateY(-2px); }
-  62%, 100% { transform: none; }
-}
-@keyframes dunk-text {
-  0%, 52% { opacity: 0; transform: scale(.3); }
-  62% { opacity: 1; transform: scale(1.2); }
-  70%, 100% { opacity: 1; transform: scale(1); }
-}
-@media (prefers-reduced-motion: reduce) {
-  /* Show the finished dunk as a still picture. */
-  .dunk-kid, .dunk-ball, .dunk-hoop, .dunk-text { animation-duration: 1ms; animation-delay: 0s; }
-  .dunk { animation-name: none; }
-}
-@media (max-width: 520px) {
-  .dunk { width: 170px; right: 12px; bottom: 12px; }
-}
+.dunk-close:hover { background: #191615; }
+.dunk-close:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
