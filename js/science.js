@@ -123,6 +123,153 @@ const Science = (() => {
     },
   ];
 
+  const LIGHT_BANK = [
+    {
+      skill: 'Transparent, translucent & opaque', prompt: 'What does it mean if a material is transparent?',
+      options: [['Most light passes through, and you can see objects clearly through it'],
+        ['No light passes through it', 'That describes an opaque material.'],
+        ['Some light passes through but is scattered', 'That describes a translucent material.'],
+        ['It reflects every color of light', 'Transparency describes how light passes through, not which colors are reflected.']],
+      explanation: 'A transparent material lets most light pass through with little scattering, so objects on the other side look clear. A clean window is an example.',
+    },
+    {
+      skill: 'Transparent, translucent & opaque', prompt: 'A frosted bathroom window lets light through but blurs the view. How is it classified?',
+      options: [['Translucent'],
+        ['Transparent', 'A transparent window gives a clear view through it.'],
+        ['Opaque', 'An opaque material blocks nearly all light from passing through.'],
+        ['Reflective only', 'The key clue is that some light passes through but is scattered.']],
+      explanation: 'Translucent materials transmit some light but scatter it, so you see light or blurry shapes rather than a clear image. Frosted glass and wax paper are examples.',
+    },
+    {
+      skill: 'Transparent, translucent & opaque', prompt: 'Which statement best describes an opaque material?',
+      options: [['It blocks nearly all light from passing through'],
+        ['It lets light pass through clearly', 'That is transparent.'],
+        ['It lets light pass through but scatters it', 'That is translucent.'],
+        ['It changes every light wave into sound', 'Opaque describes light transmission; it does not mean light becomes sound.']],
+      explanation: 'Opaque objects, such as a wooden door or a book, block nearly all the light that reaches them.',
+    },
+    {
+      skill: 'Reflection & absorption', prompt: 'What happens when light is reflected?',
+      options: [['It bounces off a surface'],
+        ['It passes through the material and disappears', 'Passing through is transmission; absorption is when material takes in light energy.'],
+        ['It always bends into a new material', 'Bending as light changes speed in a new medium is refraction.'],
+        ['It turns into matter', 'Reflection changes the light’s direction; it does not turn light into matter.']],
+      explanation: 'Reflection is light bouncing off a surface. A mirror reflects light toward your eyes, which lets you see an image.',
+    },
+    {
+      skill: 'Reflection & absorption', prompt: 'Why is a white shirt usually cooler than a black shirt on a sunny day?',
+      options: [['A white shirt reflects more sunlight, while a black shirt absorbs more light energy'],
+        ['White creates cold air around the person', 'The color changes how much light energy is reflected or absorbed.'],
+        ['Black reflects all sunlight away', 'Dark surfaces usually absorb more visible light, not less.'],
+        ['Light cannot reach white fabric', 'Sunlight reaches both; the fabrics reflect and absorb different amounts.']],
+      explanation: 'White fabric reflects much of the visible light that hits it. Black fabric absorbs more of that light energy, which can warm the fabric.',
+    },
+    {
+      skill: 'Reflection & absorption', prompt: 'Which statement correctly compares reflection and absorption?',
+      options: [['Reflection sends light away from a surface; absorption transfers light energy to the material'],
+        ['Reflection and absorption both mean light passes straight through', 'Passing through is transmission.'],
+        ['Absorption bounces light into your eyes', 'Bouncing light away is reflection.'],
+        ['Reflection destroys energy', 'Reflection changes the light’s direction; absorption transfers energy into the material.']],
+      explanation: 'A surface can reflect some light and absorb some. Absorbed light energy may become thermal energy, warming the material.',
+    },
+    {
+      skill: 'Seeing colors', prompt: 'Under white light, a leaf looks green. Which visible light is it mainly reflecting to your eyes?',
+      options: [['Green light'],
+        ['Only green light is absorbed', 'The green light is mainly reflected; much of the other visible light is absorbed.'],
+        ['All colors equally', 'Reflecting all visible colors about equally would make an object look white.'],
+        ['No light', 'Light from the leaf reaches your eyes, allowing you to see its color.']],
+      explanation: 'A green object looks green because it reflects more green light toward your eyes and absorbs much of the other visible colors. The exact mix depends on the light source and material.',
+    },
+    {
+      skill: 'Seeing colors', prompt: 'In white light, a red book looks red mostly because it…',
+      options: [['Reflects red light and absorbs much of the other visible light'],
+        ['Reflects every color equally', 'Reflecting all colors about equally would look white.'],
+        ['Absorbs red light and reflects none', 'If little red light reached your eyes, it would not look red.'],
+        ['Makes red light appear from nowhere', 'The book reflects light from the source; it does not create the color of light.']],
+      explanation: 'We see an object’s color from the visible light it reflects into our eyes. A red book under white light reflects red wavelengths more than many other visible wavelengths.',
+    },
+    {
+      skill: 'Seeing colors', prompt: 'A black object under white light usually looks black because it…',
+      options: [['Absorbs most visible light and reflects very little toward your eyes'],
+        ['Reflects all visible colors equally', 'Reflecting all visible colors about equally makes an object look white.'],
+        ['Lets every color pass through clearly', 'That would describe a transparent material, not why a black object looks black.'],
+        ['Reflects only green light', 'Reflecting green light would generally make it look green.']],
+      explanation: 'A black object absorbs most of the visible light falling on it and reflects very little to your eyes. Real materials may still reflect a small amount.',
+    },
+    {
+      skill: 'Refraction & rainbows', prompt: 'What is refraction?',
+      options: [['A change in a light ray’s direction caused by a change in speed as it enters a different medium'],
+        ['Light bouncing from a surface', 'That is reflection.'],
+        ['Light being taken in by a material', 'That is absorption.'],
+        ['Light splitting into sound waves', 'Refraction changes the path of light; it does not turn it into sound.']],
+      explanation: 'Refraction happens when light changes speed as it moves from one medium to another. If it enters at an angle, its direction changes too; it does not bend when it travels straight along the boundary’s normal.',
+    },
+    {
+      skill: 'Refraction & rainbows', prompt: 'Why can a straw look bent where it enters a glass of water?',
+      options: [['Light from the straw changes direction as it moves between water and air'],
+        ['The straw physically bends when light touches it', 'The apparent bend is an optical effect; the straw can remain straight.'],
+        ['Water absorbs every ray from the straw', 'Some light travels from the straw through water and air to your eyes.'],
+        ['The glass reflects the straw into a new shape', 'Refraction at the water-air boundary changes the light path and apparent position.']],
+      explanation: 'Light from the part under water refracts as it leaves the water and enters the air. Your eyes trace the light back in a straight line, so the submerged part appears shifted.',
+    },
+    {
+      skill: 'Refraction & rainbows', prompt: 'How does a raindrop help make a rainbow?',
+      options: [['It refracts sunlight, separates colors, reflects light inside, and refracts light as it leaves'],
+        ['It absorbs every color except white', 'A rainbow shows separated colors from white sunlight, not white light alone.'],
+        ['It creates new colors from water', 'The colors are already present in sunlight and are separated by the drop.'],
+        ['It reflects sunlight once without changing it', 'Refraction and dispersion separate colors; internal reflection also helps send light back out.']],
+      explanation: 'Sunlight refracts as it enters a raindrop, and different wavelengths bend by different amounts (dispersion). Light reflects inside the drop and refracts again as it exits, spreading colors toward an observer.',
+    },
+    {
+      skill: 'Electromagnetic spectrum', prompt: 'Which list puts the electromagnetic waves in order from longest wavelength to shortest?',
+      options: [['Radio, microwaves, infrared, visible, ultraviolet, X-rays, gamma rays'],
+        ['Gamma rays, X-rays, ultraviolet, visible, infrared, microwaves, radio', 'That order goes from shortest wavelength to longest.'],
+        ['Visible, radio, X-rays, infrared, gamma rays, microwaves, ultraviolet', 'The spectrum follows a consistent progression in wavelength.'],
+        ['Radio, visible, microwaves, ultraviolet, infrared, X-rays, gamma rays', 'Microwaves and infrared come between radio and visible light.']],
+      explanation: 'From longest wavelength and lowest frequency to shortest wavelength and highest frequency: radio, microwaves, infrared, visible, ultraviolet, X-rays, gamma rays.',
+    },
+    {
+      skill: 'Electromagnetic spectrum', prompt: 'Which part of the electromagnetic spectrum can humans see with unaided eyes?',
+      options: [['Visible light'],
+        ['Infrared', 'People can sense infrared as heat with skin, but it is outside the visible range.'],
+        ['Ultraviolet', 'Ultraviolet is beyond violet and cannot be seen by unaided human eyes.'],
+        ['Radio waves', 'Radio waves have wavelengths far outside the visible range.']],
+      explanation: 'Visible light is the small part of the electromagnetic spectrum detected by human eyes. The other types are invisible to unaided eyes.',
+    },
+    {
+      skill: 'Electromagnetic spectrum', prompt: 'Which electromagnetic wave is commonly used to create medical images of bones?',
+      options: [['X-rays'],
+        ['Radio waves', 'Radio waves are used for communication and other technologies, not standard bone images.'],
+        ['Visible light only', 'Visible light does not usually pass through the body to make bone images.'],
+        ['Microwaves', 'Microwaves are used in communication and heating, not standard bone imaging.']],
+      explanation: 'X-rays pass through soft tissues more easily than dense bone, which helps create an image. Medical X-rays are used with safety precautions.',
+    },
+    {
+      skill: 'Light & mediums', prompt: 'Where does light travel fastest?',
+      options: [['In a vacuum, where it travels at its maximum speed'],
+        ['In every material at the same speed', 'Light slows by different amounts in materials, depending on their optical properties.'],
+        ['Only in water', 'Light travels more slowly in water than in a vacuum.'],
+        ['Only in glass', 'Light travels more slowly in glass than in a vacuum.']],
+      explanation: 'Light travels fastest in a vacuum, not in a state of matter. In familiar transparent materials it travels slower; the exact speed depends on the material’s optical properties.',
+    },
+    {
+      skill: 'Light & mediums', prompt: 'Which is the best classroom comparison for light’s speed in familiar transparent materials?',
+      options: [['It generally travels faster in air than in water or glass, but exact speed depends on optical properties'],
+        ['It is faster in glass because glass is a solid', 'Being solid does not make light faster; light usually travels slower in glass than air.'],
+        ['It travels at exactly the same speed in air, water, and glass', 'Light’s speed changes in different materials.'],
+        ['It cannot travel through water or glass', 'Light can travel through transparent water and glass, though it slows.']],
+      explanation: 'Light is fastest in a vacuum. Among common transparent materials, it generally travels faster in air (a gas) than in water (a liquid) or glass (a solid). This is about optical properties, not a universal rule that every gas beats every liquid or solid.',
+    },
+    {
+      skill: 'Light & mediums', prompt: 'Why does light change speed when it enters a different transparent material?',
+      options: [['It interacts with the material, so its effective speed depends on the material’s optical properties'],
+        ['The light forgets its energy', 'Light still carries energy; its speed in the material changes.'],
+        ['The material turns the light into a sound wave', 'Light remains electromagnetic radiation as it travels through transparent materials.'],
+        ['Only the color name changes', 'The speed changes due to interactions with the material, not just a label change.']],
+      explanation: 'Light’s speed in a material depends on how its electromagnetic wave interacts with that material. The ratio between vacuum speed and material speed is related to refractive index.',
+    },
+  ];
+
   function motionDiagram(kind) {
     const isP = kind === 'P';
     const particles = Array.from({ length: 18 }, (_, index) => {
@@ -139,12 +286,15 @@ const Science = (() => {
     </svg>`;
   }
 
-  function buildSession(count) {
-    if (!Number.isInteger(count) || count < 1 || count > BANK.length) {
-      throw new Error('Seismic-wave practice count must be between 1 and the question-bank size.');
+  function createSession(bank, count, label) {
+    if (!Number.isInteger(count) || count < 1 || count > bank.length) {
+      throw new Error(`${label} practice count must be between 1 and the question-bank size.`);
     }
-    const skills = [...new Set(BANK.map((item) => item.skill))];
-    const pools = Util.shuffle(skills).map((skill) => Util.shuffle(BANK.filter((item) => item.skill === skill)));
+    const sessionHint = label === 'Light-wave'
+      ? 'Use the clues in the question: light can pass through, bounce off, be absorbed, or change direction between materials.'
+      : 'Compare speed, particle motion, and the materials each wave can pass through.';
+    const skills = [...new Set(bank.map((item) => item.skill))];
+    const pools = Util.shuffle(skills).map((skill) => Util.shuffle(bank.filter((item) => item.skill === skill)));
     const selected = [];
     while (selected.length < count) {
       for (const pool of pools) {
@@ -159,7 +309,7 @@ const Science = (() => {
       return {
         type: item.skill, skill: item.skill, prompt: item.prompt, summary: item.prompt,
         format: 'mc', textOptions: true, options, solution: item.options[0][0],
-        hint: 'Compare speed, particle motion, and the materials each wave can pass through.',
+        hint: sessionHint,
         explanation: item.explanation,
         check(id) {
           const option = options.find((entry) => entry.id === id);
@@ -170,7 +320,15 @@ const Science = (() => {
     });
   }
 
-  const lessons = [{
+  function buildSession(count) {
+    return createSession(BANK, count, 'Seismic-wave');
+  }
+
+  function buildLightSession(count) {
+    return createSession(LIGHT_BANK, count, 'Light-wave');
+  }
+
+  const seismicLesson = {
     id: 70, short: 'P waves & S waves', title: 'Earthquake Waves: P Waves & S Waves',
     blurb: 'Compare seismic-wave speed, particle motion, and travel through Earth’s layers, then try a 10-question practice round.',
     art: '<span class="lesson-emoji">🌍〰️</span>', sessionLength: 10,
@@ -238,6 +396,98 @@ const Science = (() => {
       },
     ],
     buildSession,
-  }];
-  return { BANK, lessons, buildSession, motionDiagram };
+  };
+
+  const lightLesson = {
+    id: 71, short: 'Light Waves', title: 'Light Waves Study Guide & Quiz',
+    blurb: 'Learn how light passes through materials, reflects, refracts, and forms colors, then practice the electromagnetic spectrum and light in different media.',
+    art: '<span class="lesson-emoji">🌈</span>', sessionLength: 10,
+    steps: [
+      {
+        title: 'Quiz learning targets',
+        html: `<p>Use this guide to review the Light Waves quiz topics. Read each section, try the quick checks, then use <strong>Practice</strong> for a shuffled review quiz.</p>
+          <ul class="checklist targets"><li>I can compare transparent, translucent, and opaque materials.</li>
+          <li>I can distinguish reflection from absorption and explain how objects appear colored.</li>
+          <li>I can describe refraction and how raindrops make rainbows.</li>
+          <li>I can name the electromagnetic spectrum in order and give uses for invisible waves.</li>
+          <li>I can explain how a medium affects light’s speed.</li></ul>
+          <div class="callout"><strong>Suggested class review:</strong> Light Energy Notes p. 45 · EM Waves Museum p. 46 · TARR Homework (Canvas) · Light Stations Lab Sheet p. 47.</div>`,
+      },
+      {
+        title: 'Transparent, translucent, and opaque',
+        html: `<p>These words describe how much light passes through a material and how clear the view is.</p>
+          <div class="table-scroll"><table class="map-table"><thead><tr><th scope="col">Type</th><th scope="col">What happens to light?</th><th scope="col">Example</th></tr></thead><tbody>
+          <tr><th scope="row">Transparent</th><td>Most light passes through with little scattering; objects look clear.</td><td>Clean window, clear water</td></tr>
+          <tr><th scope="row">Translucent</th><td>Some light passes through but is scattered; objects look blurry.</td><td>Frosted glass, wax paper</td></tr>
+          <tr><th scope="row">Opaque</th><td>Nearly all light is blocked from passing through.</td><td>Wooden door, book</td></tr></tbody></table></div>
+          <p><strong>Tip:</strong> Transparent = clear through. Translucent = light through, blurry view. Opaque = light blocked.</p>
+          <p>A frosted pane lets light through but blurs the view. What type is it?</p><div id="transmissionCheck"></div>`,
+        mount(el) {
+          Lessons.miniCheck(el, '#transmissionCheck', [
+            { label: 'Transparent', correct: false, feedback: 'Transparent materials let you see clearly through them.' },
+            { label: 'Translucent', correct: true, feedback: 'Right! Some light passes through, but scattering blurs the view.' },
+            { label: 'Opaque', correct: false, feedback: 'Opaque materials block nearly all light; this pane lets some light through.' },
+          ]);
+        },
+      },
+      {
+        title: 'Reflection, absorption, and color',
+        html: `<p><strong>Reflection</strong> is light bouncing off a surface. <strong>Absorption</strong> is when a material takes in light energy; some absorbed energy can warm the material.</p>
+          <p>A white shirt reflects much of the sunlight that hits it, while a black shirt absorbs more light energy. That is why a black shirt can feel hotter on a sunny day.</p>
+          <h3>How we see colors</h3><p>We see the visible light that reaches our eyes. Under white light, a green leaf reflects more green light toward our eyes and absorbs much of the other visible colors. A red object reflects more red light; a white object reflects most visible colors, while a black object reflects very little.</p>
+          <div class="callout"><strong>Remember:</strong> The color an object appears is the color of light it reflects to your eyes—not usually the color it absorbs.</div>
+          <p>If an object looks green under white light, what is it mainly reflecting?</p><div id="colorCheck"></div>`,
+        mount(el) {
+          Lessons.miniCheck(el, '#colorCheck', [
+            { label: 'Green light', correct: true, feedback: 'Correct! It reflects green light toward your eyes and absorbs much of the other visible light.' },
+            { label: 'All visible colors equally', correct: false, feedback: 'Reflecting all visible colors about equally would make it look white.' },
+            { label: 'No light', correct: false, feedback: 'Light reflected from the object reaches your eyes so you can see it.' },
+          ]);
+        },
+      },
+      {
+        title: 'Refraction and rainbows',
+        html: `<p><strong>Refraction</strong> is the change in a light ray’s direction when its speed changes as it enters a different medium. If light enters straight along the boundary’s normal, its speed changes but its direction does not.</p>
+          <p>A straw can look bent at the surface of water because light from its submerged part changes direction as it moves from water into air. Your eyes trace the light back in a straight line, making that part appear shifted.</p>
+          <h3>How a rainbow forms</h3><p>Sunlight contains many colors. In raindrops, light refracts as it enters, different wavelengths bend by different amounts (dispersion), light reflects inside the drop, and light refracts again as it exits. The separated colors reach your eyes as a rainbow.</p>
+          <div class="callout"><strong>Sequence:</strong> Refraction in → color separation → reflection inside → refraction out.</div>
+          <p>Why do different colors spread apart in a raindrop?</p><div id="rainbowCheck"></div>`,
+        mount(el) {
+          Lessons.miniCheck(el, '#rainbowCheck', [
+            { label: 'Different wavelengths refract by different amounts', correct: true, feedback: 'Yes! Dispersion separates the colors, and internal reflection plus another refraction helps send them toward your eyes.' },
+            { label: 'Water creates new colors from nothing', correct: false, feedback: 'The colors are already present in sunlight; the drop separates them.' },
+            { label: 'The drop absorbs all colors except white', correct: false, feedback: 'A rainbow shows separated colors, not white light alone.' },
+          ]);
+        },
+      },
+      {
+        title: 'The electromagnetic spectrum',
+        html: `<p>Light is electromagnetic radiation. The full range is called the <strong>electromagnetic (EM) spectrum</strong>. In this order, wavelength gets shorter while frequency and energy generally increase:</p>
+          <ol class="timeline"><li>Radio waves — broadcasting and communication</li><li>Microwaves — cooking and communication</li><li>Infrared — heat sensors, thermal cameras, and remote controls</li><li><strong>Visible light — the small part human eyes can see</strong></li><li>Ultraviolet — fluorescent lamps and sterilizing some equipment; too much can harm skin and eyes</li><li>X-rays — medical images of bones</li><li>Gamma rays — some cancer treatments and sterilizing medical equipment</li></ol>
+          <p>All are electromagnetic waves, but our eyes detect only visible light. Some uses require safety precautions because higher-energy ultraviolet, X-rays, and gamma rays can damage living tissue.</p>
+          <p>Which EM wave comes just beyond red light, outside the visible range?</p><div id="spectrumCheck"></div>`,
+        mount(el) {
+          Lessons.miniCheck(el, '#spectrumCheck', [
+            { label: 'Infrared', correct: true, feedback: 'Correct! Infrared is just beyond red on the longer-wavelength side of visible light.' },
+            { label: 'Ultraviolet', correct: false, feedback: 'Ultraviolet is just beyond violet, on the shorter-wavelength side.' },
+            { label: 'X-rays', correct: false, feedback: 'X-rays have shorter wavelengths and higher frequencies than ultraviolet.' },
+          ]);
+        },
+      },
+      {
+        title: 'Light in different media & quiz prep',
+        html: `<p>Light travels fastest in a <strong>vacuum</strong>—empty space, which is not a state of matter. It travels more slowly through transparent materials because of interactions with the material.</p>
+          <p>Among familiar transparent materials, light generally travels faster in air (a gas) than in water (a liquid) or glass (a solid). The exact speed depends on a material’s <strong>optical properties</strong>, so do not treat “state of matter” as a universal speed rule.</p>
+          <h3>Study routine</h3><ol><li>Say each definition in your own words.</li><li>For color questions, ask: “What color reaches my eyes?”</li><li>For refraction, identify the two media and the change in speed.</li><li>For EM waves, practice the order and match each wave to a use.</li><li>Take the shuffled practice quiz and revisit any missed ideas.</li></ol>
+          <h3>Practice games</h3><p>Try your class review activities:</p><ul>
+          <li><a href="https://play.blooket.com/play?hwId=6ae22847a4e92e8d2529c994" target="_blank" rel="noopener noreferrer">EM Blooket</a></li>
+          <li><a href="https://www.gimkit.com/join/6ae2289522753313a77e6df0" target="_blank" rel="noopener noreferrer">Light Waves Quiz Gimkit</a></li>
+          <li><a href="https://play.blooket.com/play?hwId=6ae2281ea3d90deaf652361b" target="_blank" rel="noopener noreferrer">Light Quiz Review Blooket</a></li></ul>`,
+      },
+    ],
+    buildSession: buildLightSession,
+  };
+
+  const lessons = [seismicLesson, lightLesson];
+  return { BANK, LIGHT_BANK, lessons, buildSession, buildLightSession, motionDiagram };
 })();

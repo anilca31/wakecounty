@@ -422,7 +422,7 @@ for (const l of RatioUnit.sections) {
   const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'science.js'), 'utf8');
   vm.runInContext(`${source}\n;globalThis.Science = Science;`, ctx);
   const science = ctx.Science;
-  assert.strictEqual(science.lessons.length, 1);
+  assert.strictEqual(science.lessons.length, 2);
   assert.strictEqual(science.BANK.length, 15);
   assert.strictEqual(new Set(science.BANK.map((item) => item.prompt)).size, science.BANK.length);
   for (const item of science.BANK) {
@@ -472,6 +472,47 @@ for (const l of RatioUnit.sections) {
   }
   assert.strictEqual(new Set(allQuestions.map((question) => question.summary)).size, science.BANK.length);
   for (const count of [0, -1, 16, 1.5]) assert.throws(() => science.buildSession(count), /count/);
+
+  const lightLesson = science.lessons.find((item) => item.id === 71);
+  assert.ok(lightLesson, 'Science includes the Light Waves study guide');
+  assert.strictEqual(science.LIGHT_BANK.length, 18);
+  assert.strictEqual(new Set(science.LIGHT_BANK.map((item) => item.prompt)).size, science.LIGHT_BANK.length);
+  for (const item of science.LIGHT_BANK) {
+    assert.strictEqual(item.options.length, 4);
+    assert.strictEqual(new Set(item.options.map(([text]) => text)).size, 4);
+    item.options.slice(1).forEach(([, hint]) => assert.ok(hint));
+    assert.ok(item.explanation);
+  }
+  const lightHtml = lightLesson.steps.map((step) => step.html).join('\n');
+  for (const text of ['Transparent', 'Translucent', 'Opaque', 'white shirt', 'green light',
+    'Refraction', 'raindrops', 'Radio waves', 'Infrared', 'Visible light', 'X-rays',
+    'Gamma rays', 'vacuum', 'EM Blooket', 'Light Waves Quiz Gimkit', 'Light Quiz Review Blooket']) {
+    assert.ok(lightHtml.includes(text), `Light study guide includes ${text}`);
+  }
+  assert.strictEqual(lightLesson.sessionLength, 10);
+  const lightQuestions = lightLesson.buildSession(science.LIGHT_BANK.length);
+  assert.strictEqual(lightQuestions.length, science.LIGHT_BANK.length);
+  assert.strictEqual(new Set(lightQuestions.map((question) => question.summary)).size, science.LIGHT_BANK.length);
+  for (let i = 0; i < 200; i++) {
+    const questions = lightLesson.buildSession(lightLesson.sessionLength);
+    assert.strictEqual(questions.length, 10);
+    assert.strictEqual(new Set(questions.map((question) => question.summary)).size, 10);
+    for (const skill of new Set(science.LIGHT_BANK.map((item) => item.skill))) {
+      assert.ok(questions.some((question) => question.type === skill), `Light session covers ${skill}`);
+    }
+    for (const question of questions) {
+      assert.ok(question.skill && question.prompt && question.solution && question.explanation && question.hint);
+      assert.strictEqual(question.options.filter((option) => option.correct).length, 1);
+      assert.strictEqual(question.check(question.options.find((option) => option.correct).id).status, 'correct');
+      for (const option of question.options.filter((entry) => !entry.correct)) {
+        assert.strictEqual(question.check(option.id).status, 'incorrect');
+        assert.ok(question.check(option.id).message);
+      }
+      assert.strictEqual(question.check(undefined).status, 'invalid');
+      assert.strictEqual(question.check('not-an-option').status, 'invalid');
+    }
+  }
+  for (const count of [0, -1, 19, 1.5]) assert.throws(() => science.buildLightSession(count), /count/);
 }
 // Lesson ids must be unique across every subject.
 {
